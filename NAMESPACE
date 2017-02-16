@@ -1,5 +1,6 @@
 
 import("grid")
 
-export("vwline")
+export("grid.vwline", "vwlineGrob")
 
+S3method("makeContent", "vwlineGrob")
