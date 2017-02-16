@@ -6,5 +6,5 @@ Author: Paul Murrell
 Maintainer: Paul Murrell <paul@stat.auckland.ac.nz>
 Description: Provides R functions to draw lines and curves with control 
              over the width of the line or curve.  
-Imports: grid
+Imports: grid, polyclip
 License: file LICENSE

@@ -1,6 +1,15 @@
 
 import("grid")
+import("polyclip")
 
-export("grid.vwline", "vwlineGrob")
+export("grid.vwline", "vwlineGrob",
+       "grid.brushXspline", "brushXsplineGrob",
+
+       "widthSpline",
+       
+       "verticalBrush", "circleBrush", "squareBrush",
+
+       "vwPolygon", "vwPath")
 
 S3method("makeContent", "vwlineGrob")
+S3method("makeContent", "brushXsplineGrob")

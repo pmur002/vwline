@@ -1,4 +1,7 @@
 
+################################################################################
+## Angles of lines
+
 ## x and y are vectors of length 2
 angle <- function(x, y) {
     atan2(y[2] - y[1], x[2] - x[1])
@@ -38,18 +41,98 @@ perpMid <- function(x, y, len) {
 }
 
 ################################################################################
-## Functions for rendering vw* object outlines
-
-vwlinePolygon <- function() {
-    function(x, y, id.lengths, gp, name) {
-        polygonGrob(x, y, default.units="in",
-                    id.lengths=id.lengths, gp=gp, name=name)
-    }
+## 2D transformations
+translation <- function(tx, ty) {
+    m <- diag(1, 3, 3)
+    m[1, 3] <- tx
+    m[2, 3] <- ty
+    m
 }
 
-vwlinePath <- function(rule="winding") {
-    function(x, y, id.lengths, gp, name) {
-        pathGrob(x, y, default.units="in",
-                 id.lengths=id.lengths, rule=rule, gp=gp, name=name)
-    }
+scaling <- function(sx, sy) {
+    m <- diag(1, 3, 3)
+    m[1, 1] <- sx
+    m[2, 2] <- sy
+    m
 }
+
+rotation <- function(angle) {
+    sa <- sin(angle)
+    ca <- cos(angle)
+    m <- diag(1, 3, 3)
+    m[1, 1] <- ca
+    m[1, 2] <- -sa
+    m[2, 1] <- sa
+    m[2, 2] <- ca
+    m
+}
+
+transformation <- function(transformations) {
+    Reduce("%*%", transformations)
+}
+
+transform <- function(obj, transformation) {
+    result <- transformation %*% rbind(obj$x, obj$y, 1) 
+    list(x=result[1,], y=result[2,])
+}
+
+################################################################################
+## Interpolat points on a (flattened) path (x, y),
+## given distance (d) along the path
+## and lengths of each path segment
+## (ALL in inches)
+## Return a new path, with new points included
+## The algorithm below could SURELY be improved!
+fortifyPath <- function(x, y, d, lengths, tol=.01) {
+    cumLength <- cumsum(lengths)
+    N <- length(x)
+    ## For each segment START point
+    xx <- as.list(x)[-N]
+    yy <- as.list(y)[-N]
+    distIndex <- 1
+    for (i in 1:(N - 1)) {
+        while (d[distIndex] <= cumLength[i + 1] &&
+               distIndex < length(d) + 1) {
+                   dist1 <- d[distIndex] - cumLength[i]
+                   dist2 <- cumLength[i+1] - d[distIndex]
+                   if (dist1 > tol && dist2 > tol) {
+                       newx <- x[i] + dist1/lengths[i + 1]*
+                           (x[i + 1] - x[i])
+                       xx[[i]] <- c(xx[[i]], newx)
+                       newy <- y[i] + dist1/lengths[i + 1]*
+                           (y[i + 1] - y[i])
+                       yy[[i]] <- c(yy[[i]], newy)
+                   }
+                   distIndex <- distIndex + 1
+               }
+    }
+    list(x=c(unlist(xx), x[N]), y=c(unlist(yy), y[N]))
+}
+
+## Calculate points on a (flattened) path (x, y),
+## given distance (d) along the path
+## and lengths of each path segment
+## (ALL in inches)
+interpPath <- function(x, y, d, lengths) {
+    cumLength <- cumsum(lengths)
+    N <- length(x)
+    ## For each segment START point
+    xx <- numeric(length(d))
+    yy <- numeric(length(d))
+    a <- numeric(length(d))
+    di <- 1
+    for (i in 1:(N - 1)) {
+        while (d[di] <= cumLength[i + 1] &&
+               di < length(d) + 1) {
+                   dist <- d[di] - cumLength[i]
+                   xx[di] <- x[i] + dist/lengths[i + 1]*
+                       (x[i + 1] - x[i])
+                   yy[di] <- y[i] + dist/lengths[i + 1]*
+                       (y[i + 1] - y[i])
+                   a[di] <- angle(x[i:(i+1)], y[i:(i+1)])
+                   di <- di + 1
+               }
+    }
+    list(x=xx, y=yy, angle=a)
+}
+
