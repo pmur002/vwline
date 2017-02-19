@@ -27,7 +27,7 @@ vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, perp=FALSE,
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(x=x, y=y, w=w, open=open, render=render,
+    gTree(x=x, y=y, w=w, open=open, render=render, perp=perp,
           gp=gp, name=name, cl="vwlineGrob",
           debug=debug)
 }
