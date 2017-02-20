@@ -8,7 +8,7 @@ grid.vwXspline <- function(...) {
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwXsplineGrob <- function(x, y, w, default.units="npc",
-                          shape=0, open=TRUE, perp=FALSE,
+                          shape=0, open=TRUE, angle="perp",
                           render=vwPath(),
                           gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkvwXspline(x, y, w)
@@ -21,7 +21,7 @@ vwXsplineGrob <- function(x, y, w, default.units="npc",
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(x=x, y=y, w=w, shape=shape, open=open, perp=perp,
+    gTree(x=x, y=y, w=w, shape=shape, open=open, angle=angle,
           debug=debug, gp=gp, name=name, cl="vwXsplineGrob")
 }
 
@@ -47,10 +47,14 @@ vwXsplineControlPoints <- function(grob) {
     y <- convertY(grob$y, "in", valueOnly=TRUE)
     w <- pmin(convertWidth(grob$w, "in", valueOnly=TRUE),
               convertHeight(grob$w, "in", valueOnly=TRUE))
-    ## Perp is simple
-    if (grob$perp) {
+    ## "vert" is simple
+    if (grepl("vert", grob$angle)) {
         list(left=list(x=x, y=y + w/2),
              right=list(x=x, y=y - w/2),
+             mid=list(x=x, y=y))
+    } else if (grepl("horiz", grob$angle)) {
+        list(left=list(x=x - w/2, y=y),
+             right=list(x=x + w/2, y=y),
              mid=list(x=x, y=y))
     } else {
         leftx <- numeric(N)

@@ -11,7 +11,7 @@ grid.brushXspline <- function(...) {
 ## Higher 'tol'erance means less detail in the width curve
 ## (for when you want a bit less detail from the width curve)
 brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
-                             shape=1, perp=TRUE, open=TRUE, spacing=NULL,
+                             shape=1, angle="perp", open=TRUE, spacing=NULL,
                              render=vwPath(), tol=.01,
                              gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkbrushXspline(x, y)
@@ -24,7 +24,7 @@ brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
     if (!inherits(w, "widthSpline")) {
         w <- widthSpline(w, default.units)
     }
-    gTree(brush=brush, x=x, y=y, w=w, shape=shape, perp=perp, open=open,
+    gTree(brush=brush, x=x, y=y, w=w, shape=shape, angle=angle, open=open,
           spacing=spacing, render=render, tol=tol,
           gp=gp, name=name, cl="brushXsplineGrob",
           debug=debug)
@@ -78,7 +78,11 @@ brushXsplineOutline <- function(grob) {
     if (is.null(grob$spacing)) {
         ## Interpolate width at each vertex
         ww <- approx(widths$x, widths$y, cumLength, rule=2)$y
-        if (grob$perp) {
+        if (grepl("vert", grob$angle)) {
+            a <- rep(0, length(xx))
+        } else if (grepl("horiz", grob$angle)) {
+            a <- rep(pi/2, length(xx))
+        } else {
             a <- numeric(length(xx))
             if (grob$open) {
                 a[1] <- brushEndAngle(xx[1:2], yy[1:2])
@@ -95,8 +99,6 @@ brushXsplineOutline <- function(grob) {
             } else {
                 a[N] <- brushAngle(xx[c((N-1):N, 1)], yy[c((N-1):N, 1)])
             }
-        } else {
-            a <- rep(0, length(xx))
         } 
         brushes <- vector("list", N)
         brushes[[1]] <- placeBrush(grob$brush, xx[1], yy[1], ww[1], a[1])

@@ -7,7 +7,7 @@ grid.brushline <- function(...) {
 }
 
 brushlineGrob <- function(brush, x, y, w, default.units="npc",
-                          shape=1, perp=TRUE, open=TRUE, 
+                          shape=1, angle="perp", open=TRUE, 
                           render=vwPath(), 
                           gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     ## Ok to recycle x or y or w
@@ -28,7 +28,7 @@ brushlineGrob <- function(brush, x, y, w, default.units="npc",
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(brush=brush, x=x, y=y, w=w, shape=shape, perp=perp, open=open,
+    gTree(brush=brush, x=x, y=y, w=w, shape=shape, angle=angle, open=open,
           render=render,
           gp=gp, name=name, cl="brushlineGrob",
           debug=debug)
@@ -57,7 +57,11 @@ brushlineOutline <- function(grob) {
     cumLength <- cumsum(lengths)
     totalLength <- sum(lengths)
 
-    if (grob$perp) {
+    if (grepl("vert", grob$angle)) {
+        a <- rep(0, length(xx))
+    } else if (grepl("horiz", grob$angle)) {
+        a <- rep(pi/2, length(xx))
+    } else {
         a <- numeric(length(x))
         if (grob$open) {
             a[1] <- brushEndAngle(x[1:2], y[1:2])
@@ -74,8 +78,6 @@ brushlineOutline <- function(grob) {
         } else {
             a[N] <- brushAngle(x[c((N-1):N, 1)], y[c((N-1):N, 1)])
         }
-    } else {
-        a <- rep(0, length(x))
     } 
     brushes <- vector("list", N)
     brushes[[1]] <- placeBrush(grob$brush, x[1], y[1], ww[1], a[1])

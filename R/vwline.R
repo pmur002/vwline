@@ -6,7 +6,7 @@ grid.vwline <- function(...) {
 }
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
-vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, perp=FALSE,
+vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
                        render=vwPolygon(),
                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     ## Ok to recycle x or y or w
@@ -27,7 +27,7 @@ vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, perp=FALSE,
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(x=x, y=y, w=w, open=open, render=render, perp=perp,
+    gTree(x=x, y=y, w=w, open=open, render=render, angle=angle,
           gp=gp, name=name, cl="vwlineGrob",
           debug=debug)
 }
@@ -50,11 +50,14 @@ vwlinePoints <- function(grob) {
     y <- convertY(grob$y, "in", valueOnly=TRUE)
     w <- pmin(convertWidth(grob$w, "in", valueOnly=TRUE),
               convertHeight(grob$w, "in", valueOnly=TRUE))
-    ## Perp is simple
-    if (grob$perp) {
+    ## vert/horiz is simple
+    if (grepl("vert", grob$angle)) {
         list(left=list(x=x, y=y + w/2),
              right=list(x=x, y=y - w/2))
-    } else {
+    } else if (grepl("horiz", grob$angle)) {
+        list(left=list(x=x - w/2, y=y),
+             right=list(x=x + w/2, y=y))        
+    } else { # should be "perp" but anything will do
         leftx <- numeric(N)
         lefty <- numeric(N)
         rightx <- numeric(N)
