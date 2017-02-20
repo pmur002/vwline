@@ -5,6 +5,7 @@ import("polyclip")
 export(## Main API
        "grid.vwline", "vwlineGrob",
        "grid.vwXspline", "vwXsplineGrob",
+       "grid.brushline", "brushlineGrob",
        "grid.brushXspline", "brushXsplineGrob",
 
        ## Specifying widths
