@@ -14,7 +14,10 @@ export(## Main API
        "verticalBrush", "circleBrush", "squareBrush",
 
        ## Rendering brushed paths
-       "vwPolygon", "vwPath")
+       "vwPolygon", "vwPath",
+
+       ## Utilities
+       "angle", "placeBrush", "combineShapes")
 
 S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "vwXsplineGrob")
