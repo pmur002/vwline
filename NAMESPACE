@@ -4,6 +4,7 @@ import("polyclip")
 
 export(## Main API
        "grid.vwline", "vwlineGrob",
+       "grid.vwXspline", "vwXsplineGrob",
        "grid.brushXspline", "brushXsplineGrob",
 
        ## Specifying widths
@@ -16,4 +17,5 @@ export(## Main API
        "vwPolygon", "vwPath")
 
 S3method("makeContent", "vwlineGrob")
+S3method("makeContent", "vwXsplineGrob")
 S3method("makeContent", "brushXsplineGrob")
