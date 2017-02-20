@@ -1,5 +1,4 @@
 
-import("grid")
 import("polyclip")
 
 export(## Main API

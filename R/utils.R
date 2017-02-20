@@ -8,8 +8,9 @@ angle <- function(x, y) {
 }
 
 ## extend direction from pt 1 to pt 2
-extend <- function(x, y, len) {
+extend <- function(x, y) {
     a <- angle(x[2:1], y[2:1])
+    len <- sqrt(diff(x)^2 + diff(y)^2)
     dx <- len*cos(a)
     dy <- len*sin(a)
     c(x[1] + dx, y[1] + dy)
