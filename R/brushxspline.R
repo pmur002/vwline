@@ -13,7 +13,8 @@ grid.brushXspline <- function(...) {
 brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
                              shape=1, angle="perp", open=TRUE, spacing=NULL,
                              render=vwPath(), tol=.01,
-                             gp=gpar(fill="black"), name=NULL, debug=FALSE) {
+                             gp=gpar(col=NA, fill="black"),
+                             name=NULL, debug=FALSE) {
     checkbrushXspline(x, y)
     if (!is.unit(x)) {
         x <- unit(x, default.units)
