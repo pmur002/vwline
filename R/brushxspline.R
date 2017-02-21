@@ -56,6 +56,9 @@ brushXsplineOutline <- function(grob) {
 
     ## Calculate distances between flattened vertices
     lengths <- c(0, sqrt(diff(xx)^2 + diff(yy)^2))
+    if (!grob$open) {
+        lengths <- c(lengths, sqrt((xx[N] - xx[1])^2 + (yy[N] - yy[1])^2))
+    }
     cumLength <- cumsum(lengths)
     totalLength <- sum(lengths)
 
@@ -64,13 +67,16 @@ brushXsplineOutline <- function(grob) {
     ## (handles case of more widths than vertices for straight edges)
     ## No need to worry about 0 and 1 (they correspond exactly to vertices)
     if (length(widths$x) > 2) {
-        newPath <- fortifyPath(xx, yy, widths$x, lengths, grob$tol)
+        newPath <- fortifyPath(xx, yy, widths$x, lengths, grob$open, grob$tol)
         ## New vertices
         xx <- newPath$x
         yy <- newPath$y
         N <- length(xx)
         ## Recalculate distances between vertices
         lengths <- c(0, sqrt(diff(xx)^2 + diff(yy)^2))
+        if (!grob$open) {
+            lengths <- c(lengths, sqrt((xx[N] - xx[1])^2 + (yy[N] - yy[1])^2))
+        }
         cumLength <- cumsum(lengths)
         totalLength <- sum(lengths)
     }
@@ -134,16 +140,18 @@ brushXsplineOutline <- function(grob) {
     } else {
         ## Determine locations of brushes
         s <- resolveSpacing(grob$spacing, totalLength)
-        brushLocs <- interpPath(xx, yy, s, lengths)
+        brushLocs <- interpPath(xx, yy, s, lengths, grob$open)
         bx <- brushLocs$x
         by <- brushLocs$y
         a <- brushLocs$angle
         N <- length(bx)
         ## Interpolate width at each location
         ww <- approx(widths$x, widths$y, s, rule=2)$y
-        if (!grob$perp) {
+        if (grepl("vert", grob$angle)) {
             a <- rep(0, length(a))
-        }
+        } else if (grepl("horiz", grob$angle)) {
+            a <- rep(pi/2, length(a))
+        }            
         brushes <- vector("list", N)
         brushes[[1]] <- placeBrush(grob$brush, bx[1], by[1], ww[1], a[1])
         if (N > 2) {

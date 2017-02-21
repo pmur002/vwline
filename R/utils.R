@@ -84,14 +84,23 @@ transform <- function(obj, transformation) {
 ## (ALL in inches)
 ## Return a new path, with new points included
 ## The algorithm below could SURELY be improved!
-fortifyPath <- function(x, y, d, lengths, tol=.01) {
+fortifyPath <- function(x, y, d, lengths, open, tol=.01) {
     cumLength <- cumsum(lengths)
     N <- length(x)
-    ## For each segment START point
-    xx <- as.list(x)[-N]
-    yy <- as.list(y)[-N]
+    if (open) {
+        xx <- as.list(x)[-N]
+        yy <- as.list(y)[-N]
+        loopEnd <- N - 1
+    } else {
+        xx <- as.list(x)
+        yy <- as.list(y)
+        x <- c(x, x[1])
+        y <- c(y, y[1])
+        loopEnd <- N
+    }
     distIndex <- 1
-    for (i in 1:(N - 1)) {
+    ## For each segment START point
+    for (i in 1:loopEnd) {
         while (d[distIndex] <= cumLength[i + 1] &&
                distIndex < length(d) + 1) {
                    dist1 <- d[distIndex] - cumLength[i]
@@ -107,22 +116,33 @@ fortifyPath <- function(x, y, d, lengths, tol=.01) {
                    distIndex <- distIndex + 1
                }
     }
-    list(x=c(unlist(xx), x[N]), y=c(unlist(yy), y[N]))
+    if (open) {
+        list(x=c(unlist(xx), x[N]), y=c(unlist(yy), y[N]))
+    } else {
+        list(x=unlist(xx), y=unlist(yy))
+    }
 }
 
 ## Calculate points on a (flattened) path (x, y),
 ## given distance (d) along the path
 ## and lengths of each path segment
 ## (ALL in inches)
-interpPath <- function(x, y, d, lengths) {
+interpPath <- function(x, y, d, lengths, open) {
     cumLength <- cumsum(lengths)
     N <- length(x)
-    ## For each segment START point
+    if (open) {
+        loopEnd <- N - 1
+    } else {
+        x <- c(x, x[1])
+        y <- c(y, y[1])
+        loopEnd <- N
+    }
     xx <- numeric(length(d))
     yy <- numeric(length(d))
     a <- numeric(length(d))
     di <- 1
-    for (i in 1:(N - 1)) {
+    ## For each segment START point
+    for (i in 1:loopEnd) {
         while (d[di] <= cumLength[i + 1] &&
                di < length(d) + 1) {
                    dist <- d[di] - cumLength[i]

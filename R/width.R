@@ -79,9 +79,11 @@ resolveWidth <- function(w, length) {
         yy <- c(lefty, yy, righty)
         xx <- c(leftx, xx, rightx)
     }
+    ## No need to trim because these widths are just used to interpolate
+    ## locations along path and widths at existing locations along path
+    ## What is important is that these widths EXCEED the range 0 to 'length'
+    ## (otherwise the interpolation will produce constant values)
     ## Trim to path 
-    rx <- round(xx, 4)
-    subset <- rx >= 0 & rx <= round(length, 4)
-    list(x=xx[subset], y=yy[subset])
+    list(x=xx, y=yy)
 }
 
