@@ -7,6 +7,11 @@ angle <- function(x, y) {
     atan2(y[2] - y[1], x[2] - x[1])
 }
 
+## x and y are vectors of length 3
+avgangle <- function(x, y) {
+    atan2(sum(diff(y))/2, sum(diff(x))/2)
+}
+
 ## extend direction from pt 1 to pt 2
 extend <- function(x, y) {
     a <- angle(x[2:1], y[2:1])
@@ -22,7 +27,7 @@ perp <- function(x, y, len, a, mid) {
     dy <- len*sin(a + pi/2)
     upper <- c(x[mid] + dx, y[mid] + dy)
     lower <- c(x[mid] - dx, y[mid] - dy)
-    rbind(upper, lower)
+    rbind(upper, lower)    
 }
 
 ## x and y are vectors of length 2
@@ -38,7 +43,17 @@ perpEnd <- function(x, y, len) {
 ## We want the "average" angle at the middle point
 perpMid <- function(x, y, len) {
     ## Now determine angle at midpoint
-    perp(x, y, len, (angle(x[1:2], y[1:2]) + angle(x[2:3], y[2:3]))/2, 2)
+    perp(x, y, len, avgangle(x, y), 2)
+}
+
+## x and y and len are vectors of any length
+offset <- function(x, y, len, a) {
+    dx <- len*cos(a)
+    dy <- len*sin(a)
+    upper <- c(x + dx, y + dy)
+    lower <- c(x - dx, y - dy)
+    list(left=list(x=x + dx, y=y + dy),
+         right=list(x=x - dx, y=y - dy))
 }
 
 ################################################################################

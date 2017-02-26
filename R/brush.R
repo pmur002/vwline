@@ -19,9 +19,7 @@ brushEndAngle <- function(x, y) {
 
 ## Angle at other vertex is (circular) average of angle of previous/next segment
 brushAngle <- function(x, y) {
-    a1 <- angle(x[1:2], y[1:2])
-    a2 <- angle(x[2:3], y[2:3])
-    atan2(sin(a1) + sin(a2), cos(a1) + cos(a2))
+    avgangle(x, y)
 }
 
 ################################################################################

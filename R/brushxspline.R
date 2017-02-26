@@ -85,11 +85,10 @@ brushXsplineOutline <- function(grob) {
     if (is.null(grob$spacing)) {
         ## Interpolate width at each vertex
         ww <- approx(widths$x, widths$y, cumLength, rule=2)$y
-        if (grepl("vert", grob$angle)) {
-            a <- rep(0, length(xx))
-        } else if (grepl("horiz", grob$angle)) {
-            a <- rep(pi/2, length(xx))
-        } else {
+        ## fixed angle is simple
+        if (is.numeric(grob$angle)) {
+            a <- rep(grob$angle, length(xx))
+        } else { # should be "perp" but anything will do
             a <- numeric(length(xx))
             if (grob$open) {
                 a[1] <- brushEndAngle(xx[1:2], yy[1:2])
@@ -148,11 +147,10 @@ brushXsplineOutline <- function(grob) {
         N <- length(bx)
         ## Interpolate width at each location
         ww <- approx(widths$x, widths$y, s, rule=2)$y
-        if (grepl("vert", grob$angle)) {
-            a <- rep(0, length(a))
-        } else if (grepl("horiz", grob$angle)) {
-            a <- rep(pi/2, length(a))
-        }            
+        ## fixed angle is simple
+        if (is.numeric(grob$angle)) {
+            a <- rep(grob$angle, length(xx))
+        } # else should be "perp" but anything will do
         brushes <- vector("list", N)
         brushes[[1]] <- placeBrush(grob$brush, bx[1], by[1], ww[1], a[1])
         if (N > 2) {

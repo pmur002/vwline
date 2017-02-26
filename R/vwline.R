@@ -50,13 +50,9 @@ vwlinePoints <- function(grob) {
     y <- convertY(grob$y, "in", valueOnly=TRUE)
     w <- pmin(convertWidth(grob$w, "in", valueOnly=TRUE),
               convertHeight(grob$w, "in", valueOnly=TRUE))
-    ## vert/horiz is simple
-    if (grepl("vert", grob$angle)) {
-        list(left=list(x=x, y=y + w/2),
-             right=list(x=x, y=y - w/2))
-    } else if (grepl("horiz", grob$angle)) {
-        list(left=list(x=x - w/2, y=y),
-             right=list(x=x + w/2, y=y))        
+    ## fixed angle is simple
+    if (is.numeric(grob$angle)) {
+        offset(x, y, w, grob$angle)
     } else { # should be "perp" but anything will do
         leftx <- numeric(N)
         lefty <- numeric(N)

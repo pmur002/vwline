@@ -46,16 +46,11 @@ vwXsplineControlPoints <- function(grob) {
     y <- convertY(grob$y, "in", valueOnly=TRUE)
     w <- pmin(convertWidth(grob$w, "in", valueOnly=TRUE),
               convertHeight(grob$w, "in", valueOnly=TRUE))
-    ## "vert" is simple
-    if (grepl("vert", grob$angle)) {
-        list(left=list(x=x, y=y + w/2),
-             right=list(x=x, y=y - w/2),
-             mid=list(x=x, y=y))
-    } else if (grepl("horiz", grob$angle)) {
-        list(left=list(x=x - w/2, y=y),
-             right=list(x=x + w/2, y=y),
-             mid=list(x=x, y=y))
-    } else {
+    ## fixed angle is simple
+    if (is.numeric(grob$angle)) {
+        c(offset(x, y, w, grob$angle),
+          list(mid=list(x=x, y=y)))
+    } else { # should be "perp" but anything will do
         leftx <- numeric(N)
         lefty <- numeric(N)
         rightx <- numeric(N)
