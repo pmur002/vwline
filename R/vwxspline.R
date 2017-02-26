@@ -6,7 +6,6 @@ grid.vwXspline <- function(...) {
     grid.draw(vwXsplineGrob(...))
 }
 
-## IF open=FALSE, endShape and endWidth are IGNORED
 vwXsplineGrob <- function(x, y, w, default.units="npc",
                           shape=0, open=TRUE, angle="perp",
                           render=vwPath(),
@@ -21,7 +20,7 @@ vwXsplineGrob <- function(x, y, w, default.units="npc",
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(x=x, y=y, w=w, shape=shape, open=open, angle=angle,
+    gTree(x=x, y=y, w=w, shape=shape, open=open, angle=angle, render=render,
           debug=debug, gp=gp, name=name, cl="vwXsplineGrob")
 }
 
@@ -106,12 +105,31 @@ vwXsplineControlPoints <- function(grob) {
     }
 }
 
+## Calculate sets of points along left, right, and mid of vwline
+vwXsplinePoints <- function(grob) {
+    N <- length(grob$x)
+    cp <- vwXsplineControlPoints(grob)
+    leftXSpline <- xsplineGrob(cp$left$x, cp$left$y,
+                               default.units="in",
+                               shape=grob$shape, open=grob$open)
+    rightXSpline <- xsplineGrob(cp$right$x, cp$right$y,
+                                default.units="in",
+                                shape=grob$shape, open=grob$open)
+    midXSpline <- xsplineGrob(cp$mid$x, cp$mid$y,
+                              default.units="in",
+                              shape=grob$shape, open=grob$open)
+    list(left=xsplinePoints(leftXSpline),
+         right=xsplinePoints(rightXSpline),
+         mid=xsplinePoints(midXSpline))
+}
+
 ## A single path for makeContent() method (and for xDetails() method)
 vwXsplineOutline <- function(grob) {
     N <- length(grob$x)
-    cp <- vwXsplineControlPoints(grob)
+    pts <- vwXsplinePoints(grob)
     ## Debugging
     if (grob$debug) {
+        cp <- vwXsplineControlPoints(grob)
         ## grid.lines(cp$right$x, cp$right$y, default.units="in", gp=gpar(col="red", lty="dashed"))
         grid.segments(cp$mid$x, cp$mid$y, cp$right$x, cp$right$y,
                       default.units="in",
@@ -127,87 +145,13 @@ vwXsplineOutline <- function(grob) {
                     default.units="in",
                     gp=gpar(col="blue"))
     }
-    if (grob$open) {
-        ## Allow for endShape to be length 2
-        startShape <- grob$endShape[1]
-        if (length(grob$endShape) > 1) {
-            endShape <- grob$endShape[2]
-        } else {
-            endShape <- grob$endShape
-        }
-        vwShape <- c(rep(startShape, 2), rep(grob$shape, N - 2),
-                     rep(endShape, 3),
-                     rep(grob$shape, N - 2), rep(startShape, 2))
-        xs <- xsplineGrob(c(cp$mid$x[1], cp$left$x, cp$mid$x[N], rev(cp$right$x)),
-                          c(cp$mid$y[1], cp$left$y, cp$mid$y[N], rev(cp$right$y)),
-                          default.units="in",
-                          open=FALSE, shape=vwShape)
-        pts <- xsplinePoints(xs)
-        pathGrob(pts$x, pts$y, id.lengths=length(pts$x),
-                 rule="winding")
-    } else {
-        outerPts <- xsplinePoints(xsplineGrob(cp$left$x, cp$left$y,
-                                              default.units="in",
-                                              open=FALSE, shape=grob$shape))
-        innerPts <- xsplinePoints(xsplineGrob(rev(cp$right$x), rev(cp$right$y),
-                                              default.units="in",
-                                              open=FALSE, shape=grob$shape))
-        pathGrob(c(outerPts$x, innerPts$x),
-                 c(outerPts$y, innerPts$y),
-                 id.lengths=c(length(outerPts$x), length(innerPts$x)),
-                 default.units="in",
-                 rule="winding")        
-    }
+    grob$render(c(pts$left$x, rev(pts$right$x)),
+                c(pts$left$y, rev(pts$right$y)),
+                length(pts$left$x) + length(pts$right$x),
+                grob$gp, grob$name)
 }
 
 makeContent.vwXsplineGrob <- function(x, ...) {
     addGrob(x, vwXsplineOutline(x))            
 }
 
-## Calculate sets of points along left, right, and mid of vwline
-vwXsplinePoints <- function(grob) {
-    N <- length(grob$x)
-    cp <- vwXsplineControlPoints(grob)
-    if (grob$open) {
-        ## Allow for endShape to be length 2
-        startShape <- grob$endShape[1]
-        if (length(grob$endShape) > 1) {
-            endShape <- grob$endShape[2]
-        } else {
-            endShape <- grob$endShape
-        }
-        leftShape <- c(rep(startShape, 3), rep(grob$shape, N - 2),
-                        rep(endShape, 3))
-        leftXSpline <- xsplineGrob(c(cp$right$x[1], cp$mid$x[1], cp$left$x,
-                                      cp$mid$x[N], cp$right$x[N]),
-                                    c(cp$right$y[1], cp$mid$y[1], cp$left$y,
-                                      cp$mid$y[N], cp$right$y[N]),
-                                    default.units="in",
-                                    shape=leftShape, repEnds=FALSE)
-        rightShape <- c(rep(startShape, 3), rep(grob$shape, N - 2),
-                        rep(endShape, 3))
-        rightXSpline <- xsplineGrob(c(cp$left$x[1], cp$mid$x[1], cp$right$x,
-                                      cp$mid$x[N], cp$left$x[N]),
-                                    c(cp$left$y[1], cp$mid$y[1], cp$right$y,
-                                      cp$mid$y[N], cp$left$y[N]),
-                                    default.units="in",
-                                    shape=rightShape, repEnds=FALSE)
-        midShape <- c(startShape, rep(grob$shape, N - 2), endShape)
-        midXSpline <- xsplineGrob(cp$mid$x, cp$mid$y, 
-                                  default.units="in",
-                                  shape=midShape, repEnds=FALSE)
-    } else {
-        leftXSpline <- xsplineGrob(cp$left$x, cp$left$y,
-                                    default.units="in",
-                                    shape=grob$shape, open=FALSE)
-        rightXSpline <- xsplineGrob(cp$right$x, cp$right$y,
-                                    default.units="in",
-                                    shape=grob$shape, open=FALSE)
-        midXSpline <- xsplineGrob(cp$mid$x, cp$mid$y,
-                                    default.units="in",
-                                    shape=grob$shape, open=FALSE)
-    }
-    list(left=xsplinePoints(leftXSpline),
-         right=xsplinePoints(rightXSpline),
-         mid=xsplinePoints(midXSpline))
-}
