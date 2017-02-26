@@ -94,7 +94,7 @@ brushXsplineOutline <- function(grob) {
                 a[1] <- brushEndAngle(xx[1:2], yy[1:2])
             } else {
                 a[1] <- brushAngle(xx[c(N, 1:2)], yy[c(N, 1:2)])
-            }                
+            }
             if (N > 2) {
                 for (i in 2:(N - 1)) {
                     a[i] <- brushAngle(xx[(i-1):(i+1)], yy[(i-1):(i+1)])

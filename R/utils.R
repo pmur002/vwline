@@ -93,7 +93,7 @@ transform <- function(obj, transformation) {
 }
 
 ################################################################################
-## Interpolat points on a (flattened) path (x, y),
+## Interpolate points on a (flattened) path (x, y),
 ## given distance (d) along the path
 ## and lengths of each path segment
 ## (ALL in inches)
@@ -114,19 +114,23 @@ fortifyPath <- function(x, y, d, lengths, open, tol=.01) {
         loopEnd <- N
     }
     distIndex <- 1
+    lastDist <- 0
     ## For each segment START point
     for (i in 1:loopEnd) {
         while (d[distIndex] <= cumLength[i + 1] &&
                distIndex < length(d) + 1) {
-                   dist1 <- d[distIndex] - cumLength[i]
-                   dist2 <- cumLength[i+1] - d[distIndex]
-                   if (dist1 > tol && dist2 > tol) {
+                   thisDist <- d[distIndex]
+                   dist1 <- thisDist - cumLength[i]
+                   dist2 <- cumLength[i+1] - thisDist
+                   if (dist1 > tol && dist2 > tol &&
+                       (thisDist - lastDist) > tol) {
                        newx <- x[i] + dist1/lengths[i + 1]*
                            (x[i + 1] - x[i])
                        xx[[i]] <- c(xx[[i]], newx)
                        newy <- y[i] + dist1/lengths[i + 1]*
                            (y[i + 1] - y[i])
                        yy[[i]] <- c(yy[[i]], newy)
+                       lastDist <- thisDist
                    }
                    distIndex <- distIndex + 1
                }
