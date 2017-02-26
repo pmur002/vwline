@@ -52,7 +52,7 @@ vwlinePoints <- function(grob) {
               convertHeight(grob$w, "in", valueOnly=TRUE))
     ## fixed angle is simple
     if (is.numeric(grob$angle)) {
-        offset(x, y, w, grob$angle)
+        offset(x, y, w/2, grob$angle)
     } else { # should be "perp" but anything will do
         leftx <- numeric(N)
         lefty <- numeric(N)
