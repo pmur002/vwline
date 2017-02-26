@@ -19,6 +19,6 @@ resolveSpacing <- function(s, length) {
     ## Trim to path 
     rs <- round(ss, 4)
     subset <- rs >= 0 & rs <= round(length, 4)
-    ss[subset]
+    rs[subset]
 }
 
