@@ -7,7 +7,7 @@ grid.vwXspline <- function(...) {
 }
 
 vwXsplineGrob <- function(x, y, w, default.units="npc",
-                          shape=0, open=TRUE, angle="perp",
+                          shape=1, open=TRUE, angle="perp",
                           render=vwPath(),
                           gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkvwXspline(x, y, w)
