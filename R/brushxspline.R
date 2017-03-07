@@ -139,7 +139,7 @@ brushXsplineOutline <- function(grob) {
         
     } else {
         ## Determine locations of brushes
-        s <- resolveSpacing(grob$spacing, totalLength)
+        s <- resolveDistance(grob$spacing, totalLength)
         brushLocs <- interpPath(xx, yy, s, lengths, grob$open)
         bx <- brushLocs$x
         by <- brushLocs$y

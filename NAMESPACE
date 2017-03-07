@@ -16,6 +16,9 @@ export(## Main API
        ## Rendering brushed paths
        "vwPolygon", "vwPath",
 
+       ## Querying grobs
+       "edgePoints",
+    
        ## Utilities
        "angle",
        "translation", "scaling", "rotation", "transformation", "transform",
@@ -25,3 +28,5 @@ export(## Main API
 S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "vwXsplineGrob")
 S3method("makeContent", "brushXsplineGrob")
+S3method("edgePoints", "vwlineGrob")
+S3method("edgePoints", "vwXsplineGrob")
