@@ -187,3 +187,31 @@ makeContent.brushXsplineGrob <- function(x, ...) {
                          x$gp, "outline"))
     }
 }
+
+edgePoints.brushXsplineGrob <- function(x, d,
+                                        x0, y0,
+                                        which=1,
+                                        direction="forward",
+                                        debug=FALSE,
+                                        ...) {
+    ## Silently force which to length 1
+    which <- which[1]
+    outline <- brushXsplineOutline(x)
+    if (is.null(outline$x)) {
+        ## outline is list of outlines
+        if (which > length(outline)) {
+            stop("Invalid which value")
+        }
+        edge <- outline[[which]]
+    } else {
+        if (length(which) != 1 || which != 1) {
+            stop("Invalid which value")
+        }
+        edge <- outline
+    }
+    if (!is.unit(x0)) x0 <- unit(x0, "npc")
+    if (!is.unit(y0)) y0 <- unit(y0, "npc")
+    pts <- reorderEdge(edge, x0, y0)
+    vwEdgePoints(pts, d, direction == "forward", x$open, debug)
+}
+

@@ -10,10 +10,14 @@ edgePoints <- function(x, d, ...) {
 
 ## The difference types of curves generate different boundaries, but
 ## given a boundary, they all do the same thing
-vwEdgePoints <- function(pts, d, open, debug=FALSE) {
+vwEdgePoints <- function(pts, d, forward, open, debug=FALSE) {
     ## each boundary is either numeric (imlpicit inches) or a unit in "in"
     x <- as.numeric(pts$x)
     y <- as.numeric(pts$y)
+    if (!forward) {
+        x <- rev(x)
+        y <- rev(y)
+    }
     if (!open) {
         x <- c(x, x[1])
         y <- c(y, y[1])
@@ -23,7 +27,7 @@ vwEdgePoints <- function(pts, d, open, debug=FALSE) {
     cumLength <- cumsum(lengths)
     length <- sum(lengths)
     ## Determine point selection
-    locs <- resolveDistance(d, length)
+    locs <- resolveDistance(d, length, fill=FALSE)
     index <- apply(outer(locs, cumLength, "<="), 1,
                    function(x) min(which(x)))
     ## Add tangent info
@@ -67,5 +71,15 @@ vwEdgePoints <- function(pts, d, open, debug=FALSE) {
         grid.text(1:n, x, y)
     }
     list(x=x, y=y, tangent=tangent)
+}
+
+reorderEdge <- function(pts, x0, y0) {
+    x0 <- convertX(x0, "in", valueOnly=TRUE)
+    y0 <- convertY(y0, "in", valueOnly=TRUE)
+    N <- length(pts$x)
+    dist <- (pts$x - x0)^2 + (pts$y - y0)^2
+    closest <- which.min(dist)[1]
+    order <- (1:N + closest - 2) %% N
+    list(x=pts$x[order], y=pts$y[order])
 }
 

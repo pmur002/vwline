@@ -120,16 +120,18 @@ makeContent.vwlineGrob <- function(x, ...) {
 
 edgePoints.vwlineGrob <- function(x, d,
                                   which=c("left", "right"),
-                                  direction=c("forward", "backward"),
+                                  direction="forward",
                                   debug=FALSE,
                                   ...) {
     pts <- vwlinePoints(x)
     result <- list(left=NULL, right=NULL)
     if ("left" %in% which) {
-        result$left=vwEdgePoints(pts$left, d, x$open, debug)
+        result$left=vwEdgePoints(pts$left, d, direction == "forward",
+                                 x$open, debug)
     }
     if ("right" %in% which) {
-        result$right=vwEdgePoints(pts$right, d, x$open, debug)
+        result$right=vwEdgePoints(pts$right, d, direction == "forward",
+                                  x$open, debug)
     }
     result
 }
