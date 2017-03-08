@@ -7,7 +7,7 @@ grid.vwline <- function(...) {
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
-                       render=vwPolygon(),
+                       render=vwPolygon,
                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     ## Ok to recycle x or y or w
     maxlen <- max(length(x), length(y), length(w))
