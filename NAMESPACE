@@ -23,7 +23,8 @@ export(## Main API
        "angle",
        "translation", "scaling", "rotation", "transformation", "transform",
        "placeBrush",
-       "combineShapes")
+       "combineShapes"
+       )
 
 S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "vwXsplineGrob")
