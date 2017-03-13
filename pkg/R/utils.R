@@ -9,7 +9,9 @@ angle <- function(x, y) {
 
 ## x and y are vectors of length 3
 avgangle <- function(x, y) {
-    atan2(sum(diff(y))/2, sum(diff(x))/2)
+    a1 <- angle(x[1:2], y[1:2])
+    a2 <- angle(x[2:3], y[2:3])
+    atan2(sin(a1) + sin(a2), cos(a1) + cos(a2))
 }
 
 ## extend direction from pt 1 to pt 2
