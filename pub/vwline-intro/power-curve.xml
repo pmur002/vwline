@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <html>
   <head>
     <style type="text/css">
@@ -85,8 +85,12 @@ mysvg <- function(filename, width, height) {
   </p>
   -->
     <p>
-    This document describes an R interface for drawing variable-width
-    curves.
+    This document describes the 'vwline' packagem, which provides
+    an R interface for drawing variable-width
+    curves.  The package provides functions to draw line
+    segments through a set of locations, or a smooth curve relative
+    to a set of control points, with the width of the line allowed
+    to vary along the length of the line.
   </p>
     <div>
       <h2>Table of Contents:</h2>
@@ -119,7 +123,7 @@ mysvg <- function(filename, width, height) {
           <a href="#Resources">Resources</a>
         </li>
         <li>
-          <a href="#References">References</a>
+          <a href="#references">References</a>
         </li>
       </ul>
     </div>
@@ -127,7 +131,7 @@ mysvg <- function(filename, width, height) {
       <a name="intro">Introduction</a>
     </h2>
     <p>
-    This document describes a set of functions for drawing variable-width
+    This document describes the 'vwline' package for drawing variable-width
     curves in R.  For example, of the three lines shown below, standard R
     graphics can draw lines A and B (a line between two points, with a constant
     width) but not line C (a line between two points with a variable width).
@@ -351,15 +355,15 @@ vwlinediagram <- function(step) {
   ]]></rcode>
     <rcode results="hide" echo="FALSE"><![CDATA[
 for (i in 1:4) {
-    svg(paste0("vwlinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
+    svg(paste0("figure/vwlinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
     vwlinediagram(i)
     dev.off()
 }
   ]]></rcode>
-    <img src="vwlinediag-1.svg" width="30%"/>
-    <img src="vwlinediag-2.svg" width="30%"/>
-    <img src="vwlinediag-3.svg" width="30%"/>
-    <img src="vwlinediag-4.svg" width="30%"/>
+    <img src="figure/vwlinediag-1.svg" width="30%"/>
+    <img src="figure/vwlinediag-2.svg" width="30%"/>
+    <img src="figure/vwlinediag-3.svg" width="30%"/>
+    <img src="figure/vwlinediag-4.svg" width="30%"/>
     <p>
     This function
     can be used to produce the sort of result that 'beanplot' and other packages
@@ -460,11 +464,15 @@ vwxsplinediagram <- function(step) {
         grid.points(pts$left$x, pts$left$y, default.units="in",
                     pch=16, gp=gpar(col="blue"))
         grid.xspline(pts$left$x, pts$left$y, default.units="in", shape=1,
-                     gp=gpar(col="blue"))
+                     gp=gpar(col="blue"),
+                     arrow=arrow(angle=20, length=unit(3, "mm"),
+                                  type="closed"))
         grid.points(pts$right$x, pts$right$y, default.units="in",
                     pch=16, gp=gpar(col="red"))
         grid.xspline(pts$right$x, pts$right$y, default.units="in", shape=1,
-                     gp=gpar(col="red"))        
+                     gp=gpar(col="red"), 
+                     arrow=arrow(angle=20, length=unit(3, "mm"),
+                                 type="closed"))
         if (step < 4) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
         leftPts <- xsplinePoints(xsplineGrob(pts$left$x, pts$left$y, 
@@ -475,7 +483,8 @@ vwxsplinediagram <- function(step) {
                      gp=gpar(fill="black"),
                      arrow=arrow(angle=20, length=unit(3, "mm"),
                                   type="closed"))
-        grid.xspline(pts$right$x, pts$right$y, default.units="in", shape=1,
+        grid.xspline(rev(pts$right$x), rev(pts$right$y),
+                     default.units="in", shape=1,
                      gp=gpar(fill="black"),
                      arrow=arrow(angle=20, length=unit(3, "mm"),
                                   type="closed"))
@@ -503,15 +512,15 @@ vwxsplinediagram <- function(step) {
   ]]></rcode>
     <rcode results="hide" echo="FALSE"><![CDATA[
 for (i in 1:4) {
-    svg(paste0("vwxsplinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
+    svg(paste0("figure/vwxsplinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
     vwxsplinediagram(i)
     dev.off()
 }
   ]]></rcode>
-    <img src="vwxsplinediag-1.svg" width="30%"/>
-    <img src="vwxsplinediag-2.svg" width="30%"/>
-    <img src="vwxsplinediag-3.svg" width="30%"/>
-    <img src="vwxsplinediag-4.svg" width="30%"/>
+    <img src="figure/vwxsplinediag-1.svg" width="30%"/>
+    <img src="figure/vwxsplinediag-2.svg" width="30%"/>
+    <img src="figure/vwxsplinediag-3.svg" width="30%"/>
+    <img src="figure/vwxsplinediag-4.svg" width="30%"/>
     <p>
     This function can be useful if we want to produce a variable-width 
     curve, but do not want to specify every x/y location and width
@@ -590,12 +599,12 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
     This arises in a variety of contexts, including stroking a
     path with a non-zero line width, and producing buffer regions
     for spatial objects.
-    With offset curves, you start with a 
+    With offset curves, we start with a 
     mathematical definition of the curve (e.g., a Bezier curve),
-    and you derive a mathematical expression for curves that are offset by
-    a fixed amount, then you figure out how to render the offset curve.
-    With polygon offsets, you have already decomposed the curve into 
-    a set of straight line segments and you calculate an offset polygon 
+    and we derive a mathematical expression for curves that are offset by
+    a fixed amount, then we render the offset curve.
+    With polygon offsets, we have already decomposed the curve into 
+    a set of straight line segments and we calculate an offset polygon 
     for that series of straight lines.
   </p>
     <p>
@@ -617,7 +626,7 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
     package.
   </p>
     <p>
-    We are unaware of a description of a
+    I am not aware of a description of a
     general solution for offset curves or offset
     polygons where the line width is allowed to vary, though these effects are
     implemented in GUI tools for both SynFig and Adobe Illustrator.
@@ -680,17 +689,17 @@ diagram <- function(step) {
   ]]></rcode>
     <rcode results="hide" echo="FALSE"><![CDATA[
 for (i in 1:6) {
-    svg(paste0("diag-", i, ".svg"), width=5, height=5, bg="transparent")  
+    svg(paste0("figure/diag-", i, ".svg"), width=5, height=5, bg="transparent")  
     diagram(i)
     dev.off()
 }
   ]]></rcode>
-    <img src="diag-1.svg" width="30%"/>
-    <img src="diag-2.svg" width="30%"/>
-    <img src="diag-3.svg" width="30%"/>
-    <img src="diag-4.svg" width="30%"/>
-    <img src="diag-5.svg" width="30%"/>
-    <img src="diag-6.svg" width="30%"/>
+    <img src="figure/diag-1.svg" width="30%"/>
+    <img src="figure/diag-2.svg" width="30%"/>
+    <img src="figure/diag-3.svg" width="30%"/>
+    <img src="figure/diag-4.svg" width="30%"/>
+    <img src="figure/diag-5.svg" width="30%"/>
+    <img src="figure/diag-6.svg" width="30%"/>
     <p>
     The <code>brushXspline</code>
     function can be useful if we want to produce a variable-width 
@@ -756,11 +765,12 @@ grid.text("brushXspline()", y=.1, gp=gpar(fontfamily="mono"))
     is to specify a numeric vector of width values, in which case the 
     first value is used as the width at the start of the curve, the last 
     value is used as the width at the end of the curve, and the other
-    widths are spaced evenly along the curve.  
+    widths are spaced evenly along the curve.  By default, the
+    widths are interpreted as number of millimetres.
   </p>
     <p>
     By default, 
-    the width is controlled by an X-spline
+    the change in width along the line is controlled by an X-spline
     with a shape parameter of -1.  The
     <code>brushXspline</code> example from the previous section is
     repeated below (the left image).  
@@ -796,7 +806,7 @@ grid.text("distance along curve", y=.3)
     be numeric values, in which case they are interpreted as proportions
     of the line length, or they can be 'grid' units (e.g., millimetres).
     There is also a <code>shape</code> argument to control the shape of the 
-    width X-spline (though note that positive shapes values
+    width X-spline (though note that positive shape values
     will mean that the maximum explicit width may not be achieved; see
     <a href="#xsplines">the appendix on X-splines</a>).  Finally, there
     is a <code>rep</code> argument to control whether the widths
@@ -1030,7 +1040,7 @@ grid.text('brushXspline(spacing=.05)', y=.1, gp=gpar(fontfamily="mono"))
   </p>
     <p>
     Because we have a grob representing the line, we can do things
-    like edit the line with <code>grid.edit</code>, export the
+    like edit the line with <code>grid.edit</code> and export the
     line with 'gridSVG' (see the following sections).  The 
     'vwline' package also adds the ability to query a 
     variable-width line for points on its boundary. This can be
@@ -1038,10 +1048,9 @@ grid.text('brushXspline(spacing=.05)', y=.1, gp=gpar(fontfamily="mono"))
   </p>
     <p>
     The code below creates a "vwXsplineGrob", draws it, then
-    calculates five evenly-spaced locations along both edges of the grob
-    (see the left image below).
+    calculates five evenly-spaced locations along both edges of the grob.
     The result is a list of locations for both the left and right edge
-    (the locations along the left edge are shown as red dots), 
+    (see the left image below; the locations along the left edge are shown as red dots), 
     <em>plus</em> a set of tangents at each location (the tangents are
     used to show perpendicular blue lines). 
   </p>
@@ -1067,9 +1076,9 @@ grid.text('edgePoints(vwXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
     Both left and right edges are traversed in the same order as the
     control points (in this case, from left to right across the image),
     but we can reverse that direction.  
-    The code below calculates three points 1cm apart from the start
+    The code below calculates three points 1cm apart from the <em>start</em>
     of the left edge (red dots in the right image below) and
-    three points 1cm apart from the end of the left edge
+    three points 1cm apart from the <em>end</em> of the left edge
     (green dots in the right image below).
   </p>
     <rcode id="edge-points-rev" echo="3:5" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
@@ -1095,6 +1104,7 @@ grid.text('edgePoints(vwXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
     is not split nicely into separate "left" and "right" edges.
     In order to control where to start on the boundary, we
     must specify an "origin" and the nearest point on the boundary
+    to that origin
     becomes location 0.  By default, the boundary is traversed 
     anticlockwise, but again we can reverse that if desired.
     The code below calculates three points 1cm apart 
@@ -1128,6 +1138,27 @@ grid.text('edgePoints(brushXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/brush-edge-points-1.svg" width="30%"/>
     </p>
     <h3>
+      <a name="smoothness">Smooth curves</a>
+    </h3>
+    <p>
+    vwline() assumes that you are drawing lots of x/y locations
+    close together.  Otherwise, it is easy to get a very misleading line
+    (e.g., when line turns sharply, the line width gets narrower!
+     try plotting first 5 values in Minard.troops)
+  </p>
+    <p>
+    vwXspline will produce smooth curves, but the widths could be
+    anything.
+  </p>
+    <p>
+    brushXspline() needs EITHER smooth curve spline OR smooth width spline
+    to get smooth result.
+  </p>
+    <p>
+    It is possible to deliberately
+    get abrupt changes, but you need to be tricksy.
+  </p>
+    <h3>
       <a name="self-intersect">Self-intersecting lines</a>
     </h3>
     <p>
@@ -1135,12 +1166,12 @@ grid.text('edgePoints(brushXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
     with itself.  The variable-width line is drawn as a filled shape,
     and if the shape intersects with itself there are different ways
     to decide which parts of the shape to fill.
-    The example below shows this problem for <code>vwXspline</code>.
+    An example of this situation for <code>vwXspline</code> is shown below.
     The main line crosses itself, which means that the shape that
     we generate to fill is self-intersecting (see the left image).  
     By default, the shape is filled as a path using the "non-zero 
     winding" rule (see the middle image).  The <code>render</code>
-    argument can be used to change to, for example, fill the path
+    argument can be used to change to, for example, filling the path
     using the "even-odd" rule (see the right image).
   </p>
     <rcode id="self-intersect" echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
@@ -1151,19 +1182,19 @@ y <- c(.9, .3, .6, .9, .3)
 w <- c(0, .05, .1, .15, .2)
 grid.vwXspline(x, y, w, shape=1, gp=gpar(col="black"))
 grid.xspline(x, y, shape=1, gp=gpar(col="white", lwd=1))
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('self-intersecting vwXspline()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-filled" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.vwXspline(x, y, w, shape=1)
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPath()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-even-odd" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.vwXspline(x, y, w, shape=1, render=vwPath("evenodd"))
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPath("evenodd")', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <p class="img">
       <img src="figure/self-intersect-1.svg" width="30%"/>
@@ -1187,19 +1218,19 @@ y <- c(.9, .3, .9, .3)
 w <- c(0, .2)
 grid.brushXspline(verticalBrush, x, y, w, shape=1, gp=gpar(col="black"))
 grid.xspline(x, y, shape=1, gp=gpar(col="white", lwd=1))
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('self-intersecting brushXspline()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-brush-filled" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.brushXspline(verticalBrush, x, y, w, shape=1)
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPath()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-brush-even-odd" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.brushXspline(verticalBrush, x, y, w, shape=1, render=vwPolygon)
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPolygon()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <p class="img">
       <img src="figure/self-intersect-brush-1.svg" width="30%"/>
@@ -1211,13 +1242,12 @@ grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
     when we draw a self-intersecting, variable-width,
     brushed line, we get multiple boundary lines.
     If we wish to calculate edge points on the boundary 
-    of a self-intersecting, variable-width,
-    brushed line, we can specify which of the boundary
+    of such a line, we can specify which of the boundary
     lines we want to work with (using the <code>which</code> argument
     to <code>edgePoints</code>).
   </p>
     <p>
-    A subtler version of this self-intersection problem occurs when the boundary
+    A subtler version of this self-intersection issue occurs when the boundary
     of a variable-width line intersects with itself, even though
     the main line does not.  This occurs when the main line
     has tight corners and/or the width of the line is changing rapidly.
@@ -1242,13 +1272,13 @@ grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.vwXspline(x, y, w)
-grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPath()', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-corner-even-odd" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.vwXspline(x, y, w, shape=1, render=vwPath("evenodd"))
-grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('render=vwPath("evenodd")', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <p class="img">
       <img src="figure/self-intersect-corner-1.svg" width="30%"/>
@@ -1256,7 +1286,7 @@ grid.text('self-intersecting', y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/self-intersect-corner-even-odd-1.svg" width="30%"/>
     </p>
     <p>
-    The problem does not occur for <code>brushXspline</code> because
+    The issue does not arise for <code>brushXspline</code> because
     the union of brushes cannot create holes in the boundary ...
   </p>
     <rcode id="self-intersect-corner-brush" echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
@@ -1297,13 +1327,13 @@ grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.brushXspline(verticalBrush, x, y, w, shape=-1)
-grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('brushXspline(tol=.01)', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <rcode id="self-intersect-outey-brush-filled-tol" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.brushXspline(verticalBrush, x, y, w, shape=-1, tol=.03)
-grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('brushXspline(tol=.03)', y=.1, gp=gpar(fontfamily="mono"))
   ]]></rcode>
     <p class="img">
       <img src="figure/self-intersect-outey-brush-1.svg" width="30%"/>
@@ -1311,7 +1341,7 @@ grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/self-intersect-outey-brush-filled-tol-1.svg" width="30%"/>
     </p>
     <p>
-    The right-hand images above demonstrate another
+    The images above demonstrate another
     small detail.  The left and middle images show an example where the 
     flattening of the main X-spline and the flattening of the 
     width spline do not interleave very smoothly (the boundary of the
@@ -1327,130 +1357,138 @@ grid.text('self-intersecting boundary', y=.1, gp=gpar(fontfamily="mono"))
     <h2>
       <a name="Gallery">A gallery of variable-width lines</a>
     </h2>
-    <rcode results="hide" message="FALSE"><![CDATA[
+    <p>
+    This section demonstrates a range of interesting results that can
+    be achieved with variable-width lines.   Only an indication
+    of the required code is given in each case;  the full code can be
+    found in the source XML files (see the
+    <a href="#references">References</a> Section).
+  </p>
+    <p>
+    The first example demonstrates adding a gradient fill to a
+    variable-width line with the 'gridSVG' package.
+  </p>
+    <rcode echo="8:13" results="hide" message="FALSE"><![CDATA[
 library(gridSVG)
-svg("gallery-leaf-1.svg", bg="transparent")  
+svg("figure/gallery-leaf-1.svg", bg="transparent")
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .5, .8)
 y <- c(.2, .4, .8)
 w <- c(0, .6, 0)
 grid.vwXspline(x, y, w, gp=gpar(col=NA), name="leaf")
 grid.force()
-gradient <- linearGradient(c("grey90", "grey40", "grey90"),
-                           stops=1:3/4,
-                           x0=0, y0=1, x1=1, y1=0,
-                           spreadMethod="pad")
+gradient <- radialGradient(c("grey80", "grey40"),
+                           fx=.6, fy=.4, gradientUnits="coords")
 grid.gradientFill("outline", gradient, group=FALSE)
-grid.export("gallery-leaf-gridSVG.svg")
+grid.export("figure/gallery-leaf-gridSVG.svg", strict=FALSE)
 dev.off()
   ]]></rcode>
-    <img src="gallery-leaf-gridSVG.svg" width="40%"/>
-    <pre>
-    then go back and look at varaitions: 
-      grid.force() + grid.edit() example?
-      gridSVG example ?
-  </pre>
+    <p class="img">
+      <img src="figure/gallery-leaf-gridSVG.svg" width="40%"/>
+    </p>
     <p>
-    These examples demonstrate the use of an abrupt change in width
+    The next examples demonstrate the use of an abrupt change in width
     (to produce arrow heads).
   </p>
-    <rcode results="hide"><![CDATA[
-svg("gallery-arrow-1.svg", bg="transparent")  
+    <rcode echo="8:11" results="hide"><![CDATA[
+svg("figure/gallery-arrow-1.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .8)
 y <- c(2/3, 2/3)
+x2 <- c(.2, .5, .8)
+y2 <- c(.2, .5, .2)
 grid.points(x, y, default="npc", pch=16, gp=gpar(col="grey", cex=2))
 grid.brushXspline(verticalBrush, x, y, tol=.005,
              w=widthSpline(unit(c(20, 20, 40, 0), "mm"), 
                            d=c(0, .7, .7, 1),
                            shape=0.01,
-                           rep=TRUE)
-                           # , debug=TRUE, gp=gpar(fill=NA)
-                           )
-x <- c(.2, .5, .8)
-y <- c(.2, .5, .2)
+                           rep=TRUE))
 grid.points(x, y, default="npc", pch=16, gp=gpar(col="grey", cex=2))
-grid.brushXspline(verticalBrush, x, y, tol=.005,
+grid.brushXspline(verticalBrush, x2, y2, tol=.005,
              w=widthSpline(unit(c(20, 20, 40, 0), "mm"), 
                            d=c(0, .7, .7, 1),
                            shape=0.01,
-                           rep=TRUE)
-                           # , debug=TRUE, gp=gpar(fill=NA)
-                           )
+                           rep=TRUE))
 dev.off()
   ]]></rcode>
-    <img src="gallery-arrow-1.svg" width="40%"/>
+    <p class="img">
+      <img src="figure/gallery-arrow-1.svg" width="40%"/>
+    </p>
     <p>
     These examples emulate the examples described in 
     the discussion by
     <a href="http://www.schepers.cc/differentstrokes.html">Doug Schepers</a>.
   </p>
-    <rcode results="hide"><![CDATA[
-svg("gallery-schepers-1.svg", bg="transparent")  
+    <rcode echo="6:7" results="hide"><![CDATA[
+svg("figure/gallery-schepers-1.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .8, .8, .2)
 y <- c(.8, .8, .2, .2)
 w <- unit(c(0, 30, 40, 20, 0), "mm")
 grid.vwline(x, y, w, open=FALSE, gp=gpar(col="#FFD700", fill="#FFD700"))
 grid.xspline(x, y, shape=0, open=FALSE, gp=gpar(col="red", lwd=3, lty="dashed"))
-## brush version
-## w <- widthSpline(unit(c(0, 30, 40, 20, 0), "mm"), shape=0)
-## grid.brushXspline(verticalBrush, x, y, w, shape=0, open=FALSE,
-##                   gp=gpar(col="#FFD700", fill="#FFD700")
-##                            # , debug=TRUE, gp=gpar(fill=NA)
-##                            )
 dev.off()
-svg("gallery-schepers-2.svg", bg="transparent")  
+  ]]></rcode>
+    <rcode echo="6:7" results="hide"><![CDATA[
+svg("figure/gallery-schepers-2.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 x <- c(.1, .4, .7, .9)
 y <- c(.4, .3, .6, .6)
 w <- unit(c(0, 20, 25, 30), "mm")
-grid.vwXspline(x, y, w
-               # , debug=TRUE, gp=gpar(fill=NA)
-               )
+grid.vwXspline(x, y, w)
 grid.xspline(x, y, shape=1, gp=gpar(col="white", lwd=3, lty="dashed"))
 dev.off()
-svg("gallery-schepers-3.svg", bg="transparent")  
+  ]]></rcode>
+    <rcode echo="7:8" results="hide"><![CDATA[
+svg("figure/gallery-schepers-3.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 t <- seq(0, 2*pi, length.out=11)[-11]
 x <- .3*cos(t) + .5
 y <- .3*sin(t) + .5
 w <- widthSpline(unit(c(10, 30, 10), "mm"), d=c(30, 90, 150)/360, rep=TRUE)
-# grid.points(x, y, default="npc", pch=16, gp=gpar(col="grey", cex=2))
 grid.brushXspline(verticalBrush, x, y, w, open=FALSE,
-                  gp=gpar(col="#7B68EE", fill="#7B68EE")
-                           # , debug=TRUE, gp=gpar(fill=NA)
-                           )
+                  gp=gpar(col="#7B68EE", fill="#7B68EE"))
 grid.xspline(x, y, shape=1, open=FALSE,
              gp=gpar(col="#EEEC1E", lwd=3, lty="dashed"))
 dev.off()
-svg("gallery-schepers-4.svg", bg="transparent")  
+  ]]></rcode>
+    <rcode echo="7:8" results="hide"><![CDATA[
+svg("figure/gallery-schepers-4.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
 t <- seq(0, 2*pi, length.out=11)[-11]
 x <- .3*cos(t) + .5
 y <- .3*sin(t) + .5
 w <- widthSpline(unit(c(3, 3, 10, 3, 3), "mm"), 
                  d=c(45, 60, 90, 120, 135)/360, shape=c(0, 1, 0, 1, 0),
                  rep=TRUE)
-# grid.points(x, y, default="npc", pch=16, gp=gpar(col="grey", cex=2))
-grid.brushXspline(verticalBrush, x, y, w, open=FALSE
-                  , gp=gpar(col="#9400D3", fill="#9400D3")
-                  # , debug=TRUE, gp=gpar(fill=NA)
-                  )
+grid.brushXspline(verticalBrush, x, y, w, open=FALSE,
+                  gp=gpar(col="#9400D3", fill="#9400D3"))
 grid.xspline(x, y, shape=1, open=FALSE,
              gp=gpar(col="white", lwd=3, lty="dashed"))
 dev.off()
   ]]></rcode>
     <p class="img">
-      <img src="gallery-schepers-1.svg" width="40%"/>
-      <img src="gallery-schepers-2.svg" width="40%"/>
-      <img src="gallery-schepers-3.svg" width="40%"/>
-      <img src="gallery-schepers-4.svg" width="40%"/>
+      <img src="figure/gallery-schepers-1.svg" width="40%"/>
+      <img src="figure/gallery-schepers-2.svg" width="40%"/>
+      <img src="figure/gallery-schepers-3.svg" width="40%"/>
+      <img src="figure/gallery-schepers-4.svg" width="40%"/>
     </p>
     <p>
-    This example demonstrates the use of tangents at boundary
+    The next example demonstrates the use of tangents at boundary
     points to arrange a set of variable-width lines along the
     boundary of one larger variable-width line.  The <code>leg</code>
     function demonstrates the usefulness of defining a base 
     line within a viewport, so that variations of the base line
-    can be drawn conveniently at a variety of angles and sizes.
+    can be drawn conveniently at a variety of locations, angles, and sizes.
   </p>
-    <rcode results="hide"><![CDATA[
-svg("gallery-caterpillar-1.svg", bg="transparent")  
+    <rcode echo="11:13" results="hide"><![CDATA[
+svg("figure/gallery-caterpillar-1.svg", bg="transparent")  
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 x <- 0:3/3
@@ -1483,8 +1521,39 @@ for (i in seq_along(pts2$x)) {
 dev.off()
   ]]></rcode>
     <p class="img">
-      <img src="gallery-caterpillar-1.svg" width="40%"/>
+      <img src="figure/gallery-caterpillar-1.svg" width="40%"/>
     </p>
+    <p>
+    The final example shows how the variable-width lines might be
+    useful in a plot.  This is of course based on the data for Minard's
+    map.
+  </p>
+    <rcode echo="11:13" results="hide"><![CDATA[
+library(HistData)
+with(Minard.troops,    
+     {
+         grid.newpage()
+         pushViewport(dataViewport(long, lat))
+     })
+with(subset(Minard.troops, direction == "A" & group == 1),
+     {
+         grid.brushXspline(circleBrush(), long, lat, default.units="native",
+                           shape=0.1,
+                           unit(survivors/max(survivors), "in"),
+                           gp=gpar(fill=rgb(0,0,1,.5)))
+         grid.xspline(long, lat, default.units="native", shape=0.1,
+                      gp=gpar(lty="dashed", lwd=3, col="white"))
+     })
+with(subset(Minard.troops, direction == "R" & group == 1),
+     {
+         grid.brushXspline(circleBrush(), long, lat, default.units="native",
+                           shape=0.1,
+                           unit(survivors/max(survivors), "in"),
+                           gp=gpar(fill=rgb(1,0,0,.5)))
+         grid.xspline(long, lat, default.units="native", shape=0.1,
+                      gp=gpar(lty="dashed", lwd=3, col="white"))
+     })
+  ]]></rcode>
     <p> If do Minard's map example, note other people's efforts,,
       including Thomas Rahlf's book </p>
     <h2>
@@ -1544,7 +1613,7 @@ dev.off()
     </li>
     </ul>
     <h2>
-      <a name="References">References</a>
+      <a name="references">References</a>
     </h2>
     <ul>
       <li><a name="vanderplas"/>
@@ -1607,7 +1676,7 @@ dev.off()
     </li>
       <li><a name="hain"/>
       Thomas F. Hain, Athar L. Ahmad, Sri Venkat R. Racherla, and
-      David D. Langan. 2005. Fast, precise flattening of cubic B&#xE9;zier
+      David D. Langan. 2005. Fast, precise flattening of cubic Bézier
       path and offset curves. Comput. Graph. 29, 5 (October 2005),
       656-666. DOI=<a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">http://dx.doi.org/10.1016/j.cag.2005.08.002</a>
     </li>

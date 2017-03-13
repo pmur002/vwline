@@ -107,7 +107,7 @@
       </span>
     </p>
     <p class="date">
-Wednesday 08 March 2017
+Monday 13 March 2017
     </p>
 
     <hr>
@@ -139,8 +139,12 @@ Wednesday 08 March 2017
   </p>
   -->
     <p>
-    This document describes an R interface for drawing variable-width
-    curves.
+    This document describes the 'vwline' packagem, which provides
+    an R interface for drawing variable-width
+    curves.  The package provides functions to draw line
+    segments through a set of locations, or a smooth curve relative
+    to a set of control points, with the width of the line allowed
+    to vary along the length of the line.
   </p>
     <div>
       <h2>Table of Contents:</h2>
@@ -173,7 +177,7 @@ Wednesday 08 March 2017
           <a href="#Resources">Resources</a>
         </li>
         <li>
-          <a href="#References">References</a>
+          <a href="#references">References</a>
         </li>
       </ul>
     </div>
@@ -181,7 +185,7 @@ Wednesday 08 March 2017
       <a name="intro">Introduction</a>
     </h2>
     <p>
-    This document describes a set of functions for drawing variable-width
+    This document describes the 'vwline' package for drawing variable-width
     curves in R.  For example, of the three lines shown below, standard R
     graphics can draw lines A and B (a line between two points, with a constant
     width) but not line C (a line between two points with a variable width).
@@ -207,9 +211,9 @@ Wednesday 08 March 2017
     the variations on "violin plots"
     in the 'beanplot' package.
   </p>
-
-
-
+    
+    
+    
     <p class="img">
       <img src="figure/geom-smooth-1.svg" width="30%">
       <img src="figure/kitechart-1.svg" width="30%">
@@ -311,10 +315,10 @@ Wednesday 08 March 2017
     </ol>
 
 
-    <img src="vwlinediag-1.svg" width="30%">
-    <img src="vwlinediag-2.svg" width="30%">
-    <img src="vwlinediag-3.svg" width="30%">
-    <img src="vwlinediag-4.svg" width="30%">
+    <img src="figure/vwlinediag-1.svg" width="30%">
+    <img src="figure/vwlinediag-2.svg" width="30%">
+    <img src="figure/vwlinediag-3.svg" width="30%">
+    <img src="figure/vwlinediag-4.svg" width="30%">
     <p>
     This function
     can be used to produce the sort of result that 'beanplot' and other packages
@@ -388,10 +392,10 @@ Wednesday 08 March 2017
   </p>
 
 
-    <img src="vwxsplinediag-1.svg" width="30%">
-    <img src="vwxsplinediag-2.svg" width="30%">
-    <img src="vwxsplinediag-3.svg" width="30%">
-    <img src="vwxsplinediag-4.svg" width="30%">
+    <img src="figure/vwxsplinediag-1.svg" width="30%">
+    <img src="figure/vwxsplinediag-2.svg" width="30%">
+    <img src="figure/vwxsplinediag-3.svg" width="30%">
+    <img src="figure/vwxsplinediag-4.svg" width="30%">
     <p>
     This function can be useful if we want to produce a variable-width 
     curve, but do not want to specify every x/y location and width
@@ -462,12 +466,12 @@ Wednesday 08 March 2017
     This arises in a variety of contexts, including stroking a
     path with a non-zero line width, and producing buffer regions
     for spatial objects.
-    With offset curves, you start with a 
+    With offset curves, we start with a 
     mathematical definition of the curve (e.g., a Bezier curve),
-    and you derive a mathematical expression for curves that are offset by
-    a fixed amount, then you figure out how to render the offset curve.
-    With polygon offsets, you have already decomposed the curve into 
-    a set of straight line segments and you calculate an offset polygon 
+    and we derive a mathematical expression for curves that are offset by
+    a fixed amount, then we render the offset curve.
+    With polygon offsets, we have already decomposed the curve into 
+    a set of straight line segments and we calculate an offset polygon 
     for that series of straight lines.
   </p>
     <p>
@@ -489,7 +493,7 @@ Wednesday 08 March 2017
     package.
   </p>
     <p>
-    We are unaware of a description of a
+    I am not aware of a description of a
     general solution for offset curves or offset
     polygons where the line width is allowed to vary, though these effects are
     implemented in GUI tools for both SynFig and Adobe Illustrator.
@@ -500,12 +504,12 @@ Wednesday 08 March 2017
   </p>
 
 
-    <img src="diag-1.svg" width="30%">
-    <img src="diag-2.svg" width="30%">
-    <img src="diag-3.svg" width="30%">
-    <img src="diag-4.svg" width="30%">
-    <img src="diag-5.svg" width="30%">
-    <img src="diag-6.svg" width="30%">
+    <img src="figure/diag-1.svg" width="30%">
+    <img src="figure/diag-2.svg" width="30%">
+    <img src="figure/diag-3.svg" width="30%">
+    <img src="figure/diag-4.svg" width="30%">
+    <img src="figure/diag-5.svg" width="30%">
+    <img src="figure/diag-6.svg" width="30%">
     <p>
     The <code>brushXspline</code>
     function can be useful if we want to produce a variable-width 
@@ -563,11 +567,12 @@ Wednesday 08 March 2017
     is to specify a numeric vector of width values, in which case the 
     first value is used as the width at the start of the curve, the last 
     value is used as the width at the end of the curve, and the other
-    widths are spaced evenly along the curve.  
+    widths are spaced evenly along the curve.  By default, the
+    widths are interpreted as number of millimetres.
   </p>
     <p>
     By default, 
-    the width is controlled by an X-spline
+    the change in width along the line is controlled by an X-spline
     with a shape parameter of -1.  The
     <code>brushXspline</code> example from the previous section is
     repeated below (the left image).  
@@ -598,7 +603,7 @@ Wednesday 08 March 2017
     be numeric values, in which case they are interpreted as proportions
     of the line length, or they can be 'grid' units (e.g., millimetres).
     There is also a <code>shape</code> argument to control the shape of the 
-    width X-spline (though note that positive shapes values
+    width X-spline (though note that positive shape values
     will mean that the maximum explicit width may not be achieved; see
     <a href="#xsplines">the appendix on X-splines</a>).  Finally, there
     is a <code>rep</code> argument to control whether the widths
@@ -790,7 +795,7 @@ Wednesday 08 March 2017
   </p>
     <p>
     Because we have a grob representing the line, we can do things
-    like edit the line with <code>grid.edit</code>, export the
+    like edit the line with <code>grid.edit</code> and export the
     line with 'gridSVG' (see the following sections).  The 
     'vwline' package also adds the ability to query a 
     variable-width line for points on its boundary. This can be
@@ -798,10 +803,9 @@ Wednesday 08 March 2017
   </p>
     <p>
     The code below creates a "vwXsplineGrob", draws it, then
-    calculates five evenly-spaced locations along both edges of the grob
-    (see the left image below).
+    calculates five evenly-spaced locations along both edges of the grob.
     The result is a list of locations for both the left and right edge
-    (the locations along the left edge are shown as red dots), 
+    (see the left image below; the locations along the left edge are shown as red dots), 
     <em>plus</em> a set of tangents at each location (the tangents are
     used to show perpendicular blue lines). 
   </p>
@@ -817,9 +821,9 @@ Wednesday 08 March 2017
     Both left and right edges are traversed in the same order as the
     control points (in this case, from left to right across the image),
     but we can reverse that direction.  
-    The code below calculates three points 1cm apart from the start
+    The code below calculates three points 1cm apart from the <em>start</em>
     of the left edge (red dots in the right image below) and
-    three points 1cm apart from the end of the left edge
+    three points 1cm apart from the <em>end</em> of the left edge
     (green dots in the right image below).
   </p>
 <div class="chunk" id="edge-points-rev"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.draw</span><span class="hl std">(vwxg)</span>
@@ -837,6 +841,7 @@ Wednesday 08 March 2017
     is not split nicely into separate "left" and "right" edges.
     In order to control where to start on the boundary, we
     must specify an "origin" and the nearest point on the boundary
+    to that origin
     becomes location 0.  By default, the boundary is traversed 
     anticlockwise, but again we can reverse that if desired.
     The code below calculates three points 1cm apart 
@@ -862,6 +867,27 @@ Wednesday 08 March 2017
       <img src="figure/brush-edge-points-1.svg" width="30%">
     </p>
     <h3>
+      <a name="smoothness">Smooth curves</a>
+    </h3>
+    <p>
+    vwline() assumes that you are drawing lots of x/y locations
+    close together.  Otherwise, it is easy to get a very misleading line
+    (e.g., when line turns sharply, the line width gets narrower!
+     try plotting first 5 values in Minard.troops)
+  </p>
+    <p>
+    vwXspline will produce smooth curves, but the widths could be
+    anything.
+  </p>
+    <p>
+    brushXspline() needs EITHER smooth curve spline OR smooth width spline
+    to get smooth result.
+  </p>
+    <p>
+    It is possible to deliberately
+    get abrupt changes, but you need to be tricksy.
+  </p>
+    <h3>
       <a name="self-intersect">Self-intersecting lines</a>
     </h3>
     <p>
@@ -869,12 +895,12 @@ Wednesday 08 March 2017
     with itself.  The variable-width line is drawn as a filled shape,
     and if the shape intersects with itself there are different ways
     to decide which parts of the shape to fill.
-    The example below shows this problem for <code>vwXspline</code>.
+    An example of this situation for <code>vwXspline</code> is shown below.
     The main line crosses itself, which means that the shape that
     we generate to fill is self-intersecting (see the left image).  
     By default, the shape is filled as a path using the "non-zero 
     winding" rule (see the middle image).  The <code>render</code>
-    argument can be used to change to, for example, fill the path
+    argument can be used to change to, for example, filling the path
     using the "even-odd" rule (see the right image).
   </p>
 <div class="chunk" id="self-intersect"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">)</span>
@@ -925,13 +951,12 @@ Wednesday 08 March 2017
     when we draw a self-intersecting, variable-width,
     brushed line, we get multiple boundary lines.
     If we wish to calculate edge points on the boundary 
-    of a self-intersecting, variable-width,
-    brushed line, we can specify which of the boundary
+    of such a line, we can specify which of the boundary
     lines we want to work with (using the <code>which</code> argument
     to <code>edgePoints</code>).
   </p>
     <p>
-    A subtler version of this self-intersection problem occurs when the boundary
+    A subtler version of this self-intersection issue occurs when the boundary
     of a variable-width line intersects with itself, even though
     the main line does not.  This occurs when the main line
     has tight corners and/or the width of the line is changing rapidly.
@@ -960,7 +985,7 @@ Wednesday 08 March 2017
       <img src="figure/self-intersect-corner-even-odd-1.svg" width="30%">
     </p>
     <p>
-    The problem does not occur for <code>brushXspline</code> because
+    The issue does not arise for <code>brushXspline</code> because
     the union of brushes cannot create holes in the boundary ...
   </p>
 <div class="chunk" id="self-intersect-corner-brush"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">)</span>
@@ -998,7 +1023,7 @@ Wednesday 08 March 2017
       <img src="figure/self-intersect-outey-brush-filled-tol-1.svg" width="30%">
     </p>
     <p>
-    The right-hand images above demonstrate another
+    The images above demonstrate another
     small detail.  The left and middle images show an example where the 
     flattening of the main X-spline and the flattening of the 
     width spline do not interleave very smoothly (the boundary of the
@@ -1014,139 +1039,90 @@ Wednesday 08 March 2017
     <h2>
       <a name="Gallery">A gallery of variable-width lines</a>
     </h2>
-<div class="chunk" id="unnamed-chunk-11"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(gridSVG)</span>
-<span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-leaf-1.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">)</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">)</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">)</span>
-<span class="hl kwd">grid.vwXspline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl num">NA</span><span class="hl std">),</span> <span class="hl kwc">name</span><span class="hl std">=</span><span class="hl str">&quot;leaf&quot;</span><span class="hl std">)</span>
+    <p>
+    This section demonstrates a range of interesting results that can
+    be achieved with variable-width lines.   Only an indication
+    of the required code is given in each case;  the full code can be
+    found in the source XML files (see the
+    <a href="#references">References</a> Section).
+  </p>
+    <p>
+    The first example demonstrates adding a gradient fill to a
+    variable-width line with the 'gridSVG' package.
+  </p>
+<div class="chunk" id="unnamed-chunk-11"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.vwXspline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl num">NA</span><span class="hl std">),</span> <span class="hl kwc">name</span><span class="hl std">=</span><span class="hl str">&quot;leaf&quot;</span><span class="hl std">)</span>
 <span class="hl kwd">grid.force</span><span class="hl std">()</span>
-<span class="hl std">gradient</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">linearGradient</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">&quot;grey90&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;grey40&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;grey90&quot;</span><span class="hl std">),</span>
-                       <span class="hl kwc">stops</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">3</span><span class="hl opt">/</span><span class="hl num">4</span><span class="hl std">,</span>
-                       <span class="hl kwc">x0</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">y0</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">x1</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">y1</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span>
-                       <span class="hl kwc">spreadMethod</span><span class="hl std">=</span><span class="hl str">&quot;pad&quot;</span><span class="hl std">)</span>
+<span class="hl std">gradient</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">radialGradient</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">&quot;grey80&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;grey40&quot;</span><span class="hl std">),</span>
+                       <span class="hl kwc">fx</span><span class="hl std">=</span><span class="hl num">.6</span><span class="hl std">,</span> <span class="hl kwc">fy</span><span class="hl std">=</span><span class="hl num">.4</span><span class="hl std">,</span> <span class="hl kwc">gradientUnits</span><span class="hl std">=</span><span class="hl str">&quot;coords&quot;</span><span class="hl std">)</span>
 <span class="hl kwd">grid.gradientFill</span><span class="hl std">(</span><span class="hl str">&quot;outline&quot;</span><span class="hl std">, gradient,</span> <span class="hl kwc">group</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
-<span class="hl kwd">grid.export</span><span class="hl std">(</span><span class="hl str">&quot;gallery-leaf-gridSVG.svg&quot;</span><span class="hl std">)</span>
+<span class="hl kwd">grid.export</span><span class="hl std">(</span><span class="hl str">&quot;figure/gallery-leaf-gridSVG.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">strict</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
 <span class="hl kwd">dev.off</span><span class="hl std">()</span>
 </pre></div>
 </div></div>
-    <img src="gallery-leaf-gridSVG.svg" width="40%">
-    <pre>
-    then go back and look at varaitions: 
-      grid.force() + grid.edit() example?
-      gridSVG example ?
-  </pre>
+    <p class="img">
+      <img src="figure/gallery-leaf-gridSVG.svg" width="40%">
+    </p>
     <p>
-    These examples demonstrate the use of an abrupt change in width
+    The next examples demonstrate the use of an abrupt change in width
     (to produce arrow heads).
   </p>
-<div class="chunk" id="unnamed-chunk-12"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-arrow-1.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">)</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl opt">/</span><span class="hl num">3</span><span class="hl std">)</span>
-<span class="hl kwd">grid.points</span><span class="hl std">(x, y,</span> <span class="hl kwc">default</span><span class="hl std">=</span><span class="hl str">&quot;npc&quot;</span><span class="hl std">,</span> <span class="hl kwc">pch</span><span class="hl std">=</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;grey&quot;</span><span class="hl std">,</span> <span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">))</span>
+<div class="chunk" id="unnamed-chunk-12"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.points</span><span class="hl std">(x, y,</span> <span class="hl kwc">default</span><span class="hl std">=</span><span class="hl str">&quot;npc&quot;</span><span class="hl std">,</span> <span class="hl kwc">pch</span><span class="hl std">=</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;grey&quot;</span><span class="hl std">,</span> <span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">))</span>
 <span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x, y,</span> <span class="hl kwc">tol</span><span class="hl std">=</span><span class="hl num">.005</span><span class="hl std">,</span>
          <span class="hl kwc">w</span><span class="hl std">=</span><span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
                        <span class="hl kwc">d</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">),</span>
                        <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">0.01</span><span class="hl std">,</span>
-                       <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
-                       <span class="hl com"># , debug=TRUE, gp=gpar(fill=NA)</span>
-                       <span class="hl std">)</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">)</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">)</span>
+                       <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">))</span>
 <span class="hl kwd">grid.points</span><span class="hl std">(x, y,</span> <span class="hl kwc">default</span><span class="hl std">=</span><span class="hl str">&quot;npc&quot;</span><span class="hl std">,</span> <span class="hl kwc">pch</span><span class="hl std">=</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;grey&quot;</span><span class="hl std">,</span> <span class="hl kwc">cex</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">))</span>
-<span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x, y,</span> <span class="hl kwc">tol</span><span class="hl std">=</span><span class="hl num">.005</span><span class="hl std">,</span>
+<span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x2, y2,</span> <span class="hl kwc">tol</span><span class="hl std">=</span><span class="hl num">.005</span><span class="hl std">,</span>
          <span class="hl kwc">w</span><span class="hl std">=</span><span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
                        <span class="hl kwc">d</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">),</span>
                        <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">0.01</span><span class="hl std">,</span>
-                       <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
-                       <span class="hl com"># , debug=TRUE, gp=gpar(fill=NA)</span>
-                       <span class="hl std">)</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
+                       <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">))</span>
 </pre></div>
 </div></div>
-    <img src="gallery-arrow-1.svg" width="40%">
+    <p class="img">
+      <img src="figure/gallery-arrow-1.svg" width="40%">
+    </p>
     <p>
     These examples emulate the examples described in 
     the discussion by
     <a href="http://www.schepers.cc/differentstrokes.html">Doug Schepers</a>.
   </p>
-<div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-schepers-1.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">)</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">)</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
+<div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
 <span class="hl kwd">grid.vwline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">))</span>
-<span class="hl kwd">grid.xspline</span><span class="hl std">(x, y,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;red&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl str">&quot;dashed&quot;</span><span class="hl std">))</span>
-<span class="hl com">## brush version</span>
-<span class="hl com">## w &lt;- widthSpline(unit(c(0, 30, 40, 20, 0), &quot;mm&quot;), shape=0)</span>
-<span class="hl com">## grid.brushXspline(verticalBrush, x, y, w, shape=0, open=FALSE,</span>
-<span class="hl com">##                   gp=gpar(col=&quot;#FFD700&quot;, fill=&quot;#FFD700&quot;)</span>
-<span class="hl com">##                            # , debug=TRUE, gp=gpar(fill=NA)</span>
-<span class="hl com">##                            )</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
-<span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-schepers-2.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.1</span><span class="hl std">,</span> <span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.9</span><span class="hl std">)</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">)</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">25</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
-<span class="hl kwd">grid.vwXspline</span><span class="hl std">(x, y, w</span>
-           <span class="hl com"># , debug=TRUE, gp=gpar(fill=NA)</span>
-           <span class="hl std">)</span>
-<span class="hl kwd">grid.xspline</span><span class="hl std">(x, y,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;white&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl str">&quot;dashed&quot;</span><span class="hl std">))</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
-<span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-schepers-3.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">t</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">pi,</span> <span class="hl kwc">length.out</span><span class="hl std">=</span><span class="hl num">11</span><span class="hl std">)[</span><span class="hl opt">-</span><span class="hl num">11</span><span class="hl std">]</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.3</span><span class="hl opt">*</span><span class="hl kwd">cos</span><span class="hl std">(t)</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.3</span><span class="hl opt">*</span><span class="hl kwd">sin</span><span class="hl std">(t)</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">10</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">10</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span> <span class="hl kwc">d</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">90</span><span class="hl std">,</span> <span class="hl num">150</span><span class="hl std">)</span><span class="hl opt">/</span><span class="hl num">360</span><span class="hl std">,</span> <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
-<span class="hl com"># grid.points(x, y, default=&quot;npc&quot;, pch=16, gp=gpar(col=&quot;grey&quot;, cex=2))</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">25</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
+<span class="hl kwd">grid.vwXspline</span><span class="hl std">(x, y, w)</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="unnamed-chunk-15"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">10</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">10</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span> <span class="hl kwc">d</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">90</span><span class="hl std">,</span> <span class="hl num">150</span><span class="hl std">)</span><span class="hl opt">/</span><span class="hl num">360</span><span class="hl std">,</span> <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
 <span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
-              <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#7B68EE&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#7B68EE&quot;</span><span class="hl std">)</span>
-                       <span class="hl com"># , debug=TRUE, gp=gpar(fill=NA)</span>
-                       <span class="hl std">)</span>
-<span class="hl kwd">grid.xspline</span><span class="hl std">(x, y,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
-         <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#EEEC1E&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl str">&quot;dashed&quot;</span><span class="hl std">))</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
-<span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-schepers-4.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl std">t</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">pi,</span> <span class="hl kwc">length.out</span><span class="hl std">=</span><span class="hl num">11</span><span class="hl std">)[</span><span class="hl opt">-</span><span class="hl num">11</span><span class="hl std">]</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.3</span><span class="hl opt">*</span><span class="hl kwd">cos</span><span class="hl std">(t)</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.3</span><span class="hl opt">*</span><span class="hl kwd">sin</span><span class="hl std">(t)</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">10</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
+              <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#7B68EE&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#7B68EE&quot;</span><span class="hl std">))</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="unnamed-chunk-16"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">10</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
              <span class="hl kwc">d</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">45</span><span class="hl std">,</span> <span class="hl num">60</span><span class="hl std">,</span> <span class="hl num">90</span><span class="hl std">,</span> <span class="hl num">120</span><span class="hl std">,</span> <span class="hl num">135</span><span class="hl std">)</span><span class="hl opt">/</span><span class="hl num">360</span><span class="hl std">,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span>
              <span class="hl kwc">rep</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
-<span class="hl com"># grid.points(x, y, default=&quot;npc&quot;, pch=16, gp=gpar(col=&quot;grey&quot;, cex=2))</span>
-<span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span>
-              <span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#9400D3&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#9400D3&quot;</span><span class="hl std">)</span>
-              <span class="hl com"># , debug=TRUE, gp=gpar(fill=NA)</span>
-              <span class="hl std">)</span>
-<span class="hl kwd">grid.xspline</span><span class="hl std">(x, y,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
-         <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;white&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl str">&quot;dashed&quot;</span><span class="hl std">))</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
+<span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush, x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
+              <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#9400D3&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#9400D3&quot;</span><span class="hl std">))</span>
 </pre></div>
 </div></div>
     <p class="img">
-      <img src="gallery-schepers-1.svg" width="40%">
-      <img src="gallery-schepers-2.svg" width="40%">
-      <img src="gallery-schepers-3.svg" width="40%">
-      <img src="gallery-schepers-4.svg" width="40%">
+      <img src="figure/gallery-schepers-1.svg" width="40%">
+      <img src="figure/gallery-schepers-2.svg" width="40%">
+      <img src="figure/gallery-schepers-3.svg" width="40%">
+      <img src="figure/gallery-schepers-4.svg" width="40%">
     </p>
     <p>
-    This example demonstrates the use of tangents at boundary
+    The next example demonstrates the use of tangents at boundary
     points to arrange a set of variable-width lines along the
     boundary of one larger variable-width line.  The <code>leg</code>
     function demonstrates the usefulness of defining a base 
     line within a viewport, so that variations of the base line
-    can be drawn conveniently at a variety of angles and sizes.
+    can be drawn conveniently at a variety of locations, angles, and sizes.
   </p>
-<div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">svg</span><span class="hl std">(</span><span class="hl str">&quot;gallery-caterpillar-1.svg&quot;</span><span class="hl std">,</span> <span class="hl kwc">bg</span><span class="hl std">=</span><span class="hl str">&quot;transparent&quot;</span><span class="hl std">)</span>
-<span class="hl kwd">grid.rect</span><span class="hl std">(</span><span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl num">NA</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;grey90&quot;</span><span class="hl std">))</span>
-<span class="hl kwd">pushViewport</span><span class="hl std">(</span><span class="hl kwd">viewport</span><span class="hl std">(</span><span class="hl kwc">width</span><span class="hl std">=</span><span class="hl num">.8</span><span class="hl std">,</span> <span class="hl kwc">height</span><span class="hl std">=</span><span class="hl num">.8</span><span class="hl std">))</span>
-<span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">3</span><span class="hl opt">/</span><span class="hl num">3</span>
-<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">)</span>
-<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
-<span class="hl std">bxg</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">brushXsplineGrob</span><span class="hl std">(</span><span class="hl kwd">circleBrush</span><span class="hl std">(), x, y, w,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span>
-<span class="hl kwd">grid.draw</span><span class="hl std">(bxg)</span>
-<span class="hl std">pts1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">edgePoints</span><span class="hl std">(bxg,</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">.05</span><span class="hl std">,</span> <span class="hl num">.47</span><span class="hl std">,</span> <span class="hl num">.01</span><span class="hl std">),</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl kwc">dir</span><span class="hl std">=</span><span class="hl str">&quot;backward&quot;</span><span class="hl std">)</span>
-<span class="hl std">pts2</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">edgePoints</span><span class="hl std">(bxg,</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">.05</span><span class="hl std">,</span> <span class="hl num">.48</span><span class="hl std">,</span> <span class="hl num">.01</span><span class="hl std">),</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">)</span>
-<span class="hl std">leg</span> <span class="hl kwb">&lt;-</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">,</span> <span class="hl kwc">angle</span><span class="hl std">,</span> <span class="hl kwc">size</span><span class="hl std">=</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl str">&quot;cm&quot;</span><span class="hl std">),</span> <span class="hl kwc">flip</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">) {</span>
+<div class="chunk" id="unnamed-chunk-17"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">leg</span> <span class="hl kwb">&lt;-</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">,</span> <span class="hl kwc">angle</span><span class="hl std">,</span> <span class="hl kwc">size</span><span class="hl std">=</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl str">&quot;cm&quot;</span><span class="hl std">),</span> <span class="hl kwc">flip</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">) {</span>
 <span class="hl kwa">if</span> <span class="hl std">(flip) angle</span> <span class="hl kwb">&lt;-</span> <span class="hl std">angle</span> <span class="hl opt">+</span> <span class="hl std">pi</span>
 <span class="hl kwd">pushViewport</span><span class="hl std">(</span><span class="hl kwd">viewport</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=x,</span> <span class="hl kwc">y</span><span class="hl std">=y,</span> <span class="hl kwc">width</span><span class="hl std">=size,</span> <span class="hl kwc">height</span><span class="hl std">=size,</span>
                       <span class="hl kwc">just</span><span class="hl std">=</span><span class="hl str">&quot;bottom&quot;</span><span class="hl std">,</span> <span class="hl kwc">angle</span><span class="hl std">=</span><span class="hl num">180</span><span class="hl opt">*</span><span class="hl std">angle</span><span class="hl opt">/</span><span class="hl std">pi))</span>
@@ -1166,12 +1142,17 @@ Wednesday 08 March 2017
 <span class="hl kwa">for</span> <span class="hl std">(i</span> <span class="hl kwa">in</span> <span class="hl kwd">seq_along</span><span class="hl std">(pts2</span><span class="hl opt">$</span><span class="hl std">x)) {</span>
 <span class="hl kwd">leg</span><span class="hl std">(pts2</span><span class="hl opt">$</span><span class="hl std">x[i], pts2</span><span class="hl opt">$</span><span class="hl std">y[i], pts2</span><span class="hl opt">$</span><span class="hl std">tangent[i],</span> <span class="hl kwc">flip</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
 <span class="hl std">}</span>
-<span class="hl kwd">dev.off</span><span class="hl std">()</span>
 </pre></div>
 </div></div>
     <p class="img">
-      <img src="gallery-caterpillar-1.svg" width="40%">
+      <img src="figure/gallery-caterpillar-1.svg" width="40%">
     </p>
+    <p>
+    The final example shows how the variable-width lines might be
+    useful in a plot.  This is of course based on the data for Minard's
+    map.
+  </p>
+<div class="chunk" id="unnamed-chunk-18"><div class="rimage default"><img src="figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" class="plot" /></div></div>
     <p> If do Minard's map example, note other people's efforts,,
       including Thomas Rahlf's book </p>
     <h2>
@@ -1231,7 +1212,7 @@ Wednesday 08 March 2017
     </li>
     </ul>
     <h2>
-      <a name="References">References</a>
+      <a name="references">References</a>
     </h2>
     <ul>
       <li>
@@ -1266,7 +1247,7 @@ Wednesday 08 March 2017
       an open source freeware library for
       clipping and offsetting lines and polygons,
       Angus Johnson, 
-      URL visited 2017-03-08
+      URL visited 2017-03-13
     </li>
       <li>
 <a name="polyclip"></a>
@@ -1277,7 +1258,7 @@ Wednesday 08 March 2017
       <li>
 <a name="cgal"></a><a href="http://www.cgal.org/">CGAL</a> 
       The Computational Geometry Algorithms Library,
-      URL visited 2017-03-08
+      URL visited 2017-03-13
     </li>
       <li>
 <a name="cgal-manual"></a><a href="http://doc.cgal.org/4.9/Manual/packages.html">CGAL User and Reference Manual</a>,
