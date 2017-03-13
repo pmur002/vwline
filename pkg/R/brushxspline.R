@@ -57,6 +57,15 @@ brushXsplineOutline <- function(grob) {
 
     ## Calculate distances between flattened vertices
     lengths <- c(0, sqrt(diff(xx)^2 + diff(yy)^2))
+    ## Drop points that are too close to each other
+    ## (can lead to numerical instability when calculating angles)
+    smallLengths <- c(FALSE, lengths[-1] < grob$tol)
+    if (any(smallLengths)) {
+        xx <- xx[!smallLengths]
+        yy <- yy[!smallLengths]
+        N <- length(xx)
+        lengths <- c(0, sqrt(diff(xx)^2 + diff(yy)^2))
+    }
     if (!grob$open) {
         lengths <- c(lengths, sqrt((xx[N] - xx[1])^2 + (yy[N] - yy[1])^2))
     }
