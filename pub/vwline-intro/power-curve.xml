@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <html>
   <head>
     <style type="text/css">
@@ -634,6 +634,8 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
     <p>
     ALSO NEED to mention this JavaScript CodePen example
     https://codepen.io/osublake/pen/oLKWyd
+    AND this javscript code sample
+    https://gamealchemist.wordpress.com/2013/08/28/variable-width-lines-in-html5-canvas/
   </p>
     <rcode echo="FALSE"><![CDATA[
 diagram <- function(step) {
@@ -1528,7 +1530,7 @@ dev.off()
     useful in a plot.  This is of course based on the data for Minard's
     map.
   </p>
-    <rcode echo="11:13" results="hide"><![CDATA[
+    <rcode eval="FALSE" echo="11:13" results="hide"><![CDATA[
 library(HistData)
 with(Minard.troops,    
      {
@@ -1676,7 +1678,7 @@ with(subset(Minard.troops, direction == "R" & group == 1),
     </li>
       <li><a name="hain"/>
       Thomas F. Hain, Athar L. Ahmad, Sri Venkat R. Racherla, and
-      David D. Langan. 2005. Fast, precise flattening of cubic Bézier
+      David D. Langan. 2005. Fast, precise flattening of cubic B&#xE9;zier
       path and offset curves. Comput. Graph. 29, 5 (October 2005),
       656-666. DOI=<a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">http://dx.doi.org/10.1016/j.cag.2005.08.002</a>
     </li>
@@ -1690,6 +1692,14 @@ with(subset(Minard.troops, direction == "R" & group == 1),
     </li>
       <li>
       ggplot2, plotrix, denstrip, beanplot.
+    </li>
+      <li>
+      Kimel and Bruckstein (1993)
+      http://www.cs.technion.ac.il/~ron/PAPERS/offsets_cad1993.pdf
+    </li>
+      <li>
+      Chen and Lin (2014)
+      https://www.hindawi.com/journals/jam/2014/124240/ref/
     </li>
     </ul>
     <h3>

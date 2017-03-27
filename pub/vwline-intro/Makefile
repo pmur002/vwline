@@ -18,7 +18,7 @@ web:
 	make power-curve.xml
 	make power-curve.Rhtml
 	make power-curve.html
-	cp -r ../pub ~/Web/Reports/PowerCurve
+	cp -r ../vwline-intro ~/Web/Reports/VWline/PowerCurve
 
 zip:
 	make power-curve.xml
