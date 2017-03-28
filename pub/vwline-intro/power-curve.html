@@ -107,7 +107,7 @@
       </span>
     </p>
     <p class="date">
-Tuesday 28 March 2017
+Wednesday 29 March 2017
     </p>
 
     <hr>
@@ -139,7 +139,7 @@ Tuesday 28 March 2017
   </p>
   -->
     <p>
-    This document describes the 'vwline' packagem, which provides
+    This document describes the 'vwline' package, which provides
     an R interface for drawing variable-width
     curves.  The package provides functions to draw line
     segments through a set of locations, or a smooth curve relative
@@ -159,7 +159,10 @@ Tuesday 28 March 2017
           <a href="#method-2">Method 2: Offset control points</a>
         </li>
         <li>
-          <a href="#method-3">Method 3: Offset polygons</a>
+          <a href="#method-2">Method 3: Offset lines</a>
+        </li>
+        <li>
+          <a href="#method-3">Method 4: Offset polygons</a>
         </li>
         <li>
           <a href="#Detail">Fine tuning variable-width lines</a>
@@ -251,7 +254,7 @@ Tuesday 28 March 2017
     controlling line widths with regard to the sine illusion.
     However, the work described in this document is more focused on
     adding a basic drawing primitive to R graphics.  The general motivation
-    is to provide these facilities in R so that people can avoid having 
+    is to provide these facilities in R so that users can avoid having 
     to manually "touch up" plots in other software;  it is better if
     all actions that make up a final plot can be
     captured in code and therefore recorded, automated, and shared.
@@ -281,7 +284,7 @@ Tuesday 28 March 2017
     </h2>
     <p>
     The first approach to drawing a variable-width line with 'vwline'
-    is provided by the <code>grid.vwline</code> function.  This function
+    is provided by the <code>grid.vwcurve</code> function.  This function
     accepts a set of x/y locations and a set of widths, all of which 
     recycle as necessary.  The idea with this function is that we know 
     the placement of the line and the
@@ -315,10 +318,10 @@ Tuesday 28 March 2017
     </ol>
 
 
-    <img src="figure/vwlinediag-1.svg" width="30%">
-    <img src="figure/vwlinediag-2.svg" width="30%">
-    <img src="figure/vwlinediag-3.svg" width="30%">
-    <img src="figure/vwlinediag-4.svg" width="30%">
+    <img src="figure/vwcurvediag-1.svg" width="30%">
+    <img src="figure/vwcurvediag-2.svg" width="30%">
+    <img src="figure/vwcurvediag-3.svg" width="30%">
+    <img src="figure/vwcurvediag-4.svg" width="30%">
     <p>
     This function
     can be used to produce the sort of result that 'beanplot' and other packages
@@ -331,18 +334,18 @@ Tuesday 28 March 2017
 <div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(vwline)</span>
 </pre></div>
 </div></div>
-<div class="chunk" id="vwline"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">.01</span><span class="hl std">,</span> <span class="hl num">.99</span><span class="hl std">,</span> <span class="hl num">.01</span><span class="hl std">)</span>
+<div class="chunk" id="vwcurve"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">.01</span><span class="hl std">,</span> <span class="hl num">.99</span><span class="hl std">,</span> <span class="hl num">.01</span><span class="hl std">)</span>
 <span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.5</span><span class="hl opt">*</span><span class="hl kwd">dnorm</span><span class="hl std">(</span><span class="hl kwd">qnorm</span><span class="hl std">(x))</span>
-<span class="hl kwd">grid.vwline</span><span class="hl std">(x,</span> <span class="hl num">.5</span><span class="hl std">, w)</span>
+<span class="hl kwd">grid.vwcurve</span><span class="hl std">(x,</span> <span class="hl num">.5</span><span class="hl std">, w)</span>
 </pre></div>
 </div></div>
-<div class="chunk" id="vwline-curve"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.5</span><span class="hl opt">*</span><span class="hl std">(x</span> <span class="hl opt">-</span> <span class="hl num">.5</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
-<span class="hl kwd">grid.vwline</span><span class="hl std">(x, y, w)</span>
+<div class="chunk" id="vwcurve-curve"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl num">.5</span><span class="hl opt">*</span><span class="hl std">(x</span> <span class="hl opt">-</span> <span class="hl num">.5</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">+</span> <span class="hl num">.5</span>
+<span class="hl kwd">grid.vwcurve</span><span class="hl std">(x, y, w)</span>
 </pre></div>
 </div></div>
     <p class="img">
-      <img src="figure/vwline-1.svg" width="30%">
-      <img src="figure/vwline-curve-1.svg" width="30%">
+      <img src="figure/vwcurve-1.svg" width="30%">
+      <img src="figure/vwcurve-curve-1.svg" width="30%">
     </p>
     <h2>
       <a name="method-2">Method 2: Offset control points</a>
@@ -420,10 +423,17 @@ Tuesday 28 March 2017
       <img src="figure/vwxspline-swish-1.svg" width="30%">
     </p>
     <h2>
-      <a name="method-3">Method 3: Offset polygons</a>
+      <a name="method-2">Method 3: Offset lines</a>
     </h2>
     <p>
-    The third approach to drawing variable-width lines, which is
+    The third approach to drawing variable-width lines is
+    provided by the <code>vwline</code> function.
+  </p>
+    <h2>
+      <a name="method-3">Method 4: Offset polygons</a>
+    </h2>
+    <p>
+    The fourth approach to drawing variable-width lines, which is
     provided by the <code>brushXspline</code> function, takes
     a set of x/y control points to describe the line (an X-spline), a
     "brush" (a geometric shape) 
@@ -1091,7 +1101,7 @@ Tuesday 28 March 2017
     <a href="http://www.schepers.cc/differentstrokes.html">Doug Schepers</a>.
   </p>
 <div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
-<span class="hl kwd">grid.vwline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">))</span>
+<span class="hl kwd">grid.vwcurve</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">gp</span><span class="hl std">=</span><span class="hl kwd">gpar</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">,</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">&quot;#FFD700&quot;</span><span class="hl std">))</span>
 </pre></div>
 </div></div>
 <div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">25</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">)</span>
@@ -1150,11 +1160,25 @@ Tuesday 28 March 2017
       <img src="figure/gallery-caterpillar-1.svg" width="40%">
     </p>
     <p>
+    Add code for infinity symbol
+  </p>
+<div class="chunk" id="unnamed-chunk-18"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush,</span>
+              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.1</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.9</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl num">.05</span><span class="hl std">,</span>
+              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">)</span> <span class="hl opt">-</span> <span class="hl num">.5</span><span class="hl std">,</span>
+              <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
+              <span class="hl kwc">w</span><span class="hl std">=</span><span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
+                            <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">))</span>
+</pre></div>
+</div></div>
+    <p class="img">
+      <img src="figure/gallery-infinity-1.svg" width="40%">
+    </p>
+    <p>
     The final example shows how the variable-width lines might be
     useful in a plot.  This is of course based on the data for Minard's
     map.
   </p>
-<div class="chunk" id="unnamed-chunk-18"><div class="rcode"><div class="source"><pre class="knitr r">                       <span class="hl kwd">unit</span>(survivors/<span class="hl kwd">max</span>(survivors), <span class="hl str">&quot;<span class="hl kwa">in</span>&quot;</span>),
+<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r">                       <span class="hl kwd">unit</span>(survivors/<span class="hl kwd">max</span>(survivors), <span class="hl str">&quot;<span class="hl kwa">in</span>&quot;</span>),
                        gp=<span class="hl kwd">gpar</span>(fill=<span class="hl kwd">rgb</span>(0,0,1,.5)))
      <span class="hl kwd">grid.xspline</span>(long, lat, default.units=<span class="hl str">&quot;native&quot;</span>, shape=0.1,
 </pre></div>
@@ -1253,7 +1277,7 @@ Tuesday 28 March 2017
       an open source freeware library for
       clipping and offsetting lines and polygons,
       Angus Johnson, 
-      URL visited 2017-03-28
+      URL visited 2017-03-29
     </li>
       <li>
 <a name="polyclip"></a>
@@ -1264,7 +1288,7 @@ Tuesday 28 March 2017
       <li>
 <a name="cgal"></a><a href="http://www.cgal.org/">CGAL</a> 
       The Computational Geometry Algorithms Library,
-      URL visited 2017-03-28
+      URL visited 2017-03-29
     </li>
       <li>
 <a name="cgal-manual"></a><a href="http://doc.cgal.org/4.9/Manual/packages.html">CGAL User and Reference Manual</a>,

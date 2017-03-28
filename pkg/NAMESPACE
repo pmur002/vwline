@@ -2,7 +2,7 @@
 import("polyclip")
 
 export(## Main API
-       "grid.vwline", "vwlineGrob",
+       "grid.vwcurve", "vwcurveGrob",
        "grid.vwXspline", "vwXsplineGrob",
        "grid.brushline", "brushlineGrob",
        "grid.brushXspline", "brushXsplineGrob",
@@ -26,9 +26,9 @@ export(## Main API
        "combineShapes"
        )
 
-S3method("makeContent", "vwlineGrob")
+S3method("makeContent", "vwcurveGrob")
 S3method("makeContent", "vwXsplineGrob")
 S3method("makeContent", "brushXsplineGrob")
-S3method("edgePoints", "vwlineGrob")
+S3method("edgePoints", "vwcurveGrob")
 S3method("edgePoints", "vwXsplineGrob")
 S3method("edgePoints", "brushXsplineGrob")

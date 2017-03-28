@@ -85,7 +85,7 @@ mysvg <- function(filename, width, height) {
   </p>
   -->
     <p>
-    This document describes the 'vwline' packagem, which provides
+    This document describes the 'vwline' package, which provides
     an R interface for drawing variable-width
     curves.  The package provides functions to draw line
     segments through a set of locations, or a smooth curve relative
@@ -105,7 +105,10 @@ mysvg <- function(filename, width, height) {
           <a href="#method-2">Method 2: Offset control points</a>
         </li>
         <li>
-          <a href="#method-3">Method 3: Offset polygons</a>
+          <a href="#method-2">Method 3: Offset lines</a>
+        </li>
+        <li>
+          <a href="#method-3">Method 4: Offset polygons</a>
         </li>
         <li>
           <a href="#Detail">Fine tuning variable-width lines</a>
@@ -150,7 +153,7 @@ grid.lines(c(.2, .9), .5, gp=gpar(lwd=20, lineend="butt"))
 ## grid.brushline(verticalBrush, c(.2, .9), .2, w=c(0, .1))
 # grid.brushXspline(verticalBrush, c(.2, .9), rep(.2, 2), 
 #                   w=widthSpline(c(0, .2), shape=0))
-grid.vwline(c(.2, .9), .2, c(0, .1))
+grid.vwcurve(c(.2, .9), .2, c(0, .1))
 dev.off()
   end.rcode-->
     <p class="img">
@@ -245,7 +248,7 @@ dev.off()
     controlling line widths with regard to the sine illusion.
     However, the work described in this document is more focused on
     adding a basic drawing primitive to R graphics.  The general motivation
-    is to provide these facilities in R so that people can avoid having 
+    is to provide these facilities in R so that users can avoid having 
     to manually "touch up" plots in other software;  it is better if
     all actions that make up a final plot can be
     captured in code and therefore recorded, automated, and shared.
@@ -275,7 +278,7 @@ dev.off()
     </h2>
     <p>
     The first approach to drawing a variable-width line with 'vwline'
-    is provided by the <code>grid.vwline</code> function.  This function
+    is provided by the <code>grid.vwcurve</code> function.  This function
     accepts a set of x/y locations and a set of widths, all of which 
     recycle as necessary.  The idea with this function is that we know 
     the placement of the line and the
@@ -308,18 +311,18 @@ dev.off()
     </li>
     </ol>
     <!--begin.rcode echo=FALSE
-vwlinediagram <- function(step) {
+vwcurvediagram <- function(step) {
     x <- c(.2, .6, .8)
     y <- c(.8, .6, .2)
     w <- c(.05, .1, .2)
-    vwgrob <- vwlineGrob(x, y, w)
+    vwgrob <- vwcurveGrob(x, y, w)
     sub <- function() {
         ## Points on line
         grid.points(x, y, pch=16, gp=gpar(col="black"))
         grid.lines(x, y)
         if (step < 2) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
-        pts <- vwline:::vwlinePoints(vwgrob)
+        pts <- vwline:::vwcurvePoints(vwgrob)
         grid.segments(pts$left$x, pts$left$y, pts$right$x, pts$right$y,
                       default.units="in")
         if (step < 3) return()
@@ -355,15 +358,15 @@ vwlinediagram <- function(step) {
   end.rcode-->
     <!--begin.rcode results="hide", echo=FALSE
 for (i in 1:4) {
-    svg(paste0("figure/vwlinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
-    vwlinediagram(i)
+    svg(paste0("figure/vwcurvediag-", i, ".svg"), width=5, height=5, bg="transparent")  
+    vwcurvediagram(i)
     dev.off()
 }
   end.rcode-->
-    <img src="figure/vwlinediag-1.svg" width="30%">
-    <img src="figure/vwlinediag-2.svg" width="30%">
-    <img src="figure/vwlinediag-3.svg" width="30%">
-    <img src="figure/vwlinediag-4.svg" width="30%">
+    <img src="figure/vwcurvediag-1.svg" width="30%">
+    <img src="figure/vwcurvediag-2.svg" width="30%">
+    <img src="figure/vwcurvediag-3.svg" width="30%">
+    <img src="figure/vwcurvediag-4.svg" width="30%">
     <p>
     This function
     can be used to produce the sort of result that 'beanplot' and other packages
@@ -376,26 +379,26 @@ for (i in 1:4) {
     <!--begin.rcode 
 library(vwline)
   end.rcode-->
-    <!--begin.rcode vwline, echo=3:5, dev="mysvg", fig.width=3, fig.height=3, fig.ext="svg", fig.show="hide"
+    <!--begin.rcode vwcurve, echo=3:5, dev="mysvg", fig.width=3, fig.height=3, fig.ext="svg", fig.show="hide"
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 x <- seq(.01, .99, .01)
 w <- .5*dnorm(qnorm(x))
-grid.vwline(x, .5, w)
+grid.vwcurve(x, .5, w)
 grid.lines(x, .5, gp=gpar(col="white", lwd=1))
-grid.text("vwline()", y=.1, gp=gpar(fontfamily="mono"))
+grid.text("vwcurve()", y=.1, gp=gpar(fontfamily="mono"))
   end.rcode-->
-    <!--begin.rcode vwline-curve, echo=3:4, dev="mysvg", fig.width=3, fig.height=3, fig.ext="svg", fig.show="hide"
+    <!--begin.rcode vwcurve-curve, echo=3:4, dev="mysvg", fig.width=3, fig.height=3, fig.ext="svg", fig.show="hide"
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 y <- .5*(x - .5)^2 + .5
-grid.vwline(x, y, w)
+grid.vwcurve(x, y, w)
 grid.lines(x, y, gp=gpar(col="white", lwd=1))
-grid.text("vwline()", y=.1, gp=gpar(fontfamily="mono"))
+grid.text("vwcurve()", y=.1, gp=gpar(fontfamily="mono"))
   end.rcode-->
     <p class="img">
-      <img src="figure/vwline-1.svg" width="30%">
-      <img src="figure/vwline-curve-1.svg" width="30%">
+      <img src="figure/vwcurve-1.svg" width="30%">
+      <img src="figure/vwcurve-curve-1.svg" width="30%">
     </p>
     <h2>
       <a name="method-2">Method 2: Offset control points</a>
@@ -553,10 +556,17 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/vwxspline-swish-1.svg" width="30%">
     </p>
     <h2>
-      <a name="method-3">Method 3: Offset polygons</a>
+      <a name="method-2">Method 3: Offset lines</a>
     </h2>
     <p>
-    The third approach to drawing variable-width lines, which is
+    The third approach to drawing variable-width lines is
+    provided by the <code>vwline</code> function.
+  </p>
+    <h2>
+      <a name="method-3">Method 4: Offset polygons</a>
+    </h2>
+    <p>
+    The fourth approach to drawing variable-width lines, which is
     provided by the <code>brushXspline</code> function, takes
     a set of x/y control points to describe the line (an X-spline), a
     "brush" (a geometric shape) 
@@ -1430,7 +1440,7 @@ pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .8, .8, .2)
 y <- c(.8, .8, .2, .2)
 w <- unit(c(0, 30, 40, 20, 0), "mm")
-grid.vwline(x, y, w, open=FALSE, gp=gpar(col="#FFD700", fill="#FFD700"))
+grid.vwcurve(x, y, w, open=FALSE, gp=gpar(col="#FFD700", fill="#FFD700"))
 grid.xspline(x, y, shape=0, open=FALSE, gp=gpar(col="red", lwd=3, lty="dashed"))
 dev.off()
   end.rcode-->
@@ -1524,6 +1534,24 @@ dev.off()
   end.rcode-->
     <p class="img">
       <img src="figure/gallery-caterpillar-1.svg" width="40%">
+    </p>
+    <p>
+    Add code for infinity symbol
+  </p>
+    <!--begin.rcode echo=4, results="hide"
+svg("figure/gallery-infinity-1.svg", bg="transparent")  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.brushXspline(verticalBrush, 
+                  c(.1, .3, .7, .9, .7, .3) + .05, 
+                  c(.7, .8, .6, .7, .8, .6) - .5, 
+                  shape=1, open=FALSE, 
+                  w=widthSpline(unit(c(5, 3, 3, 5, 5, 1, 1, 5), "mm"), 
+                                shape=1))
+dev.off()
+  end.rcode-->
+    <p class="img">
+      <img src="figure/gallery-infinity-1.svg" width="40%">
     </p>
     <p>
     The final example shows how the variable-width lines might be
