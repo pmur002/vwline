@@ -188,8 +188,6 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                  ifelse(useEdgeInt,
                         rightIntEdge$y,
                         ifelse(edgeIntNext, perpStartRightY[-1], rightInt2$y))
-             angle <- angleInRange(angleDiff(perpangle[-N], perpangle[-1],
-                                             clockwise=TRUE))
              
              if (debug) {
                  pts(leftIntx1[leftInside], leftInty1[leftInside], "orange")
@@ -225,8 +223,7 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
              data.frame(leftInside, rightInside,
                         leftMitreLength, rightMitreLength,
                         leftIntx1, leftIntx2, leftInty1, leftInty2,
-                        rightIntx1, rightIntx2, rightInty1, rightInty2,
-                        angle)
+                        rightIntx1, rightIntx2, rightInty1, rightInty2)
          })
 }
 
