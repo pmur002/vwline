@@ -61,7 +61,7 @@ buildEdge <- function(perpStart, perpEnd, inside, mitrelen, mitrelimit,
                            },
                        mitre=
                            {
-                               if (mitrelen < mitrelimit) {
+                               if (mitrelen[i] < mitrelimit) {
                                    x[[i+1]] <- c(intpt1[i], intpt2[i])
                                } else {
                                    ## Fall back to bevel

@@ -41,6 +41,8 @@ simpleLine <- function(x, y, w) {
     popViewport()
 }
 
+pdf("endsjoins-tests.pdf")
+
 ## Non-variable line width (different line endings)
 grid.newpage()
 scale <- .5
@@ -336,3 +338,9 @@ y <- c(.3, .7, .3)
 grid.vwline(x, y, w, linejoin="mitre", mitrelimit=10)
 grid.text("within mitre limit (10)", x=.75, y=.25)
 
+dev.off()
+
+stopifnot(tools::Rdiff("endsjoins-tests.pdf",
+                       system.file("regression-tests",
+                                   "endsjoins-tests.save.pdf",
+                                   package="vwline")) == 0L)

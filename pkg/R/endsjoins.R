@@ -62,17 +62,16 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
              rightAngle <- angleDiff(angle[-N], angle[-1], clockwise=TRUE)
              leftInside <- leftAngle < pi
              ## Following PDF definition
-             if (leftInside) {
-                 leftMitreLength <- 0
-                 rightMitreLength <-
-                     1/sin(angleDiff(angleInRange(angle[-N] + pi),
-                                     angle[-1], clockwise=TRUE)/2)
-             } else {
-                 leftMitreLength <-
-                     1/sin(angleDiff(angleInRange(angle[-N] + pi),
-                                     angle[-1], clockwise=FALSE)/2)
-                 rightMitreLength <- 0
-             }
+             leftMitreLength <-
+                 ifelse(leftInside,
+                        0, 
+                        1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                                        angle[-1], clockwise=FALSE)/2))
+             rightMitreLength <-
+                 ifelse(leftInside, 
+                        1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                                        angle[-1], clockwise=TRUE)/2),
+                        0)
              
              ## Intersection left edge segments with each other
              leftIntEdge <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
