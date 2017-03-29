@@ -38,8 +38,8 @@ checkvwline <- function(x, y, w) {
     }
 }
 
-buildEdge <- function(perpStart, perpEnd, inside, intpt1, intpt2,
-                      arc, join, leftedge) {
+buildEdge <- function(perpStart, perpEnd, inside, mitrelen, mitrelimit,
+                      intpt1, intpt2, arc, join, leftedge) {
     N <- length(perpStart)
     x <- vector("list", N+1)
     x[[1]] <- perpStart[1]
@@ -61,7 +61,12 @@ buildEdge <- function(perpStart, perpEnd, inside, intpt1, intpt2,
                            },
                        mitre=
                            {
-                               x[[i+1]] <- c(intpt1[i], intpt2[i])
+                               if (mitrelen < mitrelimit) {
+                                   x[[i+1]] <- c(intpt1[i], intpt2[i])
+                               } else {
+                                   ## Fall back to bevel
+                                   x[[i+1]] <- c(perpEnd[i], perpStart[i+1])
+                               }
                            },
                        bevel=
                            {
@@ -91,6 +96,7 @@ vwlinePoints <- function(grob) {
     leftx <- buildEdge(sinfo$perpStartLeftX,
                        sinfo$perpEndLeftX,
                        cinfo$leftInside,
+                       cinfo$leftMitreLength, grob$mitrelimit,
                        cinfo$leftIntx1,
                        cinfo$leftIntx2,
                        carcinfo$leftarcx,
@@ -98,6 +104,7 @@ vwlinePoints <- function(grob) {
     lefty <- buildEdge(sinfo$perpStartLeftY,
                        sinfo$perpEndLeftY,
                        cinfo$leftInside,
+                       cinfo$leftMitreLength, grob$mitrelimit,
                        cinfo$leftInty1,
                        cinfo$leftInty2,
                        carcinfo$leftarcy,
@@ -105,6 +112,7 @@ vwlinePoints <- function(grob) {
     rightx <- buildEdge(rev(sinfo$perpEndRightX),
                         rev(sinfo$perpStartRightX),
                         rev(cinfo$rightInside),
+                        rev(cinfo$rightMitreLength), grob$mitrelimit,
                         rev(cinfo$rightIntx2),
                         rev(cinfo$rightIntx1),
                         rev(carcinfo$rightarcx),
@@ -112,6 +120,7 @@ vwlinePoints <- function(grob) {
     righty <- buildEdge(rev(sinfo$perpEndRightY),
                         rev(sinfo$perpStartRightY),
                         rev(cinfo$rightInside),
+                        rev(cinfo$rightMitreLength), grob$mitrelimit,
                         rev(cinfo$rightInty2),
                         rev(cinfo$rightInty1),
                         rev(carcinfo$rightarcy),

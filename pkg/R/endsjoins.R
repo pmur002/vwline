@@ -58,7 +58,22 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
     ## All of these are per *corner* (N - 1)
     with(sinfo,
          {
-             leftInside <- angleDiff(angle[-N], angle[-1], clockwise=FALSE) < pi
+             leftAngle <- angleDiff(angle[-N], angle[-1], clockwise=FALSE)
+             rightAngle <- angleDiff(angle[-N], angle[-1], clockwise=TRUE)
+             leftInside <- leftAngle < pi
+             ## Following PDF definition
+             if (leftInside) {
+                 leftMitreLength <- 0
+                 rightMitreLength <-
+                     1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                                     angle[-1], clockwise=TRUE)/2)
+             } else {
+                 leftMitreLength <-
+                     1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                                     angle[-1], clockwise=FALSE)/2)
+                 rightMitreLength <- 0
+             }
+             
              ## Intersection left edge segments with each other
              leftIntEdge <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
                                          perpEndLeftX[-N], perpEndLeftY[-N],
@@ -119,6 +134,7 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                  ifelse(useEdgeInt,
                         leftIntEdge$y,
                         ifelse(edgeIntNext, perpStartLeftY[-1], leftInt2$y))
+             
              rightInside <- !leftInside
              rightIntEdge <- intersection(perpStartRightX[-N],
                                         perpStartRightY[-N],
@@ -207,7 +223,8 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                        id=rep((1:(N-1))[!rightInside], 4), "orange")
              }
 
-             data.frame(leftInside, rightInside, 
+             data.frame(leftInside, rightInside,
+                        leftMitreLength, rightMitreLength,
                         leftIntx1, leftIntx2, leftInty1, leftInty2,
                         rightIntx1, rightIntx2, rightInty1, rightInty2,
                         angle)
