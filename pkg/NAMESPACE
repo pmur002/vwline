@@ -11,7 +11,7 @@ export(## Main API
        "grid.brushXspline", "brushXsplineGrob",
 
        ## Specifying widths
-       "widthSpline",
+       "widthSpec", "widthSpline",
 
        ## Specifying brushes
        "verticalBrush", "circleBrush", "squareBrush",
