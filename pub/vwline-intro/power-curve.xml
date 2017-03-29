@@ -1879,7 +1879,7 @@ grid.xspline(x, y, shape=1, gp=gpar(lwd=3), repEnds=FALSE)
     <p>
     Here is an example that shows development of an X-spline that
     combines smooth approximation with hitting
-    the maximum, with nice end asymptote for when we want to repeat the curve.
+    the maximum, with a nice end asymptote.
   </p>
     <rcode id="xsplines-smooth-max-asymp-a" echo="FALSE" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
 grid.rect(gp=gpar(col=NA, fill="grey90"))

@@ -1,33 +1,28 @@
 
-## Draw a line with variable width by just generating
-## points either side of x/y and then joining them up
+## Draw a line with variable width by generating line segments with
+## specified width and then adding corner joins and line ends
 grid.vwline <- function(...) {
     grid.draw(vwlineGrob(...))
 }
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
-                       render=vwPolygon,
+                       linejoin="round", lineend="butt", mitrelimit=4,
+                       stepWidth=FALSE, render=vwPolygon,
                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
-    ## Ok to recycle x or y or w
-    maxlen <- max(length(x), length(y), length(w))
-    if (length(x) < maxlen) 
-        x <- rep(x, length.out=maxlen)
-    if (length(y) < maxlen) 
-        y <- rep(y, length.out=maxlen)
-    if (length(w) < maxlen) 
-        w <- rep(w, length.out=maxlen)
-    checkvwline(x, y, w)
     if (!is.unit(x)) {
         x <- unit(x, default.units)
     }
     if (!is.unit(y)) {
         y <- unit(y, default.units)
     }
-    if (!is.unit(w)) {
-        w <- unit(w, default.units)
+    if (!inherits(w, "widthSpec")) {
+        w <- widthSpec(w, default.units)
     }
+    checkvwline(x, y, w)
     gTree(x=x, y=y, w=w, open=open, render=render, angle=angle,
+          linejoin=linejoin, lineend=lineend, mitrelimit=mitrelimit,
+          stepWidth=stepWidth,
           gp=gp, name=name, cl="vwlineGrob",
           debug=debug)
 }
@@ -43,73 +38,162 @@ checkvwline <- function(x, y, w) {
     }
 }
 
-## Calculate points to the left and to the right
-vwlinePoints <- function(grob) {
-    N <- length(grob$x)
-    x <- convertX(grob$x, "in", valueOnly=TRUE)
-    y <- convertY(grob$y, "in", valueOnly=TRUE)
-    w <- pmin(convertWidth(grob$w, "in", valueOnly=TRUE),
-              convertHeight(grob$w, "in", valueOnly=TRUE))
-    ## fixed angle is simple
-    if (is.numeric(grob$angle)) {
-        offset(x, y, w/2, grob$angle)
-    } else { # should be "perp" but anything will do
-        leftx <- numeric(N)
-        lefty <- numeric(N)
-        rightx <- numeric(N)
-        righty <- numeric(N)
-        midx <- numeric(N)
-        midy <- numeric(N)
-        ## First point
-        if (grob$open) {
-            perps <- perpStart(x[1:2], y[1:2], w[1]/2)
-            leftx[1] <- perps[1, 1]
-            lefty[1] <- perps[1, 2]
-            rightx[1] <- perps[2, 1]
-            righty[1] <- perps[2, 2]
-        } else {
-            seq <- c(N, 1:2)
-            perps <- perpMid(as.numeric(x[seq]), as.numeric(y[seq]), w[1]/2)
-            leftx[1] <- perps[1, 1]
-            lefty[1] <- perps[1, 2]
-            rightx[1] <- perps[2, 1]
-            righty[1] <- perps[2, 2]
-        }
-        if (N > 2) {
-            ## All but first and last points
-            for (i in 2:(N - 1)) {
-                seq <- (i - 1):(i + 1)
-                perps <- perpMid(as.numeric(x[seq]), as.numeric(y[seq]), w[i]/2)
-                leftx[i] <- perps[1, 1]
-                lefty[i] <- perps[1, 2]
-                rightx[i] <- perps[2, 1]
-                righty[i] <- perps[2, 2]
+buildEdge <- function(perpStart, perpEnd, inside, intpt1, intpt2,
+                      arc, join, leftedge) {
+    N <- length(perpStart)
+    x <- vector("list", N+1)
+    x[[1]] <- perpStart[1]
+    if (N > 1) {
+        for (i in 1:(N-1)) {
+            if (inside[i]) {
+                x[[i+1]] <- c(intpt1[i], intpt2[i])
+            } else {
+                switch(join,
+                       round=
+                           {
+                               if (leftedge) {
+                                   x[[i+1]] <- c(perpEnd[i], arc[[i]],
+                                                 perpStart[i+1])
+                               } else {
+                                   x[[i+1]] <- c(perpEnd[i], rev(arc[[i]]),
+                                                 perpStart[i+1])
+                               }
+                           },
+                       mitre=
+                           {
+                               x[[i+1]] <- c(intpt1[i], intpt2[i])
+                           },
+                       bevel=
+                           {
+                               x[[i+1]] <- c(perpEnd[i], perpStart[i+1])
+                           },
+                       stop("Invalid linejoin value")
+                       )
             }
         }
-        ## Last point
-        if (grob$open) {
-            perps <- perpEnd(x[(N-1):N], y[(N-1):N], w[N]/2)
-            leftx[N] <- perps[1, 1]
-            lefty[N] <- perps[1, 2]
-            rightx[N] <- perps[2, 1]
-            righty[N] <- perps[2, 2]
-        } else {
-            seq <- c(N - 1, N, 1)
-            perps <- perpMid(as.numeric(x[seq]), as.numeric(y[seq]), w[N]/2)
-            leftx[N] <- perps[1, 1]
-            lefty[N] <- perps[1, 2]
-            rightx[N] <- perps[2, 1]
-            righty[N] <- perps[2, 2]
-        }
-        list(left=list(x=leftx, y=lefty),
-             right=list(x=rightx, y=righty))
     }
+    x[[N+1]] <- perpEnd[N]
+    unlist(x)
+}
+
+## Calculate points to the left and to the right
+vwlinePoints <- function(grob) {
+    x <- convertX(grob$x, "in", valueOnly=TRUE)
+    y <- convertY(grob$y, "in", valueOnly=TRUE)
+    w <- grob$w
+    w$left <- pmin(convertWidth(w$left, "in", valueOnly=TRUE),
+                   convertHeight(w$left, "in", valueOnly=TRUE))
+    w$right <- pmin(convertWidth(w$right, "in", valueOnly=TRUE),
+                    convertHeight(w$right, "in", valueOnly=TRUE))
+    sinfo <- segInfo(x, y, w, grob$stepWidth, grob$debug)
+    cinfo <- cornerInfo(x, y, sinfo, grob$stepWidth, grob$debug)
+    carcinfo <- cornerArcInfo(sinfo, cinfo, grob$debug)
+    leftx <- buildEdge(sinfo$perpStartLeftX,
+                       sinfo$perpEndLeftX,
+                       cinfo$leftInside,
+                       cinfo$leftIntx1,
+                       cinfo$leftIntx2,
+                       carcinfo$leftarcx,
+                       grob$linejoin, TRUE)
+    lefty <- buildEdge(sinfo$perpStartLeftY,
+                       sinfo$perpEndLeftY,
+                       cinfo$leftInside,
+                       cinfo$leftInty1,
+                       cinfo$leftInty2,
+                       carcinfo$leftarcy,
+                       grob$linejoin, TRUE)
+    rightx <- buildEdge(rev(sinfo$perpEndRightX),
+                        rev(sinfo$perpStartRightX),
+                        rev(cinfo$rightInside),
+                        rev(cinfo$rightIntx2),
+                        rev(cinfo$rightIntx1),
+                        rev(carcinfo$rightarcx),
+                        grob$linejoin, FALSE)
+    righty <- buildEdge(rev(sinfo$perpEndRightY),
+                        rev(sinfo$perpStartRightY),
+                        rev(cinfo$rightInside),
+                        rev(cinfo$rightInty2),
+                        rev(cinfo$rightInty1),
+                        rev(carcinfo$rightarcy),
+                        grob$linejoin, FALSE)
+    list(left=list(x=leftx, y=lefty),
+         right=list(x=rightx, y=righty),
+         sinfo=sinfo)
+}
+
+buildEnds <- function(w, einfo, earcinfo, stepWidth,
+                      linejoin, lineend, mitrelimit) {
+    switch(lineend,
+           butt=
+               {
+                   startx <- starty <- endx <- endy <- numeric()
+               },
+           round=
+               {
+                   startx <- earcinfo[[1]]$arcx[[1]]
+                   starty <- earcinfo[[1]]$arcy[[1]]
+                   endx <- earcinfo[[2]]$arcx[[1]]
+                   endy <- earcinfo[[2]]$arcy[[1]]
+               },
+           mitre=
+               {
+                   width <- w$left[1] + w$right[1]
+                   if (width > 0 &&
+                       einfo$startmitrelength/width <= mitrelimit &&
+                       ## Not diverging at end
+                       abs(earcinfo[[1]]$cornerangle) < pi) {
+                       startx <- einfo$startmitre$x
+                       starty <- einfo$startmitre$y
+                   } else {
+                       ## Fall back to square
+                       startx <- c(einfo$startcorner2$x, einfo$startcorner1$x)
+                       starty <- c(einfo$startcorner2$y, einfo$startcorner1$y)
+                   }
+                   N <- length(w$left)
+                   if (stepWidth) {
+                       width <- w$left[N-1] + w$right[N-1]
+                   } else {
+                       width <- w$left[N] + w$right[N]
+                   }
+                   if (width > 0 &&
+                       einfo$endmitrelength/width <= mitrelimit &&
+                       ## Not diverging at end
+                       abs(earcinfo[[2]]$cornerangle) < pi) {
+                       endx <- einfo$endmitre$x
+                       endy <- einfo$endmitre$y
+                   } else {
+                       endx <- c(einfo$endcorner1$x, einfo$endcorner2$x)
+                       endy <- c(einfo$endcorner1$y, einfo$endcorner2$y)
+                   }
+               },
+           square=
+               {
+                   startx <- c(einfo$startcorner2$x, einfo$startcorner1$x)
+                   starty <- c(einfo$startcorner2$y, einfo$startcorner1$y)
+                   endx <- c(einfo$endcorner1$x, einfo$endcorner2$x)
+                   endy <- c(einfo$endcorner1$y, einfo$endcorner2$y)
+               },
+           stop("Invalid lineend value")
+           )
+    list(startx=startx, starty=starty, endx=endx, endy=endy)
 }
 
 vwlineOutline <- function(grob) {
+    x <- convertX(grob$x, "in", valueOnly=TRUE)
+    y <- convertY(grob$y, "in", valueOnly=TRUE)
+    w <- grob$w
+    w$left <- pmin(convertWidth(w$left, "in", valueOnly=TRUE),
+                   convertHeight(w$left, "in", valueOnly=TRUE))
+    w$right <- pmin(convertWidth(w$right, "in", valueOnly=TRUE),
+                    convertHeight(w$right, "in", valueOnly=TRUE))
     pts <- vwlinePoints(grob)
-    list(x=c(pts$left$x, rev(pts$right$x)),
-         y=c(pts$left$y, rev(pts$right$y)))
+    sinfo <- segInfo(x, y, w, grob$stepWidth, grob$debug)
+    einfo <- endInfo(x, y, w, sinfo, grob$stepWidth, grob$debug)
+    earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+    ends <- buildEnds(w, einfo, earcinfo, grob$stepWidth,
+                      grob$linejoin, grob$lineend, grob$mitrelimit)
+    list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
+         y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
 }
 
 makeContent.vwlineGrob <- function(x, ...) {

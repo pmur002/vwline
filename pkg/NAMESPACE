@@ -1,10 +1,12 @@
 
+importFrom("grid", "makeContent")
+
 import("polyclip")
 
 export(## Main API
        "grid.vwcurve", "vwcurveGrob",
        "grid.vwXspline", "vwXsplineGrob",
-       "grid.brushline", "brushlineGrob",
+       "grid.vwline", "vwlineGrob",
        "grid.brushXspline", "brushXsplineGrob",
 
        ## Specifying widths
@@ -28,7 +30,11 @@ export(## Main API
 
 S3method("makeContent", "vwcurveGrob")
 S3method("makeContent", "vwXsplineGrob")
+S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "brushXsplineGrob")
 S3method("edgePoints", "vwcurveGrob")
 S3method("edgePoints", "vwXsplineGrob")
+S3method("edgePoints", "vwlineGrob")
 S3method("edgePoints", "brushXsplineGrob")
+
+S3method("length", "widthSpec")

@@ -2,6 +2,30 @@
 ################################################################################
 ## Handling of width specification
 
+## Convert single width to two-sided width
+widthSpec <- function(x, default.units="npc") {
+    if (is.list(x)) {
+        if (!all(c("left", "right") %in% names(x)) ||
+            length(x$left) != length(x$right)) {
+            stop("Invalid width specification")
+        }
+    } else {
+        x <- list(left=.5*x, right=.5*x)
+    }
+    if (!is.unit(x$left)) {
+        x$left <- unit(x$left, default.units)
+    }
+    if (!is.unit(x$right)) {
+        x$right <- unit(x$right, default.units)
+    }
+    class(x) <- "widthSpec"
+    x
+}
+
+length.widthSpec <- function(x) {
+    length(x$left)
+}
+
 ## Width is specified as an X-spline where ...
 ## ... x values are distances along the path
 ## ... y values are widths
