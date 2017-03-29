@@ -1,6 +1,7 @@
 
-importFrom("grid", "makeContent")
-
+importFrom("grDevices", "chull", "rgb")
+importFrom("stats", "approx")
+import("grid")
 import("polyclip")
 
 export(## Main API

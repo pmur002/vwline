@@ -33,7 +33,7 @@ makeSegment <- function(brush1, brush2, debug=FALSE) {
     hull <- chull(allpts)
     if (debug) {
         grid.polygon(allpts$x[hull], allpts$y[hull],
-                     default="in", gp=gpar(col=NA, fill=rgb(1,0,0,.5)))
+                     default.units="in", gp=gpar(col=NA, fill=rgb(1,0,0,.5)))
     }
     list(x=allpts$x[hull], y=allpts$y[hull])
 }
@@ -61,14 +61,16 @@ makeCorner <- function(brush, x, y, size, debug=FALSE) {
         }
         if (debug) {
             grid.polygon(cornerPoly$x, cornerPoly$y,
-                         default="in", gp=gpar(col=NA, fill=rgb(0,1,0,.5)))
+                         default.units="in",
+                         gp=gpar(col=NA, fill=rgb(0,1,0,.5)))
         }
         cornerPoly
     } else {
         result <- placeBrush(brush, x[2], y[2], size, angle1)
         if (debug) {
             grid.polygon(result$x, result$y,
-                         default="in", gp=gpar(col=NA, fill=rgb(0,0,1,.5)))
+                         default.units="in",
+                         gp=gpar(col=NA, fill=rgb(0,0,1,.5)))
         }
         result
     }

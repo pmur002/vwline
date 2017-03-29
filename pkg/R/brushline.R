@@ -58,9 +58,9 @@ brushlineOutline <- function(grob) {
     totalLength <- sum(lengths)
 
     if (grepl("vert", grob$angle)) {
-        a <- rep(0, length(xx))
+        a <- rep(0, length(x))
     } else if (grepl("horiz", grob$angle)) {
-        a <- rep(pi/2, length(xx))
+        a <- rep(pi/2, length(x))
     } else {
         a <- numeric(length(x))
         if (grob$open) {
@@ -80,13 +80,13 @@ brushlineOutline <- function(grob) {
         }
     } 
     brushes <- vector("list", N)
-    brushes[[1]] <- placeBrush(grob$brush, x[1], y[1], ww[1], a[1])
+    brushes[[1]] <- placeBrush(grob$brush, x[1], y[1], w[1], a[1])
     if (N > 2) {
         for (i in 2:(N - 1)) {
-            brushes[[i]] <- placeBrush(grob$brush, x[i], y[i], ww[i], a[i])
+            brushes[[i]] <- placeBrush(grob$brush, x[i], y[i], w[i], a[i])
         }
     }
-    brushes[[N]] <- placeBrush(grob$brush, x[N], y[N], ww[N], a[N])
+    brushes[[N]] <- placeBrush(grob$brush, x[N], y[N], w[N], a[N])
     ## Make segment for each pair of vertices
     ## (based on convex hull of brush at vertices)
     segments <- vector("list", N - 1)
@@ -106,7 +106,7 @@ brushlineOutline <- function(grob) {
         ## Show the brushes at each vertex
         for (i in 1:N) {
             b <- brushes[[i]]
-            grid.polygon(b$x, b$y, default="in", gp=gpar(col="grey"))
+            grid.polygon(b$x, b$y, default.units="in", gp=gpar(col="grey"))
         }
     }
         

@@ -52,7 +52,7 @@ brushXsplineOutline <- function(grob) {
     N <- length(xx)
     if (grob$debug) {
         ## Show flattened path vertices
-        grid.points(xx, yy, default="in", pch=16, size=unit(1, "mm"))
+        grid.points(xx, yy, default.units="in", pch=16, size=unit(1, "mm"))
     }
 
     ## Calculate distances between flattened vertices
@@ -142,7 +142,7 @@ brushXsplineOutline <- function(grob) {
             ## Show the brushes at each vertex
             for (i in 1:N) {
                 b <- brushes[[i]]
-                grid.polygon(b$x, b$y, default="in", gp=gpar(col="grey"))
+                grid.polygon(b$x, b$y, default.units="in", gp=gpar(col="grey"))
             }
         }
         
