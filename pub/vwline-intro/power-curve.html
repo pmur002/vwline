@@ -107,7 +107,7 @@
       </span>
     </p>
     <p class="date">
-Wednesday 29 March 2017
+Thursday 30 March 2017
     </p>
 
     <hr>
@@ -159,10 +159,10 @@ Wednesday 29 March 2017
           <a href="#method-2">Method 2: Offset control points</a>
         </li>
         <li>
-          <a href="#method-2">Method 3: Offset lines</a>
+          <a href="#method-3">Method 3: Offset lines</a>
         </li>
         <li>
-          <a href="#method-3">Method 4: Offset polygons</a>
+          <a href="#method-4">Method 4: Offset polygons</a>
         </li>
         <li>
           <a href="#Detail">Fine tuning variable-width lines</a>
@@ -423,14 +423,14 @@ Wednesday 29 March 2017
       <img src="figure/vwxspline-swish-1.svg" width="30%">
     </p>
     <h2>
-      <a name="method-2">Method 3: Offset lines</a>
+      <a name="method-3">Method 3: Offset lines</a>
     </h2>
     <p>
     The third approach to drawing variable-width lines is
     provided by the <code>vwline</code> function.
   </p>
     <h2>
-      <a name="method-3">Method 4: Offset polygons</a>
+      <a name="method-4">Method 4: Offset polygons</a>
     </h2>
     <p>
     The fourth approach to drawing variable-width lines, which is
@@ -879,6 +879,18 @@ Wednesday 29 March 2017
       <img src="figure/brush-edge-points-1.svg" width="30%">
     </p>
     <h3>
+      <a name="lineends">Line endings</a>
+    </h3>
+    <p>
+    Line joins make no sense for vwcurve() or vwXspline() because
+    there is only ever one set of points (or control points) at each
+    corner.  Line joins are important for vwline() and also for
+    brushXspline(), but only when shape=0.
+  </p>
+    <p>
+    Line ends should be useful in all cases (?)
+  </p>
+    <h3>
       <a name="smoothness">Smooth curves</a>
     </h3>
     <p>
@@ -1178,9 +1190,9 @@ Wednesday 29 March 2017
     useful in a plot.  This is of course based on the data for Minard's
     map.
   </p>
-<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r">                       <span class="hl kwd">unit</span>(survivors/<span class="hl kwd">max</span>(survivors), <span class="hl str">&quot;<span class="hl kwa">in</span>&quot;</span>),
-                       gp=<span class="hl kwd">gpar</span>(fill=<span class="hl kwd">rgb</span>(0,0,1,.5)))
-     <span class="hl kwd">grid.xspline</span>(long, lat, default.units=<span class="hl str">&quot;native&quot;</span>, shape=0.1,
+<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r">                 stepWidth=<span class="hl kwa">TRUE</span>, linejoin=<span class="hl str">&quot;mitre&quot;</span>,
+                 gp=<span class="hl kwd">gpar</span>(col=<span class="hl str">&quot;black&quot;</span>), debug=<span class="hl kwa">TRUE</span>) #fill=<span class="hl kwd">rgb</span>(0,0,1,.5)))
+ })
 </pre></div>
 </div></div>
     <p> If do Minard's map example, note other people's efforts,,
@@ -1277,7 +1289,7 @@ Wednesday 29 March 2017
       an open source freeware library for
       clipping and offsetting lines and polygons,
       Angus Johnson, 
-      URL visited 2017-03-29
+      URL visited 2017-03-30
     </li>
       <li>
 <a name="polyclip"></a>
@@ -1288,7 +1300,7 @@ Wednesday 29 March 2017
       <li>
 <a name="cgal"></a><a href="http://www.cgal.org/">CGAL</a> 
       The Computational Geometry Algorithms Library,
-      URL visited 2017-03-29
+      URL visited 2017-03-30
     </li>
       <li>
 <a name="cgal-manual"></a><a href="http://doc.cgal.org/4.9/Manual/packages.html">CGAL User and Reference Manual</a>,

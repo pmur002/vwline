@@ -105,10 +105,10 @@ mysvg <- function(filename, width, height) {
           <a href="#method-2">Method 2: Offset control points</a>
         </li>
         <li>
-          <a href="#method-2">Method 3: Offset lines</a>
+          <a href="#method-3">Method 3: Offset lines</a>
         </li>
         <li>
-          <a href="#method-3">Method 4: Offset polygons</a>
+          <a href="#method-4">Method 4: Offset polygons</a>
         </li>
         <li>
           <a href="#Detail">Fine tuning variable-width lines</a>
@@ -556,14 +556,14 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/vwxspline-swish-1.svg" width="30%">
     </p>
     <h2>
-      <a name="method-2">Method 3: Offset lines</a>
+      <a name="method-3">Method 3: Offset lines</a>
     </h2>
     <p>
     The third approach to drawing variable-width lines is
     provided by the <code>vwline</code> function.
   </p>
     <h2>
-      <a name="method-3">Method 4: Offset polygons</a>
+      <a name="method-4">Method 4: Offset polygons</a>
     </h2>
     <p>
     The fourth approach to drawing variable-width lines, which is
@@ -1150,6 +1150,18 @@ grid.text('edgePoints(brushXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/brush-edge-points-1.svg" width="30%">
     </p>
     <h3>
+      <a name="lineends">Line endings</a>
+    </h3>
+    <p>
+    Line joins make no sense for vwcurve() or vwXspline() because
+    there is only ever one set of points (or control points) at each
+    corner.  Line joins are important for vwline() and also for
+    brushXspline(), but only when shape=0.
+  </p>
+    <p>
+    Line ends should be useful in all cases (?)
+  </p>
+    <h3>
       <a name="smoothness">Smooth curves</a>
     </h3>
     <p>
@@ -1567,21 +1579,35 @@ with(Minard.troops,
      })
 with(subset(Minard.troops, direction == "A" & group == 1),
      {
-         grid.brushXspline(circleBrush(), long, lat, default.units="native",
-                           shape=0.1,
-                           unit(survivors/max(survivors), "in"),
-                           gp=gpar(fill=rgb(0,0,1,.5)))
-         grid.xspline(long, lat, default.units="native", shape=0.1,
-                      gp=gpar(lty="dashed", lwd=3, col="white"))
+         grid.vwline(long, lat, default.units="native",
+                     unit(survivors/max(survivors), "in"),
+                     stepWidth=TRUE, linejoin="mitre",
+                     gp=gpar(col="black"), debug=TRUE) #fill=rgb(0,0,1,.5)))
      })
 with(subset(Minard.troops, direction == "R" & group == 1),
      {
-         grid.brushXspline(circleBrush(), long, lat, default.units="native",
-                           shape=0.1,
-                           unit(survivors/max(survivors), "in"),
-                           gp=gpar(fill=rgb(1,0,0,.5)))
+         grid.vwline(long, lat, default.units="native",
+                     unit(survivors/max(survivors), "in"),
+                     stepWidth=TRUE, linejoin="mitre",
+                     gp=gpar(fill=rgb(1,0,0,.5)))
          grid.xspline(long, lat, default.units="native", shape=0.1,
                       gp=gpar(lty="dashed", lwd=3, col="white"))
+     })
+
+with(Minard.troops,    
+     {
+         grid.newpage()
+         pushViewport(viewport(layout=grid.layout(1, 1, 
+                                                  widths=diff(range(long)),
+                                                  heights=diff(range(lat)),
+                                                  respect=TRUE)))
+         pushViewport(dataViewport(long, lat, layout.pos.col=1))
+     })
+with(subset(Minard.troops, direction == "A" & group == 1),
+     {
+         grid.vwline(long, lat, default.units="native",
+                     w=unit(survivors/max(survivors), "in"),
+                     stepWidth=TRUE, linejoin="mitre")
      })
   end.rcode-->
     <p> If do Minard's map example, note other people's efforts,,
