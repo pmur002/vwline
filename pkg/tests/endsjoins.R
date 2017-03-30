@@ -23,19 +23,22 @@ simpleLine <- function(x, y, w) {
     pushViewport(viewport(layout.pos.row=1, layout.pos.col=2))
     pts(x, y)
     lines(x, y)
-    grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+    grid.vwline(x, y, w, default.units="in",
+                gp=gpar(col="black", fill=rgb(0,0,0,.2)),
                 linejoin="round", lineend="round")
     popViewport()
     pushViewport(viewport(layout.pos.row=2, layout.pos.col=1))
     pts(x, y)
     lines(x, y)
-    grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+    grid.vwline(x, y, w, default.units="in",
+                gp=gpar(col="black", fill=rgb(0,0,0,.2)),
                 linejoin="mitre", lineend="mitre")
     popViewport()
     pushViewport(viewport(layout.pos.row=2, layout.pos.col=2))
     pts(x, y)
     lines(x, y)
-    grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+    grid.vwline(x, y, w, default.units="in", 
+                gp=gpar(col="black", fill=rgb(0,0,0,.2)),
                 linejoin="bevel", lineend="square")
     popViewport()
     popViewport()
@@ -225,19 +228,22 @@ popViewport()
 pushViewport(viewport(layout.pos.row=1, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in",
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="round", lineend="round")
 popViewport()
 pushViewport(viewport(layout.pos.row=2, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in", 
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="mitre", lineend="mitre")
 popViewport()
 pushViewport(viewport(layout.pos.row=3, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in", 
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="bevel", lineend="square")
 popViewport()
 
@@ -259,19 +265,22 @@ popViewport()
 pushViewport(viewport(layout.pos.row=1, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, 
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="round", lineend="round")
 popViewport()
 pushViewport(viewport(layout.pos.row=2, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, 
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="mitre", lineend="mitre")
 popViewport()
 pushViewport(viewport(layout.pos.row=3, layout.pos.col=2))
 pts(x, y)
 lines(x, y)
-grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, gp=gpar(col="black"),
+grid.vwline(x, y, w, default.units="in", stepWidth=TRUE, 
+            gp=gpar(col="black", fill=rgb(0,0,0,.2)),
             linejoin="bevel", lineend="square")
 popViewport()
 
@@ -338,9 +347,74 @@ y <- c(.3, .7, .3)
 grid.vwline(x, y, w, linejoin="mitre", mitrelimit=10)
 grid.text("within mitre limit (10)", x=.75, y=.25)
 
+## Tests for sharp corner, large change in width, stepWidth=TRUE
+## 'len' is length of second segment
+## 'width' is width of second segment
+drawLine <- function(len, width, debug=FALSE, rev=FALSE) {
+    x <- c(.2, .6, .6)
+    y <- c(.2, .8, .8 - len)
+    w <- c(.1, width, 0)
+    if (rev) {
+        x <- rev(x)
+        y <- rev(y)
+        w <- c(width, .1, 0)
+    }
+    if (debug) {
+        grid.vwline(x, y, w, stepWidth=TRUE, debug=TRUE, linejoin="mitre",
+                    gp=gpar(col="black"))
+    } else {
+        grid.vwline(x, y, w, stepWidth=TRUE, linejoin="mitre",
+                    gp=gpar(col="black", fill=rgb(0,0,0,.2)))
+    }
+}
+
+drawPage <- function(params, debug=FALSE, rev=FALSE) {
+    N <- nrow(params)
+    dims <- n2mfrow(N)
+    grid.newpage()
+    pushViewport(viewport(layout=grid.layout(dims[1], dims[2], respect=TRUE)))
+    for (i in 1:N) {
+        row <- (i - 1) %/% dims[2] + 1
+        col <- (i - 1) %% dims[2] + 1
+        pushViewport(viewport(layout.pos.col=col, layout.pos.row=row))
+        drawLine(params[i,1], params[i,2], debug, rev)
+        popViewport()
+    }
+}
+    
+params <- rbind(c(.03, .05), 
+                c(.1, .05), # rt edge of 2nd seg entirely within 1st seg
+                c(.1, .1), # rt edge of 2nd seg entirely within 1st seg
+                c(.1, .4), # rt edge of 2nd seg entirely wrong side of 1st seg
+                c(.3, .4), # rt edge of 2nd seg ends within 1st seg
+                c(.4, .4), # rt edge of 2nd seg ends within 1st seg
+                c(.7, .8), # rt edge of 2nd seg intersects start end of 1st seg
+                c(.7, .9), # rt edge of 1st seg entirely within 2nd seg
+                ## (sane case)
+                c(.4, .1) # rt edge of 2nd seg intersects rt edge of 1st seg
+                )
+
+drawPage(params, debug=TRUE)
+drawPage(params, debug=FALSE)
+drawPage(params, debug=TRUE, rev=TRUE)
+drawPage(params, debug=FALSE, rev=TRUE)
+
 dev.off()
 
-stopifnot(tools::Rdiff("endsjoins-tests.pdf",
-                       system.file("regression-tests",
-                                   "endsjoins-tests.save.pdf",
-                                   package="vwline")) == 0L)
+savedPDF <- system.file("regression-tests", "endsjoins-tests.save.pdf",
+                        package="vwline")
+diff <- tools::Rdiff("endsjoins-tests.pdf", savedPDF)
+
+if (diff != 0L) {
+    ## If differences found, generate images of the differences and error out
+    system("pdfseparate endsjoins-tests.pdf test-pages-%d.pdf")
+    system(paste0("pdfseparate ", savedPDF, " model-pages-%d.pdf"))
+    modelFiles <- list.files(pattern="model-pages-.*")
+    N <- length(modelFiles)
+    for (i in 1:N) {
+        system(paste0("compare model-pages-", i, ".pdf ",
+                      "test-pages-", i, ".pdf ",
+                      "diff-pages-", i, ".png"))
+    } 
+    stop("Regression testing detected differences")
+}

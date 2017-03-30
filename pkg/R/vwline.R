@@ -38,17 +38,17 @@ checkvwline <- function(x, y, w) {
     }
 }
 
-buildEdge <- function(perpStart, perpEnd, inside, mitrelen, mitrelimit,
-                      intpt1, intpt2, arc, join, leftedge) {
+buildEdge <- function(join, perpStart, perpEnd, inside, mitrelen, mitrelimit,
+                      intpt1, intpt2, arc, linejoin, leftedge) {
     N <- length(perpStart)
     x <- vector("list", N+1)
     x[[1]] <- perpStart[1]
     if (N > 1) {
         for (i in 1:(N-1)) {
             if (inside[i]) {
-                x[[i+1]] <- c(intpt1[i], intpt2[i])
+                x[[i+1]] <- c(perpEnd[i], join[i+1], perpStart[i+1])
             } else {
-                switch(join,
+                switch(linejoin,
                        round=
                            {
                                if (leftedge) {
@@ -93,7 +93,8 @@ vwlinePoints <- function(grob) {
     sinfo <- segInfo(x, y, w, grob$stepWidth, grob$debug)
     cinfo <- cornerInfo(x, y, sinfo, grob$stepWidth, grob$debug)
     carcinfo <- cornerArcInfo(sinfo, cinfo, grob$debug)
-    leftx <- buildEdge(sinfo$perpStartLeftX,
+    leftx <- buildEdge(x,
+                       sinfo$perpStartLeftX,
                        sinfo$perpEndLeftX,
                        cinfo$leftInside,
                        cinfo$leftMitreLength, grob$mitrelimit,
@@ -101,7 +102,8 @@ vwlinePoints <- function(grob) {
                        cinfo$leftIntx2,
                        carcinfo$leftarcx,
                        grob$linejoin, TRUE)
-    lefty <- buildEdge(sinfo$perpStartLeftY,
+    lefty <- buildEdge(y,
+                       sinfo$perpStartLeftY,
                        sinfo$perpEndLeftY,
                        cinfo$leftInside,
                        cinfo$leftMitreLength, grob$mitrelimit,
@@ -109,7 +111,8 @@ vwlinePoints <- function(grob) {
                        cinfo$leftInty2,
                        carcinfo$leftarcy,
                        grob$linejoin, TRUE)
-    rightx <- buildEdge(rev(sinfo$perpEndRightX),
+    rightx <- buildEdge(rev(x),
+                        rev(sinfo$perpEndRightX),
                         rev(sinfo$perpStartRightX),
                         rev(cinfo$rightInside),
                         rev(cinfo$rightMitreLength), grob$mitrelimit,
@@ -117,7 +120,8 @@ vwlinePoints <- function(grob) {
                         rev(cinfo$rightIntx1),
                         rev(carcinfo$rightarcx),
                         grob$linejoin, FALSE)
-    righty <- buildEdge(rev(sinfo$perpEndRightY),
+    righty <- buildEdge(rev(y),
+                        rev(sinfo$perpEndRightY),
                         rev(sinfo$perpStartRightY),
                         rev(cinfo$rightInside),
                         rev(cinfo$rightMitreLength), grob$mitrelimit,
@@ -201,31 +205,38 @@ vwlineOutline <- function(grob) {
     earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
     ends <- buildEnds(w, einfo, earcinfo, grob$stepWidth,
                       grob$linejoin, grob$lineend, grob$mitrelimit)
-    list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
-         y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
+    outline <- list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
+                    y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
+    polysimplify(outline, filltype="nonzero")
 }
 
 makeContent.vwlineGrob <- function(x, ...) {
     outline <- vwlineOutline(x)
+    ## outline is list of outlines
     addGrob(x,
-            x$render(outline$x, outline$y, length(outline$x), x$gp, "outline"))
+            x$render(unlist(lapply(outline, "[[", "x")),
+                     unlist(lapply(outline, "[[", "y")),
+                     sapply(outline, function(o) length(o$x)),
+                     x$gp, "outline"))
 }
 
 edgePoints.vwlineGrob <- function(x, d,
-                                  which=c("left", "right"),
+                                  x0, y0,
+                                  which=1,
                                   direction="forward",
                                   debug=FALSE,
                                   ...) {
-    pts <- vwlinePoints(x)
-    result <- list(left=NULL, right=NULL)
-    if ("left" %in% which) {
-        result$left=vwEdgePoints(pts$left, d, direction == "forward",
-                                 x$open, debug)
+    ## Silently force which to length 1
+    which <- which[1]
+    outline <- vwlineOutline(x)
+    ## outline is list of outlines
+    if (which > length(outline)) {
+        stop("Invalid which value")
     }
-    if ("right" %in% which) {
-        result$right=vwEdgePoints(pts$right, d, direction == "forward",
-                                  x$open, debug)
-    }
-    result
+    edge <- outline[[which]]
+    if (!is.unit(x0)) x0 <- unit(x0, "npc")
+    if (!is.unit(y0)) y0 <- unit(y0, "npc")
+    pts <- reorderEdge(edge, x0, y0)
+    vwEdgePoints(pts, d, direction == "forward", x$open, debug)
 }
 
