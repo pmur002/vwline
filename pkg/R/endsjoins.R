@@ -88,16 +88,6 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                                       perpEndLeftX[-1], perpEndLeftY[-1],
                                       perpEndLeftX[-N], perpEndLeftY[-N],
                                       perpEndRightX[-N], perpEndRightY[-N])
-             ## Edge segments intersect on edge segment ?
-             edgeInt1 <- onSegment(perpStartLeftX[-N], perpStartLeftY[-N],
-                                   leftIntEdge$x, leftIntEdge$y,
-                                   perpEndLeftX[-N], perpEndLeftY[-N])
-             edgeInt2 <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
-                                   leftIntEdge$x, leftIntEdge$y,
-                                   perpEndLeftX[-1], perpEndLeftY[-1])
-             ## Edge segments intersect on at least one edge segment
-             bothEdgesInt <- edgeInt1 & edgeInt2
-             edgesInt <- edgeInt1 | edgeInt2
              ## Edge segment intersects with next segment end on segment end
              edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
                                       leftInt1$x, leftInt1$y,
@@ -113,9 +103,8 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                               onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
                                         leftInt2$x, leftInt2$y,
                                         leftIntEdge$x, leftIntEdge$y)
-             useEdgeInt <- (leftInside & bothEdgesInt) |
-                 (leftInside & edgesInt & !stepWidth) |
-                 (!leftInside & !endIntBetween)
+             ## Inside corners do not use intersections at all
+             useEdgeInt <- leftInside | (!leftInside & !endIntBetween)
                         
              leftIntx1 <-
                  ifelse(useEdgeInt,
@@ -149,14 +138,6 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                                       perpEndRightX[-1], perpEndRightY[-1],
                                       perpEndLeftX[-N], perpEndLeftY[-N],
                                       perpEndRightX[-N], perpEndRightY[-N])
-             edgeInt1 <- onSegment(perpStartRightX[-N], perpStartRightY[-N],
-                                   rightIntEdge$x, rightIntEdge$y,
-                                   perpEndRightX[-N], perpEndRightY[-N]) 
-             edgeInt2 <- onSegment(perpStartRightX[-1], perpStartRightY[-1],
-                                   rightIntEdge$x, rightIntEdge$y,
-                                   perpEndRightX[-1], perpEndRightY[-1])
-             bothEdgesInt <- edgeInt1 & edgeInt2
-             edgesInt <- edgeInt1 | edgeInt2
              edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
                                       rightInt1$x, rightInt1$y,
                                       perpStartRightX[-1], perpStartRightY[-1])
@@ -166,12 +147,11 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
              endIntBetween <- onSegment(perpEndRightX[-N], perpEndRightY[-N],
                                         leftInt1$x, rightInt1$y,
                                         rightIntEdge$x, rightIntEdge$y) |
-                              onSegment(perpStartRightX[-1], perpStartRightY[-1],
+                              onSegment(perpStartRightX[-1],
+                                        perpStartRightY[-1],
                                         rightInt2$x, rightInt2$y,
                                         rightIntEdge$x, rightIntEdge$y)
-             useEdgeInt <- (rightInside & bothEdgesInt) |
-                 (rightInside & edgesInt & !stepWidth) |
-                 (!rightInside & !endIntBetween)
+             useEdgeInt <- rightInside | (!rightInside & !endIntBetween)
              rightIntx1 <-
                  ifelse(useEdgeInt,
                         rightIntEdge$x,
