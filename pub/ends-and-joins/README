@@ -1,0 +1,16 @@
+
+A separate document that describes the algorithms employed to handle
+line ending styles and line join styles for variable-width lines
+(applies to all 'vwline' functions for end styles, 
+ plus vwline() for join styles).
+
+- round ends and round joins NOT necessarily arcs of circles
+  => bezier approximations
+
+- mitre joins NOT necessarily a single intersection point
+
+- ADD mitre end style (with mitre limit as for mitre joins)
+
+- inside corners NOT necessarily a single intersection point
+  => follow simple algorithm along line edges then polysimplify()
+
