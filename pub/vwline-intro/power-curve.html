@@ -107,7 +107,7 @@
       </span>
     </p>
     <p class="date">
-Thursday 30 March 2017
+Friday 31 March 2017
     </p>
 
     <hr>
@@ -428,6 +428,11 @@ Thursday 30 March 2017
     <p>
     The third approach to drawing variable-width lines is
     provided by the <code>vwline</code> function.
+  </p>
+    <p>
+    The deciding factor in deciding how to handle inner joins was
+    "symmetry" (does the line look the same if the x/y locations,
+    and widths, are reversed?).
   </p>
     <h2>
       <a name="method-4">Method 4: Offset polygons</a>
@@ -1175,10 +1180,10 @@ Thursday 30 March 2017
     Add code for infinity symbol
   </p>
 <div class="chunk" id="unnamed-chunk-18"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.brushXspline</span><span class="hl std">(verticalBrush,</span>
-              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.1</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.9</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl num">.05</span><span class="hl std">,</span>
-              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">)</span> <span class="hl opt">-</span> <span class="hl num">.5</span><span class="hl std">,</span>
+              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.1</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.9</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">),</span>
+              <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.8</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">),</span>
               <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">open</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span>
-              <span class="hl kwc">w</span><span class="hl std">=</span><span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
+              <span class="hl kwc">w</span><span class="hl std">=</span><span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">),</span> <span class="hl str">&quot;mm&quot;</span><span class="hl std">),</span>
                             <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">))</span>
 </pre></div>
 </div></div>
@@ -1190,13 +1195,15 @@ Thursday 30 March 2017
     useful in a plot.  This is of course based on the data for Minard's
     map.
   </p>
-<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r">                 stepWidth=<span class="hl kwa">TRUE</span>, linejoin=<span class="hl str">&quot;mitre&quot;</span>,
-                 gp=<span class="hl kwd">gpar</span>(col=<span class="hl str">&quot;black&quot;</span>), debug=<span class="hl kwa">TRUE</span>) #fill=<span class="hl kwd">rgb</span>(0,0,1,.5)))
- })
-</pre></div>
-</div></div>
+
+    <p class="img">
+      <img src="figure/gallery-minard-1.svg" width="80%">
+    </p>
     <p> If do Minard's map example, note other people's efforts,,
       including Thomas Rahlf's book </p>
+    <!-- For the record: 'riverplot' draws lots of little slices (to allow for
+gradient fill) and then lines
+along left and right borders -->
     <h2>
       <a name="Discussion">Discussion</a>
     </h2>
@@ -1289,7 +1296,7 @@ Thursday 30 March 2017
       an open source freeware library for
       clipping and offsetting lines and polygons,
       Angus Johnson, 
-      URL visited 2017-03-30
+      URL visited 2017-03-31
     </li>
       <li>
 <a name="polyclip"></a>
@@ -1300,7 +1307,7 @@ Thursday 30 March 2017
       <li>
 <a name="cgal"></a><a href="http://www.cgal.org/">CGAL</a> 
       The Computational Geometry Algorithms Library,
-      URL visited 2017-03-30
+      URL visited 2017-03-31
     </li>
       <li>
 <a name="cgal-manual"></a><a href="http://doc.cgal.org/4.9/Manual/packages.html">CGAL User and Reference Manual</a>,

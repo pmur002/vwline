@@ -562,6 +562,11 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
     The third approach to drawing variable-width lines is
     provided by the <code>vwline</code> function.
   </p>
+    <p>
+    The deciding factor in deciding how to handle inner joins was
+    "symmetry" (does the line look the same if the x/y locations,
+    and widths, are reversed?).
+  </p>
     <h2>
       <a name="method-4">Method 4: Offset polygons</a>
     </h2>
@@ -1551,14 +1556,14 @@ dev.off()
     Add code for infinity symbol
   </p>
     <!--begin.rcode echo=4, results="hide"
-svg("figure/gallery-infinity-1.svg", bg="transparent")  
+svg("figure/gallery-infinity-1.svg", bg="transparent", height=3)  
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 grid.brushXspline(verticalBrush, 
-                  c(.1, .3, .7, .9, .7, .3) + .05, 
-                  c(.7, .8, .6, .7, .8, .6) - .5, 
+                  c(.1, .3, .7, .9, .7, .3), 
+                  c(.5, .8, .2, .5, .8, .2), 
                   shape=1, open=FALSE, 
-                  w=widthSpline(unit(c(5, 3, 3, 5, 5, 1, 1, 5), "mm"), 
+                  w=widthSpline(unit(2*c(5, 3, 3, 5, 5, 1, 1, 5), "mm"), 
                                 shape=1))
 dev.off()
   end.rcode-->
@@ -1570,30 +1575,10 @@ dev.off()
     useful in a plot.  This is of course based on the data for Minard's
     map.
   </p>
-    <!--begin.rcode eval=FALSE, echo=11:13, results="hide"
+    <!--begin.rcode echo=FALSE, results="hide"
+svg("figure/gallery-minard-1.svg", bg="transparent", width=10)  
 library(HistData)
-with(Minard.troops,    
-     {
-         grid.newpage()
-         pushViewport(dataViewport(long, lat))
-     })
-with(subset(Minard.troops, direction == "A" & group == 1),
-     {
-         grid.vwline(long, lat, default.units="native",
-                     unit(survivors/max(survivors), "in"),
-                     stepWidth=TRUE, linejoin="mitre",
-                     gp=gpar(col="black"), debug=TRUE) #fill=rgb(0,0,1,.5)))
-     })
-with(subset(Minard.troops, direction == "R" & group == 1),
-     {
-         grid.vwline(long, lat, default.units="native",
-                     unit(survivors/max(survivors), "in"),
-                     stepWidth=TRUE, linejoin="mitre",
-                     gp=gpar(fill=rgb(1,0,0,.5)))
-         grid.xspline(long, lat, default.units="native", shape=0.1,
-                      gp=gpar(lty="dashed", lwd=3, col="white"))
-     })
-
+maxSurvivors <- max(Minard.troops$survivors)
 with(Minard.troops,    
      {
          grid.newpage()
@@ -1606,12 +1591,27 @@ with(Minard.troops,
 with(subset(Minard.troops, direction == "A" & group == 1),
      {
          grid.vwline(long, lat, default.units="native",
-                     w=unit(survivors/max(survivors), "in"),
-                     stepWidth=TRUE, linejoin="mitre")
+                     w=unit(.7*survivors/maxSurvivors, "in"),
+                     stepWidth=TRUE, linejoin="mitre",
+                     gp=gpar(col="#E5CBAA", fill="#E5CBAA"))
      })
+with(subset(Minard.troops, direction == "R" & group == 1)[1:16,],
+     {
+         grid.vwline(long, lat, default.units="native",
+                     w=unit(.7*survivors/maxSurvivors, "in"),
+                     stepWidth=TRUE, linejoin="mitre",
+                     gp=gpar(col="black", fill="black"))
+     })
+dev.off()
   end.rcode-->
+    <p class="img">
+      <img src="figure/gallery-minard-1.svg" width="80%">
+    </p>
     <p> If do Minard's map example, note other people's efforts,,
       including Thomas Rahlf's book </p>
+    <!-- For the record: 'riverplot' draws lots of little slices (to allow for
+gradient fill) and then lines
+along left and right borders -->
     <h2>
       <a name="Discussion">Discussion</a>
     </h2>
