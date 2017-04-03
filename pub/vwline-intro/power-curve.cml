@@ -1558,7 +1558,7 @@ dev.off()
     map.
   </p>
   <rcode echo="FALSE" results="hide">
-svg("figure/gallery-minard-1.svg", bg="transparent", width=10)  
+svg("figure/gallery-minard-1.svg", bg="transparent", height=3, width=14)  
 library(HistData)
 maxSurvivors <- max(Minard.troops$survivors)
 with(Minard.troops,    
@@ -1566,24 +1566,26 @@ with(Minard.troops,
          grid.newpage()
          pushViewport(viewport(layout=grid.layout(1, 1, 
                                                   widths=diff(range(long)),
-                                                  heights=diff(range(lat)),
-                                                  respect=TRUE)))
+                                                  heights=diff(range(lat)))))
          pushViewport(dataViewport(long, lat, layout.pos.col=1))
      })
-with(subset(Minard.troops, direction == "A" & group == 1),
+for (gp in 3:1) {
+     with(subset(Minard.troops, direction == "A" & group == gp),
      {
          grid.vwline(long, lat, default.units="native",
-                     w=unit(.7*survivors/maxSurvivors, "in"),
-                     stepWidth=TRUE, linejoin="mitre",
+                     w=unit(survivors/maxSurvivors, "in"),
+                     stepWidth=TRUE, linejoin="mitre", 
                      gp=gpar(col="#E5CBAA", fill="#E5CBAA"))
      })
-with(subset(Minard.troops, direction == "R" & group == 1)[1:16,],
+     with(subset(Minard.troops, direction == "R" & group == gp),
      {
          grid.vwline(long, lat, default.units="native",
-                     w=unit(.7*survivors/maxSurvivors, "in"),
-                     stepWidth=TRUE, linejoin="mitre",
+                     w=list(left=unit(survivors/maxSurvivors, "in"),
+                            right=rep(0, length(survivors))),
+                     stepWidth=TRUE, linejoin="mitre", 
                      gp=gpar(col="black", fill="black"))
      })
+}
 dev.off()
   </rcode>
   <p class="img">
