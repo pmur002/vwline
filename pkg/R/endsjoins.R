@@ -60,7 +60,9 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
          {
              leftAngle <- angleDiff(angle[-N], angle[-1], clockwise=FALSE)
              rightAngle <- angleDiff(angle[-N], angle[-1], clockwise=TRUE)
-             leftInside <- leftAngle < pi
+             ## Include parallel as inside join
+             epsdegree <- .1/180*pi
+             leftInside <- leftAngle <= pi | abs(leftAngle - 2*pi) < epsdegree
              ## Following PDF definition
              leftMitreLength <-
                  ifelse(leftInside,
@@ -123,7 +125,8 @@ cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
                         leftIntEdge$y,
                         ifelse(edgeIntNext, perpStartLeftY[-1], leftInt2$y))
              
-             rightInside <- !leftInside
+             rightInside <- rightAngle >= -pi |
+                 abs(rightAngle - -2*pi) < epsdegree
              rightIntEdge <- intersection(perpStartRightX[-N],
                                         perpStartRightY[-N],
                                         perpEndRightX[-N], perpEndRightY[-N],
