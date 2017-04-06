@@ -1534,7 +1534,25 @@ dev.off()
   </p>
 
   <p>
-    Add code for infinity symbol
+    Arrow in the middle of a curve
+  </p>
+  <rcode echo="4" results="hide">
+svg("figure/gallery-mid-arrow-1.svg", bg="transparent", height=3)  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.newpage()
+grid.brushXspline(list(x=c(-1, 1, -1, 0), y=c(-1, 0, 1, 0)), 
+                  x=c(.2, .5, .8), y=c(.4, .5, .4), w=unit(1, "cm"), 
+                  spacing=.51)
+grid.xspline(x=c(.2, .5, .8), y=c(.4, .5, .4), shape=1)
+dev.off()
+  </rcode>
+  <p class="img">
+    <img src="figure/gallery-mid-arrow-1.svg" width="40%"/>
+  </p>
+
+  <p>
+    Code for infinity symbol
   </p>
   <rcode echo="4" results="hide">
 svg("figure/gallery-infinity-1.svg", bg="transparent", height=3)  
@@ -1751,6 +1769,11 @@ along left and right borders -->
     <li>
       Kimel and Bruckstein (1993)
       http://www.cs.technion.ac.il/~ron/PAPERS/offsets_cad1993.pdf
+    </li>
+    <li>
+      "An offset algorithm for polyline curves"
+      https://seant23.files.wordpress.com/2010/11/anoffsetalgorithm.pdf
+      ../../../Resources/anoffsetalgorithm.pdf
     </li>
     <li>
       Chen and Lin (2014)
