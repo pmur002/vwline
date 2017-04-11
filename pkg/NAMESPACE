@@ -9,6 +9,7 @@ export(## Main API
        "grid.vwXspline", "vwXsplineGrob",
        "grid.vwline", "vwlineGrob",
        "grid.brushXspline", "brushXsplineGrob",
+       "grid.offsetXspline", "offsetXsplineGrob",
 
        ## Specifying widths
        "widthSpec", "widthSpline",
@@ -33,9 +34,11 @@ S3method("makeContent", "vwcurveGrob")
 S3method("makeContent", "vwXsplineGrob")
 S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "brushXsplineGrob")
+S3method("makeContent", "offsetXsplineGrob")
 S3method("edgePoints", "vwcurveGrob")
 S3method("edgePoints", "vwXsplineGrob")
 S3method("edgePoints", "vwlineGrob")
 S3method("edgePoints", "brushXsplineGrob")
+S3method("edgePoints", "offsetXsplineGrob")
 
 S3method("length", "widthSpec")
