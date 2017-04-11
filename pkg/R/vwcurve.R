@@ -7,7 +7,7 @@ grid.vwcurve <- function(...) {
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwcurveGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
-                       render=vwPolygon,
+                       render=if (open) vwPolygon else vwPath(),
                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     ## Ok to recycle x or y or w
     maxlen <- max(length(x), length(y), length(w))
@@ -108,14 +108,22 @@ vwcurvePoints <- function(grob) {
 
 vwcurveOutline <- function(grob) {
     pts <- vwcurvePoints(grob)
-    list(x=c(pts$left$x, rev(pts$right$x)),
-         y=c(pts$left$y, rev(pts$right$y)))
+    if (grob$open) {
+        list(x=c(pts$left$x, rev(pts$right$x)),
+             y=c(pts$left$y, rev(pts$right$y)),
+             id.lengths=length(pts$left$x) + length(pts$right$x))
+    } else {
+        list(x=c(pts$left$x, rev(pts$right$x)),
+             y=c(pts$left$y, rev(pts$right$y)),
+             id.lengths=c(length(pts$left$x), length(pts$right$x)))
+    }
 }
 
 makeContent.vwcurveGrob <- function(x, ...) {
     outline <- vwcurveOutline(x)
     addGrob(x,
-            x$render(outline$x, outline$y, length(outline$x), x$gp, "outline"))
+            x$render(outline$x, outline$y, outline$id.lengths, x$gp,
+                     "outline"))
 }
 
 edgePoints.vwcurveGrob <- function(x, d,
