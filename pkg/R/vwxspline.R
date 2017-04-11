@@ -140,14 +140,21 @@ vwXsplineOutline <- function(grob) {
                     default.units="in",
                     gp=gpar(col="blue"))
     }
-    list(x=c(pts$left$x, rev(pts$right$x)),
-         y=c(pts$left$y, rev(pts$right$y)))
+    if (grob$open) {
+        list(x=c(pts$left$x, rev(pts$right$x)),
+             y=c(pts$left$y, rev(pts$right$y)),
+             id.lengths=length(pts$left$x) + length(pts$right$x))
+    } else {
+        list(x=c(pts$left$x, rev(pts$right$x)),
+             y=c(pts$left$y, rev(pts$right$y)),
+             id.lengths=c(length(pts$left$x), length(pts$right$x)))
+    }
 }
 
 makeContent.vwXsplineGrob <- function(x, ...) {
     outline <- vwXsplineOutline(x)
     addGrob(x,
-            x$render(outline$x, outline$y, length(outline$x), x$gp, "outline"))
+            x$render(outline$x, outline$y, outline$id.lengths, x$gp, "outline"))
 }
 
 edgePoints.vwXsplineGrob <- function(x, d,
