@@ -2,7 +2,14 @@
 ## (NOTE that width is allowed to be different to the left and to the right
 ##  of the main line)
 ## 'x' and 'y' must have same length
-segInfo <- function(x, y, w, stepWidth=FALSE, debug=FALSE) {
+segInfo <- function(x, y, w, open=FALSE, stepWidth=FALSE, debug=FALSE) {
+    if (!open) {
+        ## There is an additional segment to close the line
+        x <- c(x, x[1])
+        y <- c(y, y[1])
+        w$left <- c(w$left, w$left[1])
+        w$right <- c(w$right, w$right[1])
+    }
     N <- length(x)
     ## All of these are per *segment* (N - 1)
     dx <- diff(x)
@@ -52,7 +59,11 @@ segInfo <- function(x, y, w, stepWidth=FALSE, debug=FALSE) {
                perpEndLeftX, perpEndLeftY, perpEndRightX, perpEndRightY)
 }
 
-cornerInfo <- function(x, y, sinfo, stepWidth=FALSE, debug=FALSE) {
+cornerInfo <- function(sinfo, open=FALSE, stepWidth=FALSE, debug=FALSE) {
+    if (!open) {
+        ## There is an additional corner where the line end meets the line start
+        sinfo <- rbind(sinfo, sinfo[1,])
+    }
     N <- nrow(sinfo)
     if (N < 2) return(data.frame())
     ## All of these are per *corner* (N - 1)
@@ -328,7 +339,11 @@ arcInfo <- function(startx, starty, endx, endy, inside, leftedge, isjoin,
     bezInfo    
 }
 
-cornerArcInfo <- function(sinfo, cinfo, debug=FALSE) {
+cornerArcInfo <- function(sinfo, cinfo, open=FALSE, debug=FALSE) {
+    if (!open) {
+        ## There is an additional corner where the line end meets the line start
+        sinfo <- rbind(sinfo, sinfo[1,])
+    }
     N <- nrow(sinfo)
     if (N < 2) return(data.frame())
     with(sinfo,

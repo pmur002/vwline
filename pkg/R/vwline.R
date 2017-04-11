@@ -8,7 +8,8 @@ grid.vwline <- function(...) {
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
                        linejoin="round", lineend="butt", mitrelimit=4,
-                       stepWidth=FALSE, render=vwPolygon,
+                       stepWidth=FALSE,
+                       render=if (open) vwPolygon else vwPath(),
                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     if (!is.unit(x)) {
         x <- unit(x, default.units)
@@ -38,7 +39,8 @@ checkvwline <- function(x, y, w) {
     }
 }
 
-buildEdge <- function(join, perpStart, perpEnd, inside, mitrelen, mitrelimit,
+buildEdge <- function(join, 
+                      perpStart, perpEnd, inside, mitrelen, mitrelimit,
                       intpt1, intpt2, arc, linejoin, leftedge) {
     N <- length(perpStart)
     x <- vector("list", N+1)
@@ -90,10 +92,14 @@ vwlinePoints <- function(grob) {
                    convertHeight(w$left, "in", valueOnly=TRUE))
     w$right <- pmin(convertWidth(w$right, "in", valueOnly=TRUE),
                     convertHeight(w$right, "in", valueOnly=TRUE))
-    sinfo <- segInfo(x, y, w, grob$stepWidth, grob$debug)
-    cinfo <- cornerInfo(x, y, sinfo, grob$stepWidth, grob$debug)
-    carcinfo <- cornerArcInfo(sinfo, cinfo, grob$debug)
-    leftx <- buildEdge(x,
+    sinfo <- segInfo(x, y, w, grob$open, grob$stepWidth, grob$debug)
+    cinfo <- cornerInfo(sinfo, grob$open, grob$stepWidth, grob$debug)
+    carcinfo <- cornerArcInfo(sinfo, cinfo, grob$open, grob$debug)
+    if (!grob$open) {
+        x <- c(x, x[1])
+        y <- c(y, y[1])
+    }
+    leftx <- buildEdge(x, 
                        sinfo$perpStartLeftX,
                        sinfo$perpEndLeftX,
                        cinfo$leftInside,
@@ -200,13 +206,17 @@ vwlineOutline <- function(grob) {
     w$right <- pmin(convertWidth(w$right, "in", valueOnly=TRUE),
                     convertHeight(w$right, "in", valueOnly=TRUE))
     pts <- vwlinePoints(grob)
-    sinfo <- segInfo(x, y, w, grob$stepWidth, grob$debug)
-    einfo <- endInfo(x, y, w, sinfo, grob$stepWidth, grob$debug)
-    earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
-    ends <- buildEnds(w, einfo, earcinfo, grob$stepWidth,
-                      grob$linejoin, grob$lineend, grob$mitrelimit)
-    outline <- list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
-                    y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
+    if (grob$open) {
+        sinfo <- segInfo(x, y, w, grob$open, grob$stepWidth, grob$debug)
+        einfo <- endInfo(x, y, w, sinfo, grob$stepWidth, grob$debug)
+        earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+        ends <- buildEnds(w, einfo, earcinfo, grob$stepWidth,
+                          grob$linejoin, grob$lineend, grob$mitrelimit)
+        outline <- list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
+                        y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
+    } else {
+        outline <- list(pts$left, pts$right)
+    }
     polysimplify(outline, filltype="nonzero")
 }
 
