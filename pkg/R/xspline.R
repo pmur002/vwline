@@ -113,10 +113,11 @@ xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
         }
     } else if (!open) {
         ## Add last control point to start
-        x <- c(x[N], x)
-        y <- c(y[N], y)
-        shape <- c(shape[N], shape)
-        N <- N + 1
+        ## AND last first two control points to end
+        x <- c(x[N], x, x[1:2])
+        y <- c(y[N], y, y[1:2])
+        shape <- c(shape[N], shape, shape[1:2])
+        N <- N + 3
     }
     curves <- vector("list", N)
     for (i in 1:(N-3)) {

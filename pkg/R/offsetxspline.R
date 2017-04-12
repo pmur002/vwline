@@ -7,7 +7,8 @@ grid.offsetXspline <- function(...) {
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 offsetXsplineGrob <- function(x, y, w, default.units="npc", shape=1,
-                              open=TRUE, repEnds=TRUE, render=vwPolygon,
+                              open=TRUE, repEnds=TRUE,
+                              render=if (open) vwPolygon else vwPath(),
                               gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkoffsetXspline(x, y, w)
     if (!is.unit(x)) {
@@ -53,9 +54,6 @@ offsetXsplinePoints <- function(grob) {
 
     ## Calculate distances between flattened vertices
     lengths <- c(0, sqrt(diff(xx)^2 + diff(yy)^2))
-    if (!grob$open) {
-        lengths <- c(lengths, sqrt((xx[N] - xx[1])^2 + (yy[N] - yy[1])^2))
-    }
     cumLength <- cumsum(lengths)
     totalLength <- sum(lengths)
 
@@ -75,10 +73,15 @@ offsetXsplinePoints <- function(grob) {
 
 offsetXsplineOutline <- function(grob) {
     pts <- offsetXsplinePoints(grob)
-    outline <- list(x=c(pts$left$x, rev(pts$right$x)),
-                    y=c(pts$left$y, rev(pts$right$y)))
-    subset <- is.finite(outline$x) & is.finite(outline$y)
-    polysimplify(lapply(outline, "[", subset), filltype="nonzero")
+    if (grob$open) {
+        outline <- list(x=c(pts$left$x, rev(pts$right$x)),
+                        y=c(pts$left$y, rev(pts$right$y)))
+        subset <- is.finite(outline$x) & is.finite(outline$y)
+        polysimplify(lapply(outline, "[", subset), filltype="nonzero")
+    } else {
+        outline <- list(pts$left, lapply(pts$right, rev))
+        polysimplify(outline, filltype="nonzero")
+    }
 }
 
 makeContent.offsetXsplineGrob <- function(x, ...) {
