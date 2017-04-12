@@ -1,4 +1,6 @@
 
+pdf("endsjoins-tests.pdf", compress=FALSE)
+
 library(vwline)
 
 pts <- function(x, y, col="grey") {
@@ -43,8 +45,6 @@ simpleLine <- function(x, y, w) {
     popViewport()
     popViewport()
 }
-
-pdf("endsjoins-tests.pdf")
 
 ## Non-variable line width (different line endings)
 grid.newpage()

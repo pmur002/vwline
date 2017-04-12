@@ -1,4 +1,6 @@
 
+pdf("methods-tests.pdf", compress=FALSE)
+
 ## Generate a variety of variable-width shapes with different methods
 
 library(vwline)
@@ -66,3 +68,23 @@ testLine <- function(x, y, w, row,
 testLine(0:2/2, rep(.5, 3), unit(rep(1, 3), "mm"), row=2)
 testLine(0:2/2, rep(.5, 3), unit(1:3, "mm"), row=3)
 testLine(c(0, 0, 1, 1), c(0, 1, 1, 0), unit(1:4, "mm"), open=FALSE, row=4)
+
+dev.off()
+
+savedPDF <- system.file("regression-tests", "methods-tests.save.pdf",
+                        package="vwline")
+diff <- tools::Rdiff("methods-tests.pdf", savedPDF)
+
+if (diff != 0L) {
+    ## If differences found, generate images of the differences and error out
+    system("pdfseparate methods-tests.pdf test-pages-%d.pdf")
+    system(paste0("pdfseparate ", savedPDF, " model-pages-%d.pdf"))
+    modelFiles <- list.files(pattern="model-pages-.*")
+    N <- length(modelFiles)
+    for (i in 1:N) {
+        system(paste0("compare model-pages-", i, ".pdf ",
+                      "test-pages-", i, ".pdf ",
+                      "diff-pages-", i, ".png"))
+    } 
+    stop("Regression testing detected differences")
+}
