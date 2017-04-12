@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <html>
   <head>
     <style type="text/css">
@@ -99,16 +99,19 @@ mysvg <- function(filename, width, height) {
           <a href="#intro">Introduction</a>
         </li>
         <li>
-          <a href="#method-1">Method 1: Offset points</a>
+          <a href="#method-1">Method 1: Offsetting points</a>
         </li>
         <li>
-          <a href="#method-2">Method 2: Offset control points</a>
+          <a href="#method-2">Method 2: Offsetting control points</a>
         </li>
         <li>
-          <a href="#method-3">Method 3: Offset lines</a>
+          <a href="#method-3">Method 3: Offsetting line segments</a>
         </li>
         <li>
-          <a href="#method-4">Method 4: Offset polygons</a>
+          <a href="#method-4">Method 4: Sweeping curves with a brush</a>
+        </li>
+        <li>
+          <a href="#method-4">Method 5: Offsetting curves</a>
         </li>
         <li>
           <a href="#Detail">Fine tuning variable-width lines</a>
@@ -274,7 +277,7 @@ dev.off()
   </p>
 -->
     <h2>
-      <a name="method-1">Method 1: Offset points</a>
+      <a name="method-1">Method 1: Offsetting points</a>
     </h2>
     <p>
     The first approach to drawing a variable-width line with 'vwline'
@@ -401,7 +404,7 @@ grid.text("vwcurve()", y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/vwcurve-curve-1.svg" width="30%"/>
     </p>
     <h2>
-      <a name="method-2">Method 2: Offset control points</a>
+      <a name="method-2">Method 2: Offsetting control points</a>
     </h2>
     <p>
     The second approach to drawing variable-width lines, which is provided
@@ -556,7 +559,7 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/vwxspline-swish-1.svg" width="30%"/>
     </p>
     <h2>
-      <a name="method-3">Method 3: Offset lines</a>
+      <a name="method-3">Method 3: Offsetting line segments</a>
     </h2>
     <p>
     The third approach to drawing variable-width lines is
@@ -568,7 +571,7 @@ grid.text("vwXspline()", y=.1, gp=gpar(fontfamily="mono"))
     and widths, are reversed?).
   </p>
     <h2>
-      <a name="method-4">Method 4: Offset polygons</a>
+      <a name="method-4">Method 4: Sweeping curves with a brush</a>
     </h2>
     <p>
     The fourth approach to drawing variable-width lines, which is
@@ -755,6 +758,13 @@ grid.text("brushXspline()", y=.1, gp=gpar(fontfamily="mono"))
       <img src="figure/vwxspline-swish-text-1.svg" width="30%"/>
       <img src="figure/brushxspline-swish-1.svg" width="30%"/>
     </p>
+    <h2>
+      <a name="method-4">Method 5: Offsetting curves</a>
+    </h2>
+    <p>
+    The final approach generates a mathematical description of the
+    offset curves and draws those offset curves.
+  </p>
     <h2>
       <a name="Detail">Fine tuning variable-width lines</a>
     </h2>
@@ -1456,7 +1466,7 @@ grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .8, .8, .2)
 y <- c(.8, .8, .2, .2)
-w <- unit(c(0, 30, 40, 20, 0), "mm")
+w <- unit(c(0, 30, 40, 20), "mm")
 grid.vwcurve(x, y, w, open=FALSE, gp=gpar(col="#FFD700", fill="#FFD700"))
 grid.xspline(x, y, shape=0, open=FALSE, gp=gpar(col="red", lwd=3, lty="dashed"))
 dev.off()
@@ -1553,7 +1563,23 @@ dev.off()
       <img src="figure/gallery-caterpillar-1.svg" width="40%"/>
     </p>
     <p>
-    Add code for infinity symbol
+    Arrow in the middle of a curve
+  </p>
+    <rcode echo="4:5" results="hide"><![CDATA[
+svg("figure/gallery-mid-arrow-1.svg", bg="transparent", height=3)  
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.brushXspline(list(x=c(-1, 1, -1, 0), y=c(-1, 0, 1, 0)), 
+                  x=c(.2, .5, .8), y=c(.4, .5, .4), w=unit(1, "cm"), 
+                  spacing=.51)
+grid.xspline(x=c(.2, .5, .8), y=c(.4, .5, .4), shape=1)
+dev.off()
+  ]]></rcode>
+    <p class="img">
+      <img src="figure/gallery-mid-arrow-1.svg" width="40%"/>
+    </p>
+    <p>
+    Code for infinity symbol
   </p>
     <rcode echo="4" results="hide"><![CDATA[
 svg("figure/gallery-infinity-1.svg", bg="transparent", height=3)  
@@ -1570,6 +1596,9 @@ dev.off()
     <p class="img">
       <img src="figure/gallery-infinity-1.svg" width="40%"/>
     </p>
+    <p>
+    Do example of R logo swoop ellipse ?
+  </p>
     <p>
     The final example shows how the variable-width lines might be
     useful in a plot.  This is of course based on the data for Minard's
@@ -1734,7 +1763,7 @@ along left and right borders -->
     </li>
       <li><a name="hain"/>
       Thomas F. Hain, Athar L. Ahmad, Sri Venkat R. Racherla, and
-      David D. Langan. 2005. Fast, precise flattening of cubic Bézier
+      David D. Langan. 2005. Fast, precise flattening of cubic B&#xE9;zier
       path and offset curves. Comput. Graph. 29, 5 (October 2005),
       656-666. DOI=<a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">http://dx.doi.org/10.1016/j.cag.2005.08.002</a>
     </li>
@@ -1754,8 +1783,17 @@ along left and right borders -->
       http://www.cs.technion.ac.il/~ron/PAPERS/offsets_cad1993.pdf
     </li>
       <li>
+      "An offset algorithm for polyline curves"
+      https://seant23.files.wordpress.com/2010/11/anoffsetalgorithm.pdf
+      ../../../Resources/anoffsetalgorithm.pdf
+    </li>
+      <li>
       Chen and Lin (2014)
       https://www.hindawi.com/journals/jam/2014/124240/ref/
+    </li>
+      <li>
+Mention (Knuth's) MetaFont - related to brushXspline because MetaFont 
+draws a path with a brush (possibly held at fixed angle)
     </li>
     </ul>
     <h3>
