@@ -457,7 +457,6 @@ vwxsplinediagram <- function(step) {
     x <- c(.2, .6, .8)
     y <- c(.8, .6, .2)
     w <- c(.05, .1, .2)
-    vwgrob <- vwXsplineGrob(x, y, w, shape=0)
     sub <- function() {
         ## Control points
         grid.points(x, y, pch=16, gp=gpar(col="black"))
@@ -465,7 +464,8 @@ vwxsplinediagram <- function(step) {
         grid.xspline(x, y, shape=1)
         if (step < 2) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
-        pts <- vwline:::vwXsplinePoints(vwgrob)
+        vwgrob <- vwcurveGrob(x, y, w)
+        pts <- vwline:::vwcurvePoints(vwgrob)
         grid.segments(pts$left$x, pts$left$y, pts$right$x, pts$right$y,
                       default.units="in")
         if (step < 3) return()
@@ -1595,6 +1595,15 @@ grid.text('brushXspline(tol=.03)', y=.1, gp=gpar(fontfamily="mono"))
     "blocky", with straight-line segments visible (as can be seen in the
     right-hand image above).
   </p>
+    <rcode id="self-intersect-outey-offset" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide"><![CDATA[
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.offsetXspline(x, y, w, shape=-1)
+grid.text('offsetXspline()', y=.1, gp=gpar(fontfamily="mono"))
+  ]]></rcode>
+    <p class="img">
+      <img src="figure/self-intersect-outey-offset-1.svg" width="30%"/>
+    </p>
     <h3>
       <a name="debug">Debugging mode</a>
     </h3>
