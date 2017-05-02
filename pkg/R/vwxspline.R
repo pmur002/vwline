@@ -7,7 +7,7 @@ grid.vwXspline <- function(...) {
 }
 
 vwXsplineGrob <- function(x, y, w, default.units="npc",
-                          shape=1, open=TRUE, angle="perp",
+                          shape=1, open=TRUE, repEnds=TRUE, angle="perp",
                           render=vwPath(),
                           gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkvwXspline(x, y, w)
@@ -20,7 +20,8 @@ vwXsplineGrob <- function(x, y, w, default.units="npc",
     if (!is.unit(w)) {
         w <- unit(w, default.units)
     }
-    gTree(x=x, y=y, w=w, shape=shape, open=open, angle=angle, render=render,
+    gTree(x=x, y=y, w=w, shape=shape, open=open, repEnds=repEnds,
+          angle=angle, render=render,
           debug=debug, gp=gp, name=name, cl="vwXsplineGrob")
 }
 
@@ -104,18 +105,13 @@ vwXsplineControlPoints <- function(grob) {
 vwXsplinePoints <- function(grob) {
     N <- length(grob$x)
     cp <- vwXsplineControlPoints(grob)
-    leftXSpline <- xsplineGrob(cp$left$x, cp$left$y,
-                               default.units="in",
-                               shape=grob$shape, open=grob$open)
-    rightXSpline <- xsplineGrob(cp$right$x, cp$right$y,
-                                default.units="in",
-                                shape=grob$shape, open=grob$open)
-    midXSpline <- xsplineGrob(cp$mid$x, cp$mid$y,
-                              default.units="in",
-                              shape=grob$shape, open=grob$open)
-    list(left=xsplinePoints(leftXSpline),
-         right=xsplinePoints(rightXSpline),
-         mid=xsplinePoints(midXSpline))
+    leftpts <- xspline(cp$left$x, cp$left$y,
+                       grob$shape, grob$open, grob$repEnds)
+    rightpts <- xspline(cp$right$x, cp$right$y,
+                        grob$shape, grob$open, grob$repEnds)
+    midpts <- xspline(cp$mid$x, cp$mid$y,
+                      grob$shape, grob$open, grob$repEnds)
+    list(left=leftpts, right=rightpts, mid=midpts)
 }
 
 ## A single path for makeContent() method (and for xDetails() method)
