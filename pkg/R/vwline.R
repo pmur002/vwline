@@ -140,8 +140,7 @@ vwlinePoints <- function(grob) {
          sinfo=sinfo)
 }
 
-buildEnds <- function(w, einfo, earcinfo, stepWidth,
-                      linejoin, lineend, mitrelimit) {
+buildEnds <- function(w, einfo, earcinfo, stepWidth, lineend, mitrelimit) {
     switch(lineend,
            butt=
                {
@@ -211,7 +210,7 @@ vwlineOutline <- function(grob) {
         einfo <- endInfo(x, y, w, sinfo, grob$stepWidth, grob$debug)
         earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
         ends <- buildEnds(w, einfo, earcinfo, grob$stepWidth,
-                          grob$linejoin, grob$lineend, grob$mitrelimit)
+                          grob$lineend, grob$mitrelimit)
         outline <- list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
                         y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
     } else {
