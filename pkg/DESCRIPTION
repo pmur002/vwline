@@ -8,4 +8,5 @@ Description: Provides R functions to draw lines and curves with control
              over the width of the line or curve.  
 Depends: grid
 Imports: grDevices, stats, polyclip
+ByteCompile: TRUE
 License: file LICENSE
