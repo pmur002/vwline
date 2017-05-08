@@ -222,7 +222,7 @@ cornerInfo <- function(sinfo, open=FALSE, stepWidth=FALSE, debug=FALSE) {
 }
 
 bezierArcInfo <- function(startx, starty, endx, endy, inside, leftedge,
-                          N, angle, centre, cornerangle, nsteps,
+                          N, angle, centre, cornerangle, drawArc,
                           isjoin, debug) {
     ## If we are on a join, must ensure that angles are clockwise
     ## around left corners and anticlockwise around right corners
@@ -258,7 +258,7 @@ bezierArcInfo <- function(startx, starty, endx, endy, inside, leftedge,
     cp2 <- extend(startx[-1], starty[-1], angle[-1], -k*len)
 
     arcs <- vector("list", N-1)
-    subset <- !inside & nsteps > 0
+    subset <- !inside & drawArc
     if (any(subset)) {
         for (i in (1:(N-1))[subset]) {
             bezg <- bezierGrob(c(endx[i], cp1$x[i], cp2$x[i], startx[i+1]),
@@ -312,13 +312,12 @@ arcInfo <- function(startx, starty, endx, endy, inside, leftedge, isjoin,
     rad1 <- dist(endx[-N] - centre$x, endy[-N] - centre$y)
     rad2 <- dist(startx[-1] - centre$x, starty[-1] - centre$y)
     adiff <- angleDiff(perpangle[-N], perpangle[-1], leftedge)
-    ## Just approximate using circle with largest radius
+    ## If only a very small gap, draw a straight line segment
     arclength <- abs(pmax(rad1, rad2)*adiff)
-    tol <- .01
-    nsteps <- ifelse(arclength < tol, 0, arclength %/% tol)
+    drawArc <- !is.finite(arclength) | arclength > .01
 
     bezInfo <- bezierArcInfo(startx, starty, endx, endy, inside, leftedge, 
-                             N, angle, centre, adiff, nsteps, isjoin,
+                             N, angle, centre, adiff, drawArc, isjoin,
                              debug)
 
     if (debug) {
@@ -463,3 +462,66 @@ endArcInfo <- function(sinfo, einfo, debug=FALSE) {
          })
 }
 
+## Given an end point (x, y) and
+## end edges (leftx1, leftx2, lefty1, lefty2)
+##           (rightx1, rightx2, righty1, righty2)
+## generate a short segment (no longer than the shortest edge)
+## that is perpendicular to the line joining the edge ends
+## and calculate widths at either end of that segment
+## (perpendicular distances from segment ends to edges)
+generateSegment <- function(x, y, leftx, lefty,  rightx, righty, debug=FALSE) {
+    leftx1 <- leftx[1]
+    leftx2 <- leftx[2]
+    lefty1 <- lefty[1]
+    lefty2 <- lefty[2]
+    rightx1 <- rightx[1]
+    rightx2 <- rightx[2]
+    righty1 <- righty[1]
+    righty2 <- righty[2]
+    ## FIXME: '0.1' (inches) below will not be appropriate if the
+    ##        edge(s) approach the end point very obliquely
+    segEnd <- perpStart(c(x, leftx1), c(y, lefty1), 0.1)[2,]
+    perpEnd <- perpEnd(c(x, segEnd[1]), c(y, segEnd[2]), 0.1)
+    corner1 <- intersection(leftx1, lefty1,
+                            leftx2, lefty2,
+                            perpEnd[1,1], perpEnd[1,2],
+                            perpEnd[2,1], perpEnd[2,2])
+    corner2 <- intersection(rightx1, righty1,
+                            rightx2, righty2,
+                            perpEnd[1,1], perpEnd[1,2],
+                            perpEnd[2,1], perpEnd[2,2])
+    if (debug) {
+        grid.points(x, y, size=unit(2, "mm"),
+                    default.units="in",
+                    gp=gpar(col="grey"))
+        grid.polygon(c(leftx1, leftx2, rightx2, rightx1),
+                     c(lefty1, lefty2, righty2, righty1),
+                     default.units="in",
+                     gp=gpar(col="grey"))
+        grid.segments(x, y, segEnd[1], segEnd[2],
+                      default.units="in",
+                      gp=gpar(col="red"))
+        grid.segments(corner1$x, corner1$y, corner2$x, corner2$y,
+                      default.units="in",
+                      gp=gpar(col="red"))
+    }
+    list(x=c(x, segEnd[1]), y=c(y, segEnd[2]),
+         w=list(left=c(dist(x - leftx1, y - lefty1),
+                       dist(segEnd[1] - corner1$x, segEnd[2] - corner1$y)),
+                right=c(dist(x - rightx1, y - righty1),
+                        dist(segEnd[1] - corner2$x, segEnd[2] - corner2$y))))
+                
+}
+
+testGenerateSegment <- function() {
+    grid.newpage()
+    seg <- generateSegment(1, 1,
+                           c(1, 2), c(1.5, 2),
+                           c(1, 2.5), c(.5, 1),
+                           debug=TRUE)
+    sinfo <- segInfo(seg$x, seg$y, seg$w, FALSE, FALSE, TRUE)
+    einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, TRUE)
+    earcinfo <- endArcInfo(sinfo, einfo, TRUE)
+    ends <- buildEnds(seg$w, einfo, earcinfo, FALSE, "round", 4)
+    grid.lines(ends$startx, ends$starty, default.units="in")
+}

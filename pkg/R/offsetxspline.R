@@ -8,6 +8,7 @@ grid.offsetXspline <- function(...) {
 ## IF open=FALSE, endShape and endWidth are IGNORED
 offsetXsplineGrob <- function(x, y, w, default.units="npc", shape=1,
                               open=TRUE, repEnds=TRUE,
+                              lineend="butt", mitrelimit=4,
                               render=if (open) vwPolygon else vwPath(),
                               gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     checkoffsetXspline(x, y, w)
@@ -21,6 +22,7 @@ offsetXsplineGrob <- function(x, y, w, default.units="npc", shape=1,
         w <- widthSpline(w, default.units)
     }
     gTree(x=x, y=y, w=w, open=open, repEnds=repEnds, render=render, shape=shape,
+          lineend=lineend, mitrelimit=mitrelimit,
           gp=gp, name=name, cl="offsetXsplineGrob",
           debug=debug)
 }
@@ -65,19 +67,45 @@ offsetXsplinePoints <- function(grob) {
     opts <- xspline(x, y, grob$shape, grob$open, grob$repEnds,
                     xsplineFun=xsplineOffsets)
     
-    list(left=list(x=pts$x + ww*opts$x,
-                   y=pts$y + ww*opts$y),
-         right=list(x=pts$x - ww*opts$x,
-                   y=pts$y - ww*opts$y))
+    list(left=list(x=pts$x - ww*opts$x,
+                   y=pts$y - ww*opts$y),
+         right=list(x=pts$x + ww*opts$x,
+                   y=pts$y + ww*opts$y))
 }
 
 offsetXsplineOutline <- function(grob) {
     pts <- offsetXsplinePoints(grob)
+    pts <- lapply(pts, function(x) lapply(x, function(y) y[is.finite(y)]))
     if (grob$open) {
-        outline <- list(x=c(pts$left$x, rev(pts$right$x)),
-                        y=c(pts$left$y, rev(pts$right$y)))
-        subset <- is.finite(outline$x) & is.finite(outline$y)
-        polysimplify(lapply(outline, "[", subset), filltype="nonzero")
+        x <- convertX(grob$x[1], "in", valueOnly=TRUE)
+        y <- convertY(grob$y[1], "in", valueOnly=TRUE)
+        seg <- generateSegment(x, y,
+                               pts$left$x[1:2], pts$left$y[1:2], 
+                               pts$right$x[1:2], pts$right$y[1:2],
+                               grob$debug)
+        sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
+        einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
+        earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+        start <- buildEnds(seg$w, einfo, earcinfo, FALSE,
+                           grob$lineend, grob$mitrelimit)
+        N <- length(grob$x)
+        x <- convertX(grob$x[N], "in", valueOnly=TRUE)
+        y <- convertY(grob$y[N], "in", valueOnly=TRUE)
+        N <- length(pts$left$x)
+        seg <- generateSegment(x, y,
+                               pts$right$x[N:(N-1)], pts$right$y[N:(N-1)], 
+                               pts$left$x[N:(N-1)], pts$left$y[N:(N-1)],
+                               grob$debug)
+        sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
+        einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
+        earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+        end <- buildEnds(seg$w, einfo, earcinfo, FALSE,
+                         grob$lineend, grob$mitrelimit)
+        outline <- list(x=c(start$startx, pts$left$x,
+                            end$startx, rev(pts$right$x)),
+                        y=c(start$starty, pts$left$y,
+                            end$starty, rev(pts$right$y)))
+        polysimplify(outline, filltype="nonzero")
     } else {
         outline <- list(pts$left, lapply(pts$right, rev))
         polysimplify(outline, filltype="nonzero")

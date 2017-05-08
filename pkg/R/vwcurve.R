@@ -7,8 +7,9 @@ grid.vwcurve <- function(...) {
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
 vwcurveGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
-                       render=if (open) vwPolygon else vwPath(),
-                       gp=gpar(fill="black"), name=NULL, debug=FALSE) {
+                        lineend="butt", mitrelimit=4,
+                        render=if (open) vwPolygon else vwPath(),
+                        gp=gpar(fill="black"), name=NULL, debug=FALSE) {
     ## Ok to recycle x or y or w
     maxlen <- max(length(x), length(y), length(w))
     if (length(x) < maxlen) 
@@ -28,6 +29,7 @@ vwcurveGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
         w <- unit(w, default.units)
     }
     gTree(x=x, y=y, w=w, open=open, render=render, angle=angle,
+          lineend=lineend, mitrelimit=mitrelimit,
           gp=gp, name=name, cl="vwcurveGrob",
           debug=debug)
 }
@@ -109,9 +111,33 @@ vwcurvePoints <- function(grob) {
 vwcurveOutline <- function(grob) {
     pts <- vwcurvePoints(grob)
     if (grob$open) {
-        list(x=c(pts$left$x, rev(pts$right$x)),
-             y=c(pts$left$y, rev(pts$right$y)),
-             id.lengths=length(pts$left$x) + length(pts$right$x))
+        x <- convertX(grob$x[1], "in", valueOnly=TRUE)
+        y <- convertY(grob$y[1], "in", valueOnly=TRUE)
+        seg <- generateSegment(x, y,
+                               pts$left$x[1:2], pts$left$y[1:2], 
+                               pts$right$x[1:2], pts$right$y[1:2],
+                               grob$debug)
+        sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
+        einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
+        earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+        start <- buildEnds(seg$w, einfo, earcinfo, FALSE,
+                           grob$lineend, grob$mitrelimit)
+        N <- length(grob$x)
+        x <- convertX(grob$x[N], "in", valueOnly=TRUE)
+        y <- convertY(grob$y[N], "in", valueOnly=TRUE)
+        seg <- generateSegment(x, y,
+                               pts$right$x[N:(N-1)], pts$right$y[N:(N-1)], 
+                               pts$left$x[N:(N-1)], pts$left$y[N:(N-1)],
+                               grob$debug)
+        sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
+        einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
+        earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
+        end <- buildEnds(seg$w, einfo, earcinfo, FALSE,
+                         grob$lineend, grob$mitrelimit)
+        list(x=c(start$startx, pts$left$x, end$startx, rev(pts$right$x)),
+             y=c(start$starty, pts$left$y, end$starty, rev(pts$right$y)),
+             id.lengths=sum(length(start$startx), length(pts$left$x),
+                            length(end$startx), length(pts$right$x)))
     } else {
         list(x=c(pts$left$x, rev(pts$right$x)),
              y=c(pts$left$y, rev(pts$right$y)),

@@ -157,6 +157,7 @@ buildEnds <- function(w, einfo, earcinfo, stepWidth, lineend, mitrelimit) {
                {
                    width <- w$left[1] + w$right[1]
                    if (width > 0 &&
+                       is.finite(einfo$startmitrelength) &&
                        einfo$startmitrelength/width <= mitrelimit &&
                        ## Not diverging at end
                        abs(earcinfo[[1]]$cornerangle) < pi) {
@@ -174,6 +175,7 @@ buildEnds <- function(w, einfo, earcinfo, stepWidth, lineend, mitrelimit) {
                        width <- w$left[N] + w$right[N]
                    }
                    if (width > 0 &&
+                       is.finite(einfo$endmitrelength) &&
                        einfo$endmitrelength/width <= mitrelimit &&
                        ## Not diverging at end
                        abs(earcinfo[[2]]$cornerangle) < pi) {

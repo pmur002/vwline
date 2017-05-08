@@ -55,8 +55,11 @@ testLine <- function(x, y, w, row,
     popViewport(2)
     pushViewport(viewport(layout.pos.row=row, layout.pos.col=4),
                  viewport(width=.8, height=.8))
+    ## brushXspline ignores 'lineend'
+    dotargs <- list(...)
+    dotargs$lineend <- NULL
     do.call(grid.brushXspline,
-            c(list(x=x, y=y, w=w), brushXsplineArgs, list(...)))
+            c(list(x=x, y=y, w=w), brushXsplineArgs, dotargs))
     popViewport(2)
     pushViewport(viewport(layout.pos.row=row, layout.pos.col=5),
                  viewport(width=.8, height=.8))
@@ -68,6 +71,8 @@ testLine <- function(x, y, w, row,
 testLine(0:2/2, rep(.5, 3), unit(rep(1, 3), "mm"), row=2)
 testLine(0:2/2, rep(.5, 3), unit(1:3, "mm"), row=3)
 testLine(c(0, 0, 1, 1), c(0, 1, 1, 0), unit(1:4, "mm"), open=FALSE, row=4)
+testLine(0:2/2, c(.8, .2, .8), unit(1:3, "mm"), row=5, lineend="round",
+         brushXsplineArgs=list(brush=circleBrush()))
 
 dev.off()
 

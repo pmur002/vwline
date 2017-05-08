@@ -185,65 +185,118 @@ doIntersect <- function(start1x, start1y, end1x, end1y,
         (o4 == 0 & onSegment(start2x, start2y, end1x, end1y, end2x, end2y))
 }
 
+################################################################################
+## Intersections of line segments (take 2)
+
+## Following J. O'Rourke. Computational Geometry in C. Cambridge University Press, New York, 1994.
+
+## ALL input coordinates are INTEGER
+
+Area2 <- function(ax, ay, bx, by, cx, cy) {
+    (bx - ax)*(cy - ay) - (cx - ax)*(by - ay)
+}
+
+Collinear <- function(ax, ay, bx, by, cx, cy) {
+    Area2(ax, ay, bx, by, cx, cy) == 0
+}
+
+Between <- function(ax, ay, bx, by, cx, cy) {
+    ifelse(ax != bx,
+           (ax <= cx & cx <= bx) | (ax >= cx & cx >= bx),
+           (ay <= cy & cy <= by) | (ay >= cy & cy >= by))
+}
+
+ParallelInt <- function(ax, ay, bx, by, cx, cy, dx, dy) {
+    Cabc <- Collinear(ax, ay, bx, by, cx, cy)
+    Babc <- Between(ax, ay, bx, by, cx, cy)
+    Babd <- Between(ax, ay, bx, by, dx, dy)
+    Bcda <- Between(cx, cy, dx, dy, ax, ay)
+    Bcdb <- Between(cx, cy, dx, dy, bx, by)
+    ## Extension (for non-overlap)
+    Badb <- Between(ax, ay, dx, dy, bx, by)
+    Badc <- Between(ax, ay, dx, dy, cx, cy)
+    Bbda <- Between(bx, by, dx, dy, ax, ay)
+    Bbdc <- Between(bx, by, dx, dy, cx, cy)
+    Bacb <- Between(ax, ay, cx, cy, bx, by)
+    Bacd <- Between(ax, ay, cx, cy, dx, dy)
+    Bbca <- Between(bx, by, cx, cy, ax, ay)
+    Bbcd <- Between(bx, by, cx, cy, dx, dy)
+    ## x <- ifelse(!Cabc, NA, ifelse(Babc, cx, ifelse(Babd, dx, ifelse(Bcda, ax, ifelse(Bcdb, bx, NA)))))
+    ## y <- ifelse(!Cabc, NA, ifelse(Babc, cy, ifelse(Babd, dy, ifelse(Bcda, ay, ifelse(Bcdb, by, NA)))))
+    x <- ifelse(!Cabc, NA,
+         ifelse(Babc & Babd, (cx + dx)/2,
+         ifelse(Bcda & Bcdb, (ax + bx)/2,
+         ifelse(Babc & Bcdb, (bx + cx)/2,
+         ifelse(Babc & Bcda, (ax + cx)/2,
+         ifelse(Babd & Bcdb, (bx + dx)/2,
+         ifelse(Babd & Bcda, (ax + dx)/2,
+         ## Extension (for non-overlap)
+         ifelse(Badb & Babc, (bx + cx)/2,
+         ifelse(Bbda & Bbdc, (ax + cx)/2,
+         ifelse(Bacb & Bacd, (bx + dx)/2,
+         ifelse(Bbca & Bbcd, (ax + dx)/2, NA)))))))))))
+    y <- ifelse(!Cabc, NA,
+         ifelse(Babc & Babd, (cy + dy)/2,
+         ifelse(Bcda & Bcdb, (ay + by)/2,
+         ifelse(Babc & Bcdb, (by + cy)/2,
+         ifelse(Babc & Bcda, (ay + cy)/2,
+         ifelse(Babd & Bcdb, (by + dy)/2,
+         ifelse(Babd & Bcda, (ay + dy)/2,
+         ## Extension (for non-overlap)
+         ifelse(Badb & Babc, (by + cy)/2,
+         ifelse(Bbda & Bbdc, (ay + cy)/2,
+         ifelse(Bacb & Bacd, (by + dy)/2,
+         ifelse(Bbca & Bbcd, (ay + dy)/2, NA)))))))))))
+    list(x=x, y=y)
+} 
+
+SegSegInt <- function(ax, ay, bx, by, cx, cy, dx, dy) {
+    denom <- ax*(dy - cy) + bx*(cy - dy) + dx*(by - ay) + cx*(ay - by)
+    num1 <- ax*(dy - cy) + cx*(ay - dy) + dx*(cy - ay)
+    s <- num1/denom
+    px <- ax + s*(bx - ax)
+    py <- ay + s*(by - ay)
+    paraInt <- ParallelInt(ax, ay, bx, by, cx, cy, dx, dy)
+    x <- ifelse(denom == 0, paraInt$x, px)
+    y <- ifelse(denom == 0, paraInt$y, py)
+    list(x=x, y=y)
+}
+
+## We are dealing in INCHES, so 1e-6 means a millionth of an inch
 intersection <- function(start1x, start1y, end1x, end1y,
                          start2x, start2y, end2x, end2y,
-                         debug=FALSE) {
-    dx1 <- end1x - start1x
-    dy1 <- end1y - start1y
-    dx2 <- end2x - start2x
-    dy2 <- end2y - start2y
-    slope1 <- dy1/dx1
-    slope2 <- dy2/dx2
-    intercept1 <- start1y - slope1*start1x
-    intercept2 <- start2y - slope2*start2x
-    finite1 <- is.finite(slope1)
-    finite2 <- is.finite(slope2)
-    eps <- 1e-10
-    sameslope <- abs(slope1 - slope2) < eps |
-        (!finite1 & !finite2)
-    sameintercept <- abs(intercept1 - intercept2) < eps |
-        (!finite1 & !finite2 & abs(start1x - start2x) < eps)
-    intx <-
-        ifelse(finite1 & finite2 & !sameslope,
-               ## Normal
-               (intercept2 - intercept1)/(slope1 - slope2),
-               ifelse(!finite1 & finite2,
-                      ## Line 1 vertical
-                      start1x,
-                      ifelse(!finite2 & finite1,
-                             ## Line 2 vertical
-                             start2x,
-                             ifelse(sameslope & !sameintercept,
-                                    ## parallel
-                                    Inf,
-                                    ## collinear (sameslope & sameintercept)
-                                    (start1x + end1x + start2x + end2x)/4))))
-    inty <-
-        ifelse(finite1 & finite2 & !sameslope,
-               ## Normal
-               (slope1*intercept2 - slope2*intercept1)/(slope1 - slope2),
-               ifelse(!finite1 & finite2,
-                      ## Line 1 vertical
-                      intercept2 + slope2*start1x,
-                      ifelse(!finite2 & finite1,
-                             ## Line 2 vertical
-                             intercept1 + slope1*start2x,
-                             ifelse(sameslope & !sameintercept,
-                                    ## parallel
-                                    Inf,
-                                    ## collinear (sameslope & sameintercept)
-                                    (start1y + end1y + start2y + end2y)/4))))
-    
-    
+                         eps=1e-6, debug=FALSE) {
+    int <- SegSegInt(round(start1x/eps), round(start1y/eps),
+                     round(end1x/eps), round(end1y/eps),
+                     round(start2x/eps), round(start2y/eps),
+                     round(end2x/eps), round(end2y/eps))
     if (debug) {
         pts(c(start1x, end1x, start2x, end2x),
             c(start1y, end1y, start2y, end2y))
         segs(c(start1x, start2x), c(start1y, start2y),
              c(end1x, end2x), c(end1y, end2y))
-        pts(intx, inty, "red")
+        pts(int$x*eps, int$y*eps, "red")
     }
-    
-    list(x=intx, y=inty)
+    list(x=int$x*eps, y=int$y*eps)
+}
+
+notrun <- function() {
+    testIntersect <- function(ax, ay, bx, by, cx, cy, dx, dy, x, y) {
+        pushViewport(viewport(x=unit(x - .5, "in"),
+                              y=unit(y - .5, "in"),
+                              just=c("left", "bottom"),
+                              width=unit(2, "in"), height=unit(2, "in")))
+        int <- intersection(ax, ay, bx, by, cx, cy, dx, dy, debug=TRUE)
+        popViewport()
+        int
+    }
+    grid.newpage()
+    testIntersect(1, 1, 2, 2, 1, 2, 2, 1, 0, 0)
+    testIntersect(1, 1, 2, 2, 1.5, 1.5, 2.5, 2.5, 2, 0)
+    testIntersect(1, 1, 2, 2, 1.5, 1, 2.5, 2, 4, 0)    
+    testIntersect(1.5, 1, 1.5, 2, 1, 1.5, 2, 1.5, 0, 2)    
+    testIntersect(1.5, 1, 1.5, 2, 1.5, 1.5, 1.5, 2.5, 2, 2)    
+    testIntersect(1, 1.5, 2, 1.5, 1.5, 1.5, 2.5, 1.5, 4, 2)    
 }
 
 ################################################################################
