@@ -89,12 +89,10 @@ xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
     N <- length(x)
     shape <- rep(shape, length=N)
     if (open) {
-        ## Force first and last shape to be zero
-        shape[1] <- shape[N] <- 0
         if (is.character(repEnds) && repEnds == "extend") {
             ## Extend first and last control points in direction
             ## of first and last line-between-control-points
-            a1 <- angle(x[1:2], y[1:2])
+            a1 <- angle(x[2:1], y[2:1])
             d1 <- dist(diff(x[2:1]), diff(y[2:1]))
             ext1 <- extend(x[1], y[1], a1, d1)
             a2 <- angle(x[(N-1):N], y[(N-1):N])
@@ -102,9 +100,11 @@ xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
             ext2 <- extend(x[N], y[N], a2, d2)
             x <- c(ext1$x, x, ext2$x)
             y <- c(ext1$y, y, ext2$y)
-            shape <- c(shape[1], shape, shape[N])
+            shape <- c(0, shape, 0)
             N <- N + 2            
         } else if (repEnds) {
+            ## Force first and last shape to be zero
+            shape[1] <- shape[N] <- 0
             ## Repeat first and last control points
             x <- c(x[1], x, x[N])
             y <- c(y[1], y, y[N])
