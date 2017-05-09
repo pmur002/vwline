@@ -465,19 +465,22 @@ endArcInfo <- function(sinfo, einfo, debug=FALSE) {
 ## Given an end point (x, y) and
 ## end edges (leftx1, leftx2, lefty1, lefty2)
 ##           (rightx1, rightx2, righty1, righty2)
-## generate a short segment (no longer than the shortest edge)
+## generate a short segment (no longer than the shortest edge?)
 ## that is perpendicular to the line joining the edge ends
 ## and calculate widths at either end of that segment
 ## (perpendicular distances from segment ends to edges)
 generateSegment <- function(x, y, leftx, lefty,  rightx, righty, debug=FALSE) {
-    leftx1 <- leftx[1]
-    leftx2 <- leftx[2]
-    lefty1 <- lefty[1]
-    lefty2 <- lefty[2]
-    rightx1 <- rightx[1]
-    rightx2 <- rightx[2]
-    righty1 <- righty[1]
-    righty2 <- righty[2]
+    ## Scale up because some X-spline segments are really tiny
+    x <- 1000*x
+    y <- 1000*y
+    leftx1 <- 1000*leftx[1]
+    leftx2 <- 1000*leftx[2]
+    lefty1 <- 1000*lefty[1]
+    lefty2 <- 1000*lefty[2]
+    rightx1 <- 1000*rightx[1]
+    rightx2 <- 1000*rightx[2]
+    righty1 <- 1000*righty[1]
+    righty2 <- 1000*righty[2]
     ## FIXME: '0.1' (inches) below will not be appropriate if the
     ##        edge(s) approach the end point very obliquely
     segEnd <- perpStart(c(x, leftx1), c(y, lefty1), 0.1)[2,]
@@ -490,6 +493,22 @@ generateSegment <- function(x, y, leftx, lefty,  rightx, righty, debug=FALSE) {
                             rightx2, righty2,
                             perpEnd[1,1], perpEnd[1,2],
                             perpEnd[2,1], perpEnd[2,2])
+    ## Scale back down
+    x <- x/1000
+    y <- y/1000
+    leftx1 <- leftx1/1000
+    lefty1 <- lefty1/1000
+    leftx2 <- leftx2/1000
+    lefty2 <- lefty2/1000
+    rightx1 <- rightx1/1000
+    righty1 <- righty1/1000
+    rightx2 <- rightx2/1000
+    righty2 <- righty2/1000
+    segEnd <- segEnd/1000
+    corner1$x <- corner1$x/1000
+    corner1$y <- corner1$y/1000
+    corner2$x <- corner2$x/1000
+    corner2$y <- corner2$y/1000
     if (debug) {
         grid.points(x, y, size=unit(2, "mm"),
                     default.units="in",
