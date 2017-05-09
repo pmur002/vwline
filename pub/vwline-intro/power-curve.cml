@@ -1034,6 +1034,10 @@ grid.text("widthSpline()", y=.1, gp=gpar(fontfamily="mono"))
     <img src="figure/width-spline-demo-1.svg" width="30%"/>
   </p>
 
+  <p>
+    vwline() can ALSO specify separate left and right width AND stepWidth.
+  </p>
+
   <h3><a name="brushes">Specifying brushes</a></h3>
   <p>
     For the <code>vwline</code> function and the <code>vwXspline</code>
@@ -1085,7 +1089,7 @@ grid.text("custom brush", y=.1)
 
   <h3><a name="perp">Non-perpendicular widths</a></h3>
   <p>
-    All variable-width line functions provide an <code>angle</code>
+    Several variable-width line functions provide an <code>angle</code>
     argument to control the  angle at which the width is calculated or
     at which the brush is placed.  By default, this argument has the 
     special value <code>"perp"</code>, but  a numeric value can be
@@ -1114,13 +1118,21 @@ pushViewport(viewport(width=.8, height=.8))
 x <- 0:3/3
 y <- c(.5, .7, .3, .5)
 w <- c(0, .2, .2, 0)
-grid.vwXspline(x, y, w, angle=pi)
+grid.vwXspline(x, y, w, angle=pi/4)
 grid.xspline(x, y, shape=1, gp=gpar(col="white", lwd=1))
-grid.text('vwXspline(angle=pi)', y=.1, gp=gpar(fontfamily="mono"))
+grid.text('vwXspline(angle=pi/4)', y=.1, gp=gpar(fontfamily="mono"))
   </rcode>
   <p class="img">
     <img src="figure/angle-brush-1.svg" width="30%"/>
     <img src="figure/horiz-spline-1.svg" width="30%"/>
+  </p>
+
+  <p>
+    This argument is not implemented for 
+    <code>vwline</code> (because the result will be the same as for
+    <code>vwcurve</code>) or 
+    <code>offsetXspline</code> (because the offset curve is based on
+    unit normals, which are, by definition perpendicular to the main curve).
   </p>
 
   <h3><a name="closed">Closed lines</a></h3>
@@ -1164,6 +1176,43 @@ grid.text(.7, 1, .3)
   <p class="img">
     <img src="figure/closed-1.svg" width="30%"/>
     <img src="figure/closed-width-spline-1.svg" width="30%"/>
+  </p>
+
+  <p>
+    NOTE that a widthSpec() is different from a widthSpline() when the
+    line is closed.  The former provides width at each location, so first
+    width also becomes last width (it automatically cycles).  The latter
+    provides width from start to end of line, so if you want a smooth
+    transition where the head of the line meets the tail of the line,
+    you need to make sure that the width at the start matches the width
+    at the end.
+  </p>
+  <rcode id="closed-width-spec"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+x <- c(.2, .2, .8, .8) 
+y <- c(.2, .8, .8, .2)
+w <- unit(1:4/4, "cm")
+grid.vwline(x, y, w, open=FALSE)
+grid.polygon(x, y, gp=gpar(col="white"))
+  </rcode>
+  <rcode id="closed-width-spec-vs-spline" echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.offsetXspline(x, y, w, open=FALSE)
+grid.xspline(x, y, shape=1, open=FALSE, gp=gpar(col="white"))
+  </rcode>
+  <rcode id="closed-width-spec-same-spline"  echo="3:4" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+w <- widthSpline(unit(c(1:4, 1)/4, "cm"), shape=1)
+grid.offsetXspline(x, y, w, open=FALSE)
+grid.xspline(x, y, shape=1, open=FALSE, gp=gpar(col="white"))
+  </rcode>
+  <p class="img">
+    <img src="figure/closed-width-spec-1.svg" width="30%"/>
+    <img src="figure/closed-width-spec-vs-spline-1.svg" width="30%"/>
+    <img src="figure/closed-width-spec-same-spline-1.svg" width="30%"/>
   </p>
 
   <h3><a name="spacing">Brush spacing</a></h3>
@@ -1337,22 +1386,130 @@ grid.text('edgePoints(brushXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
     <img src="figure/brush-edge-points-1.svg" width="30%"/>
   </p>
 
+  <p>
+    Need to implement for offsetXspline and vwline ???
+  </p>
+
   <h3><a name="lineends">Line endings</a></h3>
 
   <p>
-    Line joins make no sense for vwcurve() or vwXspline() because
-    there is only ever one set of points (or control points) at each
-    corner.  Line joins are important for vwline() and also for
-    brushXspline(), but only when shape=0.
+    Almost all functions allow control over the line end style,
+    via a <code>lineend</code> argument.
+    This is similar to line end styling on normal (fixed-width) lines,
+    so it is possible to specify <code>"butt"</code>, <code>"square"</code>,
+    or <code>"round"</code> line ends (the default is <code>"butt"</code>).
+    However, because the edges of a variable-width
+    line are almost never parallel to the 
+    main curve, there is an additional <code>"mitre"</code> line end style.
+    For the same reason, a <code>"round"</code> line ending does not
+    usually produce a semi-circle and a <code>"square"</code> line ending
+    has two corners, but they are not usually square.
+    As demonstrated below, if the width is diverging at the end of the
+    line, a mitre end will automatically convert to a square end.
+    This conversion will also occur when a mitre end would be too long;
+    a <code>mitrelimit</code> argument allows control over when
+    this occurs.
+    When the width is decreasing rapidly, it is also possible for
+    a square end to be converted to a mitre.
   </p>
+
+  <rcode id="line-end-butt"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+x <- c(.2, .8)
+y <- c(.5, .5)
+w <- c(.1, .3)
+grid.vwline(x, y, w, lineend="butt")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('lineend="butt"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <rcode id="line-end-round"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.vwline(x, y, w, lineend="round")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('lineend="round"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <rcode id="line-end-square"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.vwline(x, y, w, lineend="square")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('lineend="square"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <rcode id="line-end-mitre"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.vwline(x, y, w, lineend="mitre")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('lineend="mitre"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <p class="img">
+    <img src="figure/line-end-butt-1.svg" width="30%"/>
+    <img src="figure/line-end-round-1.svg" width="30%"/>
+    <img src="figure/line-end-square-1.svg" width="30%"/>
+    <img src="figure/line-end-mitre-1.svg" width="30%"/>
+  </p>
+
   <p>
-    Line ends should be useful in all cases (?)
+    Line end styles are not implemented for <code>brushXspline</code>
+    because the line end shape is affected by the brush shape instead.
   </p>
 
   <h3><a name="linejoins">Line joins</a></h3>
 
   <p>
-    
+    The <code>vwline</code> function (and only that function) also provides a
+    <code>linejoin</code> argument for controlling the join style
+    on corners.  This takes the value <code>"round"</code> (the default),
+    <code>"mitre"</code>, or <code>"bevel"</code>.
+    The main difference compared to normal (fixed-width) lines is
+    that a round corner is not usually just an arc of a circle
+    (because the line edge typically approaches the corner at a different angle
+    from either side of the corner, as in the examples below).
+  </p>
+
+  <rcode id="line-join-round"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+x <- c(.2, .5, .8)
+y <- c(.3, .7, .3)
+w <- c(.1, .2, .3)
+grid.vwline(x, y, w, linejoin="round")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('linejoin="round"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <rcode id="line-join-mitre"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.vwline(x, y, w, linejoin="mitre")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('linejoin="mitre"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <rcode id="line-join-bevel"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+grid.rect(gp=gpar(col=NA, fill="grey90"))
+pushViewport(viewport(width=.8, height=.8))
+grid.vwline(x, y, w, linejoin="bevel")
+grid.lines(x, y, gp=gpar(col="white", lwd=1))
+grid.text('linejoin="bevel"', y=.1, gp=gpar(fontfamily="mono"))
+  </rcode>
+  <p class="img">
+    <img src="figure/line-join-round-1.svg" width="30%"/>
+    <img src="figure/line-join-mitre-1.svg" width="30%"/>
+    <img src="figure/line-join-bevel-1.svg" width="30%"/>
+  </p>
+
+  <p>
+    Line joins are not implemented for 
+    <code>vwcurve()</code> or <code>vwXspline()</code> because
+    there is only ever one set of points (or control points) at each
+    corner.  
+    The <code>brushXspline</code> and <code>offsetXspline</code>
+    functions will accept a shape of 0, which produces a main curve
+    with sharp corners.  The current behaviour for <code>offsetXspline</code>
+    in this case is effectively to produce a bevel join.  The 
+    behaviour for <code>brushXspline</code> will depend on the brush
+    used, but is likely to produce a non-smooth (jaggy) corner.
   </p>
 
   <h3><a name="smoothness">Smooth curves</a></h3>
@@ -1879,7 +2036,7 @@ along left and right borders -->
     are smooth, things will get funky.
   </p>
 
-  <h3><a name="lineends">Line endings</a></h3>
+  <h3><a name="lineends">Line styles</a></h3>
 
   <p>
     The lines drawn by 'vwline' are not really lines, but polygons (or paths).
@@ -1890,14 +2047,7 @@ along left and right borders -->
   </p>
   <p>
     There is currently 
-    no support for these features in the shapes that are drawn by 
-    'vwline' and partly that is because it is not clear what these
-    line features mean for variable-width lines.  For perpendicular
-    widths and the vertical brush, it is possible to conceive of 
-    analogues of most line endings and line joins, but if we fix the
-    angle for the width or the brush (see the section on 
-    <a href="perp">non-perpendicular widths</a>), or if we use, for example,
-    a circle brush, it becomes less clear what these features mean.
+    no support for line types.
   </p>
   <p>
     This is one area where more work could be done in the future.
@@ -2229,6 +2379,16 @@ grid.xspline(x, y, shape=1, gp=gpar(lwd=3), repEnds=FALSE)
     <img src="figure/xsplines-smooth-max-asymp-b-1.svg" width="30%"/>
     <img src="figure/xsplines-smooth-max-asymp-c-1.svg" width="30%"/>
   </p>  
+
+  <p>
+    As a convenience, when specifying the main curve for 
+    <code>vwXspline</code> or <code>offsetXspline</code>, and
+    when specifying a <code>widthSpline</code>, the 
+    <code>repEnds</code> argument also accepts the special value 
+    <code>"extend"</code>, which means that additional control points
+    are automatically added (with shape 0) that extend the direction 
+    of the first and last control segments.
+  </p>
 
   <hr/>
   <p>
