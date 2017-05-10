@@ -21,13 +21,8 @@ export(## Main API
        "vwPolygon", "vwPath",
 
        ## Querying grobs
-       "edgePoints",
+       "edgePoints"
     
-       ## Utilities
-       "angle",
-       "translation", "scaling", "rotation", "transformation", "transform",
-       "placeBrush",
-       "combineShapes"
        )
 
 S3method("makeContent", "vwcurveGrob")

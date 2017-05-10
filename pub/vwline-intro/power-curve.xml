@@ -737,13 +737,13 @@ diagram <- function(step) {
         grid.lines(pts$x, pts$y, "in")
         if (step < 3) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
-        brushes <- list(placeBrush(verticalBrush, pts$x[1], pts$y[1], w[1],
-                                   angle(pts$x[1:2], pts$y[1:2])),
-                        placeBrush(verticalBrush, pts$x[2], pts$y[2], w[2],
-                                   (angle(pts$x[1:2], pts$y[1:2]) + 
-                                   angle(pts$x[2:3], pts$y[2:3]))/2),
-                        placeBrush(verticalBrush, pts$x[3], pts$y[3], w[3],
-                                   angle(pts$x[2:3], pts$y[2:3])))
+        brushes <- list(vwline:::placeBrush(verticalBrush, pts$x[1], pts$y[1], w[1],
+                                   vwline:::angle(pts$x[1:2], pts$y[1:2])),
+                        vwline:::placeBrush(verticalBrush, pts$x[2], pts$y[2], w[2],
+                                   (vwline:::angle(pts$x[1:2], pts$y[1:2]) + 
+                                   vwline:::angle(pts$x[2:3], pts$y[2:3]))/2),
+                        vwline:::placeBrush(verticalBrush, pts$x[3], pts$y[3], w[3],
+                                   vwline:::angle(pts$x[2:3], pts$y[2:3])))
         lapply(brushes, function(x) grid.polygon(x$x, x$y, default.units="in"))
         if (step < 4) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
@@ -758,7 +758,7 @@ diagram <- function(step) {
         grid.polygon(seg2$x[h2], seg2$y[h2], default.units="in")
         if (step < 6) return()
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
-        final <- Reduce(combineShapes, 
+        final <- Reduce(vwline:::combineShapes, 
                         list(list(x=seg1$x[h1], y=seg1$y[h1]),
                              list(x=seg2$x[h2], y=seg2$y[h2])))[[1]]
         grid.polygon(final$x, final$y, default.units="in")    
