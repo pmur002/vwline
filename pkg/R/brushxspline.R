@@ -12,8 +12,8 @@ grid.brushXspline <- function(...) {
 ## (for when you want a bit less detail from the width curve)
 brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
                              shape=1, angle="perp", open=TRUE, spacing=NULL,
-                             render=vwPath(), tol=.01,
-                             gp=gpar(lwd=.5, col="black", fill="black"),
+                             render=vwPath(),
+                             gp=gpar(fill="black"),
                              name=NULL, debug=FALSE) {
     checkbrushXspline(x, y)
     if (!is.unit(x)) {
@@ -26,7 +26,7 @@ brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
         w <- widthSpline(w, default.units)
     }
     gTree(brush=brush, x=x, y=y, w=w, shape=shape, angle=angle, open=open,
-          spacing=spacing, render=render, tol=tol,
+          spacing=spacing, render=render, tol=.01,
           gp=gp, name=name, cl="brushXsplineGrob",
           debug=debug)
 }
