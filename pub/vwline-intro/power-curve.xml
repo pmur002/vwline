@@ -2072,7 +2072,7 @@ along left and right borders -->
     two novel contributions within the package.  One is a general
     algorithm for producing line endings and line joins for variable-width
     curves and the other is code for general offset curves for
-    X-splines.  Additional documents are planned to describe
+    variable-width X-splines.  Additional documents are planned to describe
     these contributions in greater detail.
   </p>
     <h3>Weaknesses</h3>
