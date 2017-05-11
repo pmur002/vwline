@@ -44,10 +44,15 @@ offsetXsplinePoints <- function(grob) {
     ## Flatten curve
     pts <- xspline(x, y, grob$shape, grob$open,
                    grob$repEnds, xsplineFun=xsplinePts)
-
+    if (is.logical(grob$repEnds) && grob$repEnds) {
+        ## Drop first/last points (because first/last offsets will be NaN)
+        npts <- length(pts$x)
+        pts <- list(x=pts$x[-c(1, npts)], y=pts$y[-c(1, npts)])
+    }
+    
     ## Pts are in inches
-    xx <- as.numeric(pts$x)
-    yy <- as.numeric(pts$y)
+    xx <- pts$x
+    yy <- pts$y
     N <- length(xx)
     if (grob$debug) {
         ## Show flattened path vertices
@@ -66,8 +71,13 @@ offsetXsplinePoints <- function(grob) {
 
     opts <- xspline(x, y, grob$shape, grob$open, grob$repEnds,
                     xsplineFun=xsplineOffsets)
+    if (is.logical(grob$repEnds) && grob$repEnds) {
+        ## Drop first/last points (because first/last offsets will be NaN)
+        opts <- list(x=opts$x[-c(1, npts)], y=opts$y[-c(1, npts)])
+    }
     
-    list(left=list(x=pts$x - ww*opts$x,
+    list(mid=pts,
+         left=list(x=pts$x - ww*opts$x,
                    y=pts$y - ww*opts$y),
          right=list(x=pts$x + ww*opts$x,
                    y=pts$y + ww*opts$y))
@@ -77,9 +87,7 @@ offsetXsplineOutline <- function(grob) {
     pts <- offsetXsplinePoints(grob)
     pts <- lapply(pts, function(x) lapply(x, function(y) y[is.finite(y)]))
     if (grob$open) {
-        x <- convertX(grob$x[1], "in", valueOnly=TRUE)
-        y <- convertY(grob$y[1], "in", valueOnly=TRUE)
-        seg <- generateSegment(x, y,
+        seg <- generateSegment(pts$mid$x[1], pts$mid$y[1],
                                pts$left$x[1:2], pts$left$y[1:2], 
                                pts$right$x[1:2], pts$right$y[1:2],
                                grob$debug)
@@ -88,11 +96,8 @@ offsetXsplineOutline <- function(grob) {
         earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
         start <- buildEnds(seg$w, einfo, earcinfo, FALSE,
                            grob$lineend, grob$mitrelimit)
-        N <- length(grob$x)
-        x <- convertX(grob$x[N], "in", valueOnly=TRUE)
-        y <- convertY(grob$y[N], "in", valueOnly=TRUE)
         N <- length(pts$left$x)
-        seg <- generateSegment(x, y,
+        seg <- generateSegment(pts$mid$x[N], pts$mid$y[N],
                                pts$right$x[N:(N-1)], pts$right$y[N:(N-1)], 
                                pts$left$x[N:(N-1)], pts$left$y[N:(N-1)],
                                grob$debug)
