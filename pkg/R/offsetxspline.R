@@ -44,7 +44,7 @@ offsetXsplinePoints <- function(grob) {
     ## Flatten curve
     pts <- xspline(x, y, grob$shape, grob$open,
                    grob$repEnds, xsplineFun=xsplinePts)
-    if (is.logical(grob$repEnds) && grob$repEnds) {
+    if (grob$open && is.logical(grob$repEnds) && grob$repEnds) {
         ## Drop first/last points (because first/last offsets will be NaN)
         npts <- length(pts$x)
         pts <- list(x=pts$x[-c(1, npts)], y=pts$y[-c(1, npts)])
@@ -71,7 +71,7 @@ offsetXsplinePoints <- function(grob) {
 
     opts <- xspline(x, y, grob$shape, grob$open, grob$repEnds,
                     xsplineFun=xsplineOffsets)
-    if (is.logical(grob$repEnds) && grob$repEnds) {
+    if (grob$open && is.logical(grob$repEnds) && grob$repEnds) {
         ## Drop first/last points (because first/last offsets will be NaN)
         opts <- list(x=opts$x[-c(1, npts)], y=opts$y[-c(1, npts)])
     }
