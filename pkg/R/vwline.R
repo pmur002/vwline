@@ -6,7 +6,7 @@ grid.vwline <- function(...) {
 }
 
 ## IF open=FALSE, endShape and endWidth are IGNORED
-vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
+vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, 
                        linejoin="round", lineend="butt", mitrelimit=4,
                        stepWidth=FALSE,
                        render=if (open) vwPolygon else vwPath(),
@@ -21,7 +21,7 @@ vwlineGrob <- function(x, y, w, default.units="npc", open=TRUE, angle="perp",
         w <- widthSpec(w, default.units)
     }
     checkvwline(x, y, w)
-    gTree(x=x, y=y, w=w, open=open, render=render, angle=angle,
+    gTree(x=x, y=y, w=w, open=open, render=render, 
           linejoin=linejoin, lineend=lineend, mitrelimit=mitrelimit,
           stepWidth=stepWidth,
           gp=gp, name=name, cl="vwlineGrob",
