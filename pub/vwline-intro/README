@@ -1,0 +1,33 @@
+
++ Created docker image with (NOTE ONLY lowercase in image tag) ...
+
+  sudo docker build -t pmur002/power-curve .
+
+  - NOTE that I had to edit /etc/default/docker to enable ...
+
+    DOCKER_OPTS="--dns 130.216.190.1"
+
+    ... and restart the docker server ...
+
+    sudo service docker restart
+
+    ... so that the docker build would use the UoA DNS server
+    (otherwise the build fails at the first apt-update)
+
++ To test image interactively 
+  (which is useful for testing that various things will run and installing
+   packages interactively before adding them to the Dockerfile) ...
+
+   E.G., test that the report will build !!!
+
+  sudo docker run -v /home/pmur002/Files/Research/Rstuff/VWline/vwline/pub/vwline-intro:/home/work/ -w /home/work --rm -t -i pmur002/power-curve /bin/bash
+
++ To make image available on DockerHub ...
+
+  sudo docker login
+  sudo docker push pmur002/power-curve
+
++ Build report with ...
+
+  make docker
+

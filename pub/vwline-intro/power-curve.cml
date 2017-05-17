@@ -67,14 +67,12 @@ mysvg <- function(filename, width, height) {
   <hr/>
   <!--
   <p style="color: red">
-    FIXME: add Piwik web stats ?
-  </p>
-  <p style="color: red">
     FIXME: add "how to cite this document" at end
   </p>
   <p style="color: red">
-    FIXME: investigate useful ways to markup the reference section
-    for harvesting by citation services ?
+    Add version tag to vwline on github
+    git tag v0.1
+    git push origin v0.1
   </p>
   <p style="color: red">
     FIXME: need to create Docker image pmur002/power-curve
@@ -85,9 +83,6 @@ mysvg <- function(filename, width, height) {
   <p style="color: red">
     FIXME: once document is building with 'make docker', need to push
     pmur002/power-curve to Docker Hub
-  </p>
-  <p>
-  Once document is stable, need to create v0.1 tag on vwline repo
   </p>
   -->
   <p>
@@ -2152,6 +2147,10 @@ along left and right borders -->
   <h2><a name="Resources">Resources</a></h2>
   <ul>
     <li>
+      The 'vwline' package is available on 
+      <a href="https://github.com/pmur002/vwline">github</a>.
+    </li>
+    <li>
       The <a href="power-curve.cml">raw source file</a> for this
       document, a <a href="power-curve.xml">valid XML</a>
       transformation of the source file, a <a
@@ -2163,7 +2162,14 @@ along left and right borders -->
       everything.  
     </li>
     <li>
-      Docker resources
+      This document was generated within a 
+      <a href="https://www.docker.com/">Docker</a> container.
+      The Docker command to build the document
+      is included in the Makefile above.
+      The Docker image for the container is available from
+      <a href="https://hub.docker.com/r/pmur002/power-curve/">Docker Hub</a>;
+      alternatively, the image can be rebuilt from its 
+      <a href="Dockerfile">Dockerfile</a>.
     </li>
   </ul>
 

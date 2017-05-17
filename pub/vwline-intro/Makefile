@@ -15,14 +15,13 @@ TARFILE = ../PowerCurve-deposit-$(shell date +'%Y-%m-%d').tar.gz
 	# Use knitr to produce HTML
 	Rscript -e 'library(knitr); knit("$<")'
 
+docker:
+	sudo docker run -v $(shell pwd):/home/work/ -w /home/work --rm pmur002/power-curve make power-curve.html
+
 web:
-	make power-curve.xml
-	make power-curve.Rhtml
-	make power-curve.html
+	make docker
 	cp -r ../vwline-intro ~/Web/Reports/VWline/PowerCurve
 
 zip:
-	make power-curve.xml
-	make power-curve.Rhtml
-	make power-curve.html
+	make docker
 	tar zcvf $(TARFILE) ./*

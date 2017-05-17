@@ -118,14 +118,12 @@ Wednesday 17 May 2017
     <hr>
     <!--
   <p style="color: red">
-    FIXME: add Piwik web stats ?
-  </p>
-  <p style="color: red">
     FIXME: add "how to cite this document" at end
   </p>
   <p style="color: red">
-    FIXME: investigate useful ways to markup the reference section
-    for harvesting by citation services ?
+    Add version tag to vwline on github
+    git tag v0.1
+    git push origin v0.1
   </p>
   <p style="color: red">
     FIXME: need to create Docker image pmur002/power-curve
@@ -136,9 +134,6 @@ Wednesday 17 May 2017
   <p style="color: red">
     FIXME: once document is building with 'make docker', need to push
     pmur002/power-curve to Docker Hub
-  </p>
-  <p>
-  Once document is stable, need to create v0.1 tag on vwline repo
   </p>
   -->
     <p>
@@ -1563,6 +1558,10 @@ along left and right borders -->
     </h2>
     <ul>
       <li>
+      The 'vwline' package is available on 
+      <a href="https://github.com/pmur002/vwline">github</a>.
+    </li>
+      <li>
       The <a href="power-curve.cml">raw source file</a> for this
       document, a <a href="power-curve.xml">valid XML</a>
       transformation of the source file, a <a href="power-curve.Rhtml">'knitr' document</a> generated from
@@ -1572,7 +1571,14 @@ along left and right borders -->
       everything.  
     </li>
       <li>
-      Docker resources
+      This document was generated within a 
+      <a href="https://www.docker.com/">Docker</a> container.
+      The Docker command to build the document
+      is included in the Makefile above.
+      The Docker image for the container is available from
+      <a href="https://hub.docker.com/r/pmur002/power-curve/">Docker Hub</a>;
+      alternatively, the image can be rebuilt from its 
+      <a href="Dockerfile">Dockerfile</a>.
     </li>
     </ul>
     <h2>
@@ -1588,7 +1594,7 @@ along left and right borders -->
 VanderPlas, S. and Hofmann, H. (2015).
  Signs of the sine illusion—why we need to care.
  <em>Journal of Computational and Graphical Statistics</em>,
-  24(4):1170-1190.
+  24(4):1170--1190.
 [ <a href="power-curve-bib_bib.html#vanderplas">bib</a> | 
 <a href="http://dx.doi.org/10.1080/10618600.2014.951547">DOI</a> | 
 <a href="http://arxiv.org/abs/%20%0A%20%20%20%20%20%20%20%20http://dx.doi.org/10.1080/10618600.2014.951547%0A%20%20%20%20%0A">arXiv</a> | 
@@ -1604,7 +1610,7 @@ VanderPlas, S. and Hofmann, H. (2015).
         <dd>
 Pham, B. (1991).
  Expressive brush strokes.
- <em>CVGIP: Graph. Models Image Process.</em>, 53(1):1-6.
+ <em>CVGIP: Graph. Models Image Process.</em>, 53(1):1--6.
 [ <a href="power-curve-bib_bib.html#pham">bib</a> | 
 <a href="http://dx.doi.org/10.1016/1049-9652(91)90013-A">DOI</a> | 
 <a href="http://dx.doi.org/10.1016/1049-9652(91)90013-A">http</a> ]
@@ -1619,7 +1625,7 @@ Pham, B. (1991).
         <dd>
 Chua, Y. S. (1990).
  Bézier brushstrokes.
- <em>Computer-Aided Design</em>, 22(9):550 - 555.
+ <em>Computer-Aided Design</em>, 22(9):550 -- 555.
 [ <a href="power-curve-bib_bib.html#chua">bib</a> | 
 <a href="http://dx.doi.org/10.1016/0010-4485(90)90040-J">DOI</a> | 
 <a href="http://www.sciencedirect.com/science/article/pii/001044859090040J">http</a> ]
@@ -1634,7 +1640,7 @@ Chua, Y. S. (1990).
         <dd>
 Klassen, R. V. (1994).
  Variable width splines: A possible font representation?
- <em>Electronic Publishing</em>, 6:183-194.
+ <em>Electronic Publishing</em>, 6:183--194.
 [ <a href="power-curve-bib_bib.html#klassen">bib</a> ]
 
 </dd>
@@ -1648,7 +1654,7 @@ Klassen, R. V. (1994).
 Blanc, C. and Schlick, C. (1995).
  X-splines: A spline model designed for the end-user.
  In <em>Proceedings of the 22Nd Annual Conference on Computer
-  Graphics and Interactive Techniques</em>, SIGGRAPH '95, pages 377-386, New York,
+  Graphics and Interactive Techniques</em>, SIGGRAPH '95, pages 377--386, New York,
   NY, USA. ACM.
 [ <a href="power-curve-bib_bib.html#blanc+schlick">bib</a> | 
 <a href="http://dx.doi.org/10.1145/218380.218488">DOI</a> | 
@@ -1723,7 +1729,7 @@ Chen, X. and Mcmains, S. (2005).
  Polygon offsetting by computing winding numbers.
  In <em>ASME 2005 International Design Engineering Technical
   Conferences and Computers and Information in Engineering Conference</em>, pages
-  565-575. American Society of Mechanical Engineers.
+  565--575. American Society of Mechanical Engineers.
 [ <a href="power-curve-bib_bib.html#polygon-offsetting">bib</a> ]
 
 </dd>
@@ -1736,7 +1742,7 @@ Chen, X. and Mcmains, S. (2005).
         <dd>
 Hoschek, J. (1988).
  Spline approximation of offset curves.
- <em>Comput. Aided Geom. Des.</em>, 5(1):33-40.
+ <em>Comput. Aided Geom. Des.</em>, 5(1):33--40.
 [ <a href="power-curve-bib_bib.html#hoschek">bib</a> | 
 <a href="http://dx.doi.org/10.1016/0167-8396(88)90018-0">DOI</a> | 
 <a href="http://dx.doi.org/10.1016/0167-8396(88)90018-0">http</a> ]
@@ -1751,7 +1757,7 @@ Hoschek, J. (1988).
         <dd>
 Hain, T. F., Ahmad, A. L., Racherla, S. V. R., and Langan, D. D. (2005).
  Fast, precise flattening of cubic bézier path and offset curves.
- <em>Comput. Graph.</em>, 29(5):656-666.
+ <em>Comput. Graph.</em>, 29(5):656--666.
 [ <a href="power-curve-bib_bib.html#hain">bib</a> | 
 <a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">DOI</a> | 
 <a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">http</a> ]
@@ -1766,7 +1772,7 @@ Hain, T. F., Ahmad, A. L., Racherla, S. V. R., and Langan, D. D. (2005).
         <dd>
 Elber, G., Lee, I.-K., and Kim, M.-S. (1997).
  Comparing offset curve approximation methods.
- <em>IEEE computer graphics and applications</em>, 17(3):62-71.
+ <em>IEEE computer graphics and applications</em>, 17(3):62--71.
 [ <a href="power-curve-bib_bib.html#elber">bib</a> ]
 
 </dd>
@@ -1793,7 +1799,7 @@ Wickham, H. (2009).
         <dd>
 J, L. (2006).
  Plotrix: a package in the red light district of R.
- <em>R-News</em>, 6(4):8-12.
+ <em>R-News</em>, 6(4):8--12.
 [ <a href="power-curve-bib_bib.html#plotrix">bib</a> ]
 
 </dd>
@@ -1807,7 +1813,7 @@ J, L. (2006).
 Kampstra, P. (2008).
  Beanplot: A boxplot alternative for visual comparison of
   distributions.
- <em>Journal of Statistical Software, Code Snippets</em>, 28(1):1-9.
+ <em>Journal of Statistical Software, Code Snippets</em>, 28(1):1--9.
 [ <a href="power-curve-bib_bib.html#beanplot">bib</a> | 
 <a href="http://www.jstatsoft.org/v28/c01/">http</a> ]
 
