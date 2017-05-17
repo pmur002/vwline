@@ -86,6 +86,9 @@ mysvg <- function(filename, width, height) {
     FIXME: once document is building with 'make docker', need to push
     pmur002/power-curve to Docker Hub
   </p>
+  <p>
+  Once document is stable, need to create v0.1 tag on vwline repo
+  </p>
   -->
   <p>
     This document describes the 'vwline' package, which provides
@@ -216,7 +219,20 @@ dev.off()
     However, the work described in this document is more focused on
     adding a basic drawing primitive to R graphics.  The general motivation
     is to provide these facilities in R so that users can avoid having 
-    to manually "touch up" plots in other software;  it is better if
+    to manually "touch up" plots in other software.
+    For example, in the plot below 
+    (provided by 
+    Thomas Lumley, using data from the 
+    <a href="https://api.at.govt.nz/">Auckland Transport real-time API</a>),
+    the plot was drawn with R, but
+    the blue and orange arrows at the top-right of the plot were added
+    using a drawing program outside of R.
+  </p>
+  <p class="img">
+    <img src="bus-pix-2-crop.png" width="90%"/>
+  </p>
+  <p>
+    It is better if
     all actions that make up a final plot can be
     captured in code and therefore recorded, automated, and shared.
     In this particular context, the variable-width line facility
@@ -224,7 +240,8 @@ dev.off()
     <a href="ttps://helpx.adobe.com/illustrator/atv/cs5-tutorials/using-variablewidth-strokes.html">variable-width stroke tool</a>,
     or SynFig's 
     <a href="http://wiki.synfig.org/Advanced_Outline_Layer">Advanced Outline
-    Layer</a>.  This work is also influenced by 
+    Layer</a>.   
+    This work is also influenced by 
     the 
     <a href="https://www.w3.org/Graphics/SVG/WG/wiki/Proposals/Variable_width_stroke">SVG proposal for variable-width lines</a> (also see the discussion by
     <a href="http://www.schepers.cc/differentstrokes.html">Doug Schepers</a>)
@@ -233,14 +250,6 @@ dev.off()
     power stroke proposal</a>.
   </p>
 
-<!--
-  <p>
-    Use plot from Thomas ?
-    (Thomas Lumley, using data from the Auckland Transport real-time API)
-    BOTH as example of variable-width plot that is just vertical lines
-    AND as example of plot that was edited manually in PowerPoint!
-  </p>
--->
   <h2><a name="method-1">Method 1: Offsetting points</a></h2>
 
   <p>
@@ -342,12 +351,12 @@ for (i in 1:4) {
     line does not have to be straight and the widths do not have to be
     aligned with the x-axis or with the y-axis.  In the images below,
     the main variable-width line is thick and black; a thin white line is drawn
-    to represent the x/y locations of the line.
+    to represent the x/y locations of the centre of the line.
   </p>
   <rcode>
 library(vwline)
   </rcode>
-  <rcode id="vwcurve" echo="3:5" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+  <rcode id="vwcurve" echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 d <- density(ToothGrowth$len)
@@ -508,7 +517,7 @@ for (i in 1:4) {
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 x <- c(0, .5, 1)
-y <- c(.7, .5, .7)
+y <- c(.5, .5, .5)
 w <- c(0, .2, 0)
 grid.vwXspline(x, y, w, shape=-1)
 grid.xspline(x, y, shape=-1, gp=gpar(col="white", lwd=1))
@@ -630,6 +639,11 @@ for (i in 1:4) {
   <img src="figure/vwlinediag-3.svg" width="30%"/>
   <img src="figure/vwlinediag-4.svg" width="30%"/>
 
+  <p>
+    This function produces a non-smooth line, which may be useful
+    if we wish to emphasise that the width is only known at specific
+    locations along the line.
+  </p>
   <rcode id="vwline-swish"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
@@ -644,12 +658,6 @@ grid.text("vwline()", y=.1, gp=gpar(fontfamily="mono"))
     <img src="figure/vwline-swish-1.svg" width="30%"/>
   </p>
 
-  <p>
-    The deciding factor in deciding how to handle inner joins was
-    "symmetry" (does the line look the same if the x/y locations,
-    and widths, are reversed?).
-  </p>
-
   <h2><a name="method-4">Method 4: Sweeping curves with a brush</a></h2>
 
   <p>
@@ -659,9 +667,6 @@ grid.text("vwline()", y=.1, gp=gpar(fontfamily="mono"))
     "brush" (a geometric shape) 
     that is used to "sweep" the line, plus a set of widths
     that are used to scale the brush as it moves along the line.
-  </p>
-  <p>
-    The algorithm in this approach is a little more complicated:
   </p>
   <ol type="A">
     <li>
@@ -689,6 +694,11 @@ grid.text("vwline()", y=.1, gp=gpar(fontfamily="mono"))
       the convex hulls using a union operation.
     </li>
   </ol>
+  <p>
+    This approach 
+    is not entirely unlike <a href="metafont">Knuth's MetaFont</a>,
+    though with far less control over the path that is to be swept.
+  </p>
   <rcode echo="FALSE">
 diagram <- function(step) {
     x <- c(.2, .6, .8)
@@ -759,9 +769,10 @@ for (i in 1:6) {
     The <code>brushXspline</code>
     function can be useful if we want to produce a variable-width 
     curve and do not want to specify every x/y location or width
-    for the curve (so cannot use <code>vwcurve</code>), 
+    for the curve (so cannot use <code>vwcurve</code> or 
+    <code>vwline</code>), 
     but we want the perpendicular width of the curve
-    to be accurate (so cannot use <code>vwXspline</code>).
+    to be more accurately represented (so cannot use <code>vwXspline</code>).
   </p>
   <p>
     The examples below construct a <code>vwXspline</code> and a 
@@ -812,9 +823,6 @@ grid.text("brushXspline()", y=.1, gp=gpar(fontfamily="mono"))
     mathematical definition of the curve (e.g., a Bezier curve),
     and we derive a mathematical expression for curves that are offset by
     a fixed amount, then we render the offset curve.
-    With polygon offsets, we have already decomposed the curve into 
-    a set of straight line segments and we calculate an offset polygon 
-    for that series of straight lines.
   </p>
   <p>
     Examples of mathematical 
@@ -829,27 +837,18 @@ grid.text("brushXspline()", y=.1, gp=gpar(fontfamily="mono"))
     This algorithm has been implemented in the 
     <a href="#clipper">Clipper</a> library, which has an R interface via
     the <a href="#polyclip">polyclip</a> package.
-    The <a href="#cgal">CGAL</a> library can also generate polygon
+    The <a href="http://www.cgal.org/">CGAL</a> 
+    library can also generate polygon
     offsets, particularly the 
     <a href="#cgal-polygon-offset-manual">2D Straight Skeleton and Polygon Offsetting</a>
     package.
   </p>
   <p>
-    I am not aware of a description of a
-    general solution for offset curves or offset
-    polygons where the line width is allowed to vary, though these effects are
-    implemented in GUI tools for both SynFig and Adobe Illustrator.
-  </p>
-  <p>
-    ALSO NEED to mention this JavaScript CodePen example
-    https://codepen.io/osublake/pen/oLKWyd
-    AND this javscript code sample
-    https://gamealchemist.wordpress.com/2013/08/28/variable-width-lines-in-html5-canvas/
-  </p>
-
-  <p>
-    The difficult part of this approach is determining the equation of the 
-    offset curve (which requires differentiating the main X-spline curve).
+    This function implements the general formulation for a variable
+    offset curve that is described in <a href="#chen+lin">Chen and Lin</a>.
+    The difficult part of this approach is determining a function for the 
+    offset curve (which requires a function for the unit normal to the main 
+    curve and a function for the width of the curve).
     However, once these equations have been found,
     the algorithm is straightforward.
   </p>
@@ -859,12 +858,19 @@ grid.text("brushXspline()", y=.1, gp=gpar(fontfamily="mono"))
       the line approximates the control points.
     </li>
     <li>
-      The "left" border is offset from the centre line the appropriate 
-      width.  Similar for the "right" border.
+      The centre of the line is "flattened" to a series of 
+      short straight line segments.
+    </li>
+    <li>
+      The "left" border is found by evaluating the 
+      unit normal and the line width at
+      each vertex (the border location is the vertex plus the unit normal
+      multiplied by the width).  Similar for the "right" border.
     </li>
     <li>
       A polygon is generated by combining the left border with the reversed
-      right border.
+      right border and simplifying the resulting polygon 
+      (using <code>polysimplify</code> from the 'polyclip' package).
     </li>
   </ol>
 
@@ -883,11 +889,30 @@ offsetxsplinediagram <- function(step) {
 
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
         pts <- vwline:::offsetXsplinePoints(vwgrob)
+        n <- length(pts$mid$x)
+        pts <- lapply(pts, 
+                      function(x) { 
+                          subset <- c(1, (1:n)[(1:n) %% 3 == 0], n)
+                          list(x=c(x$x[subset]),
+                               y=c(x$y[subset])) 
+                      })
+        grid.lines(pts$mid$x, pts$mid$y, "in")
+        if (step < 3) return()
+
+        grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
+        grid.segments(pts$mid$x, pts$mid$y, pts$left$x, pts$left$y, 
+                      default.units="in", gp=gpar(col="blue"))
+        grid.segments(pts$mid$x, pts$mid$y, pts$right$x, pts$right$y, 
+                      default.units="in", gp=gpar(col="red"))
+        if (step < 4) return()
+
+        grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
+        pts <- vwline:::offsetXsplinePoints(vwgrob)
         grid.lines(pts$left$x, pts$left$y, default.units="in",
                    gp=gpar(col="blue"))
         grid.lines(pts$right$x, pts$right$y, default.units="in",
                    gp=gpar(col="red"))
-        if (step < 3) return()
+        if (step < 5) return()
 
         grid.rect(width=.92, height=.92, gp=gpar(col=NA, fill=rgb(1,1,1,.8)))
         o <- vwline:::offsetXsplineOutline(vwgrob)[[1]]
@@ -901,7 +926,7 @@ offsetxsplinediagram <- function(step) {
 }
   </rcode>
   <rcode results="hide" echo="FALSE">
-for (i in 1:3) {
+for (i in 1:5) {
     svg(paste0("figure/offsetxsplinediag-", i, ".svg"), width=5, height=5, bg="transparent")  
     offsetxsplinediagram(i)
     dev.off()
@@ -910,13 +935,16 @@ for (i in 1:3) {
   <img src="figure/offsetxsplinediag-1.svg" width="30%"/>
   <img src="figure/offsetxsplinediag-2.svg" width="30%"/>
   <img src="figure/offsetxsplinediag-3.svg" width="30%"/>
+  <img src="figure/offsetxsplinediag-4.svg" width="30%"/>
+  <img src="figure/offsetxsplinediag-5.svg" width="30%"/>
 
   <p>
     The result from this function should be similar to the 
     result from <code>brushXspline</code> (as shown below).
     The <code>offsetXspline</code> function provides a more robust (less
     heuristic) approach, but <code>brushXspline</code> offers more
-    flexibility via the possibility of different brushes.
+    flexibility via the possibility of different brushes
+    (see <a href="#brushes">Specifying brushes</a>).
   </p>
 
   <rcode id="offsetxspline-swish"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
@@ -955,7 +983,8 @@ grid.text("offsetXspline()", y=.1, gp=gpar(fontfamily="mono"))
     and <code>vwXspline</code>,
     widths are just a numeric vector or a 'grid' unit and
     the width is the same either side of the main curve.
-    The <code>vwline</code> function accepts a numeric vector or
+    The <code>vwline</code> function is slightly more flexible and
+    accepts a numeric vector or
     'grid' unit for the width, but also accepts a list of separate
     left and right widths, as generated by the <code>widthSpec</code>
     function.  This allows different widths to the left and right
@@ -1038,7 +1067,7 @@ grid.text("stepWidth=TRUE", y=.1, gp=gpar(fontfamily="mono"))
     first value is used as the width at the start of the curve, the last 
     value is used as the width at the end of the curve, and the other
     widths are spaced evenly along the curve.  By default, the
-    widths are interpreted as number of millimetres.
+    widths are interpreted as numbers of millimetres.
   </p>
   <p>
     By default, 
@@ -1070,7 +1099,8 @@ grid.text("distance along curve", y=.3)
     <img src="figure/width-spline-1.svg" width="30%"/>
   </p>
   <p>
-    The spline that controls the width for <code>brushXspline</code> can be 
+    The spline that controls the width for <code>brushXspline</code> 
+    and <code>offsetXspline</code> can be 
     specified explicitly with the <code>widthSpline</code> function.
     This allows the set of widths to be defined along with a set of distances
     along the line (the x-values for the width X-spline).  
@@ -1109,7 +1139,7 @@ grid.text("widthSpline()", y=.1, gp=gpar(fontfamily="mono"))
 
   <h3><a name="perp">Non-perpendicular widths</a></h3>
   <p>
-    Several variable-width line functions provide an <code>angle</code>
+    Several variable-width-line functions provide an <code>angle</code>
     argument to control the  angle at which the width is calculated or
     at which the brush is placed.  By default, this argument has the 
     special value <code>"perp"</code>, but  a numeric value can be
@@ -1118,9 +1148,10 @@ grid.text("widthSpline()", y=.1, gp=gpar(fontfamily="mono"))
     as it sweeps the curve
     (see the left image below),
     and the <code>vwXspline</code> function can calculate left and right
-    control points
-    as simple y-shifts (or x-shifts) from the main control points
-    (see the right image below).
+    control points at a fixed angle (here 45 degrees)
+    from the main control points
+    (see the right image below).  This can produce something like
+    a calligraphic effect.
   </p>
   <rcode id="angle-brush"  echo="3:6" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
 grid.rect(gp=gpar(col=NA, fill="grey90"))
@@ -1148,9 +1179,9 @@ grid.text('vwXspline(angle=pi/4)', y=.1, gp=gpar(fontfamily="mono"))
   </p>
 
   <p>
-    This argument is not implemented for 
+    This <code>angle</code> argument is not implemented for 
     <code>vwline</code> (because the result will be the same as for
-    <code>vwcurve</code>) or 
+    <code>vwcurve</code>) or for 
     <code>offsetXspline</code> (because the offset curve is based on
     unit normals, which are, by definition perpendicular to the main curve).
   </p>
@@ -1266,9 +1297,9 @@ grid.text('linejoin="bevel"', y=.1, gp=gpar(fontfamily="mono"))
 
   <p>
     Line joins are not implemented for 
-    <code>vwcurve()</code> or <code>vwXspline()</code> because
-    there is only ever one set of points (or control points) at each
-    corner.  
+    <code>vwcurve()</code> because edges already meet at a single point for
+    every corner.  They are not implemented for <code>vwXspline()</code> 
+    for similar reasons.  
     The <code>brushXspline</code> and <code>offsetXspline</code>
     functions will accept a shape of 0, which produces a main curve
     with sharp corners.  The current behaviour for <code>offsetXspline</code>
@@ -1279,11 +1310,6 @@ grid.text('linejoin="bevel"', y=.1, gp=gpar(fontfamily="mono"))
 
   <h3><a name="brushes">Specifying brushes</a></h3>
   <p>
-    For the <code>vwline</code> function and the <code>vwXspline</code>
-    function, the variable-width line is calculated by connecting
-    x/y locations (or smoothly approximating x/y control points)
-    to the left and right of the main x/y locations (or control points)
-    of the line.
     For the <code>brushXspline</code> function, the 
     variable-width line is calculated 
     as the region swept out by
@@ -1373,7 +1399,7 @@ grid.text(.7, 1, .3)
     The width specifications for different functions will produce 
     different results for closed curves.
     For <code>vwcurve</code>, <code>vwline</code>, and <code>vwXspline</code>,
-    we provide a width at each location, so first
+    we provide a width at each location, so the first
     width also becomes last width (it automatically cycles).  
     However, for <code>brushXspline</code> and <code>offsetXspline</code>,
     we provide widths from the start to the end of the line, 
@@ -1541,8 +1567,12 @@ grid.text('edgePoints(vwXsplineGrob())', y=.1, gp=gpar(fontfamily="mono"))
   </p>
 
   <p>
-    The calculation of edge points is a little different for 
-    "brushXsplineGrob"s because the boundary of the overall line
+    The <code>edgePoints</code> function works as described above
+    for <code>vwcurve</code> and <code>vwXspline</code>.
+    However, the calculation of edge points is a little different for 
+    <code>vwline</code>, <code>brushXspline</code>, and 
+    <code>offsetXspline</code>
+    because in those cases the boundary of the overall line
     is not split nicely into separate "left" and "right" edges.
     In order to control where to start on the boundary, we
     must specify an "origin" and the nearest point on the boundary
@@ -1776,10 +1806,12 @@ grid.text('offsetXspline()', y=.1, gp=gpar(fontfamily="mono"))
   <h3><a name="debug">Debugging mode</a></h3>
 
   <p>
-    All functions have a <code>debug</code> argument.
+    All functions have a <code>debug</code> argument that allows the
+    addition of graphics debugging information to be drawn on the 
+    variable-width line.
     When setting this to TRUE, it is usually useful to also
     set gp=gpar(col="black") (so that the line is not filled black,
-    which obscures most of the debugging information).
+    which would obscure most of the debugging information).
   </p>
 
   <rcode id="debug"  echo="3" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
@@ -1802,7 +1834,7 @@ grid.text('debug=TRUE', y=.1, gp=gpar(fontfamily="mono"))
     be achieved with variable-width lines.   Only an indication
     of the required code is given in each case;  the full code can be
     found in the source XML files (see the
-    <a href="#references">References</a> Section).
+    <a href="#Resources">Resources</a> Section).
   </p>
 
   <p>
@@ -1859,7 +1891,7 @@ dev.off()
   </p>
   
   <p>
-    These examples emulate the examples described in 
+    The next examples emulate the examples described in 
     the discussion by
     <a href="http://www.schepers.cc/differentstrokes.html">Doug Schepers</a>.
   </p>
@@ -2049,8 +2081,6 @@ dev.off()
   <p class="img">
     <img src="figure/gallery-minard-1.svg" width="80%"/>
   </p>
-  <p> If do Minard's map example, note other people's efforts,,
-      including Thomas Rahlf's book </p>
 <!-- For the record: 'riverplot' draws lots of little slices (to allow for
 gradient fill) and then lines
 along left and right borders -->
@@ -2103,17 +2133,20 @@ along left and right borders -->
     several other features including line endings (butt, square, and round), 
     line joins (round, bevel, and mitre), and line
     types (dashed, dotted, etc).
-  </p>
-  <p>
     Although support is provided for line endings and line joins for
     most functions in 'vwline', there is currently
     no support for line types.
-    This is one area where more work could be done in the future.
   </p>
 
   <h2><a name="Requirements">Technical requirements</a></h2>
   <p>
-
+    The examples and discussion in this document relate to 
+    <a href="https://github.com/pmur002/vwline/releases/tag/v0.1">'vwline' 
+    version 0.1</a>.
+  </p>
+  <p>
+    This document was generated within a Docker container
+    (see <a href="#Resources">Resources</a> section below).
   </p>
 
   <h2><a name="Resources">Resources</a></h2>
@@ -2135,115 +2168,64 @@ along left and right borders -->
   </ul>
 
   <h2><a name="references">References</a></h2>
-  <ul>
+  <ul style="list-style-type: none">
     <li>
       <a name="vanderplas"></a>
-      Susan VanderPlas and Heike Hofmann,
-      Signs of the Sine Illusion - Why We Need to Care,
-      Journal of Computational and Graphical Statistics Vol. 24, Iss. 4, 2015 
     </li>
     <li>
       <a name="pham"></a>
-      Pham, B. (1991). Expressive brush strokes. CVGIP: Graphical
-      Models and Image Processing, 53(1), 1-6.
     </li>
     <li>
       <a name="chua"></a>
-      Chua, Y. S. (1990). Bezier brushstrokes. Computer-Aided Design,
-      22(9), 550-555.
     </li>
     <li>
       <a name="klassen"></a>
-      Klassen, R.V. (1993). Variable Width Splines: a Possible Font
-      Representation? Electronic Publishing, 6, 183-194.  
     </li>
     <li>
       <a name="blanc+schlick"></a>
-      Carole Blanc and Christophe Schlick,
-      X-Splines : A Spline Model Designed for the End-User,
-      Proc. SIGGRAPH'95, 1995, 377-386.
     </li>
     <li>
       <a name="clipper"></a>
-      <a href="http://www.angusj.com/delphi/clipper.php">Clipper</a> - 
-      an open source freeware library for
-      clipping and offsetting lines and polygons,
-      Angus Johnson, 
-      URL visited <!--rinline I(format(Sys.Date(), "%Y-%m-%d"))-->
     </li>
     <li> 
       <a name="polyclip"></a>
-      Angus Johnson and Adrian Baddeley (2016). polyclip: Polygon Clipping.
-      R package version 1.5-6. 
-      <a href="https://CRAN.R-project.org/package=polyclip">https://CRAN.R-project.org/package=polyclip</a>
-    </li>
-    <li> 
-      <a name="cgal"></a>
-      <a href="http://www.cgal.org/">CGAL</a> 
-      The Computational Geometry Algorithms Library,
-      URL visited <!--rinline I(format(Sys.Date(), "%Y-%m-%d"))-->
     </li>
     <li>
       <a name="cgal-manual"></a>
-      <a href="http://doc.cgal.org/4.9/Manual/packages.html">CGAL User and Reference Manual</a>,
-      The CGAL Project,
-      CGAL Editorial Board, 4.9 edition, 2016.
     </li>
     <li>
       <a name="cgal-polygon-offset-manual"></a>
-      Fernando Cacciola,
-      <a href="http://doc.cgal.org/4.9/Manual/packages.html#PkgStraightSkeleton2Summary">2D Straight Skeleton and Polygon Offsetting</a>,
-      In CGAL User and Reference Manual. 
-      CGAL Editorial Board, 4.9 edition, 2016.
     </li>
     <li>
       <a name="polygon-offsetting"></a>
-      Chen, X., &amp; McMains, S. (2005, January). Polygon offsetting by
-      computing winding numbers. In ASME 2005 International Design
-      Engineering Technical Conferences and Computers and Information
-      in Engineering Conference (pp. 565-575). American Society of
-      Mechanical Engineers.
     </li>
     <li>
       <a name="hoschek"></a>
-      Hoschek, J. (1988). Spline approximation of offset
-      curves. Computer Aided Geometric Design, 5(1), 33-40.
     </li>
     <li>
       <a name="hain"></a>
-      Thomas F. Hain, Athar L. Ahmad, Sri Venkat R. Racherla, and
-      David D. Langan. 2005. Fast, precise flattening of cubic Bézier
-      path and offset curves. Comput. Graph. 29, 5 (October 2005),
-      656-666. DOI=<a href="http://dx.doi.org/10.1016/j.cag.2005.08.002">http://dx.doi.org/10.1016/j.cag.2005.08.002</a>
     </li>
     <li>
       <a name="elber"></a>
-      Elber, G., Lee, I. K., &amp; Kim, M. S. (1997). Comparing offset
-      curve approximation methods. IEEE computer graphics and
-      applications, 17(3), 62-71.
     </li>
     <li>
-      Minard's plot
+      <a name="ggplot2"></a> 
     </li>
     <li>
-      ggplot2, plotrix, denstrip, beanplot.
+      <a name="plotrix"></a> 
     </li>
     <li>
-      Kimel and Bruckstein (1993)
-      http://www.cs.technion.ac.il/~ron/PAPERS/offsets_cad1993.pdf
+      <a name="beanplot"></a> 
     </li>
     <li>
-      "An offset algorithm for polyline curves"
-      https://seant23.files.wordpress.com/2010/11/anoffsetalgorithm.pdf
-      ../../../Resources/anoffsetalgorithm.pdf
+      <a name="liu+et+al"></a> 
+      <!-- ../../../Resources/anoffsetalgorithm.pdf -->
     </li>
     <li>
-      Chen and Lin (2014)
-      https://www.hindawi.com/journals/jam/2014/124240/ref/
+      <a name="chen+lin"></a> 
     </li>
     <li>
-Mention (Knuth's) MetaFont - related to brushXspline because MetaFont 
-draws a path with a brush (possibly held at fixed angle)
+      <a name="metafont"></a>
     </li>
   </ul>
 
@@ -2257,7 +2239,8 @@ draws a path with a brush (possibly held at fixed angle)
     <code>brushXspline</code>, and <code>offsetXspline</code>) 
     and for defining the width of the line (for 
     <code>brushXspline</code> and <code>offsetXspline</code>).
-
+  </p>
+  <p>
     X-splines are a family of curves,
     where the final curve is based on a set of control points. The 
     curve approximates or interpolates the control points based on
