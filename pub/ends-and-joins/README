@@ -14,3 +14,9 @@ line ending styles and line join styles for variable-width lines
 - inside corners NOT necessarily a single intersection point
   => follow simple algorithm along line edges then polysimplify()
 
+  <p>
+    The deciding factor in deciding how to handle inner joins was
+    "symmetry" (does the line look the same if the x/y locations,
+    and widths, are reversed?).
+  </p>
+
