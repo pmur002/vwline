@@ -1,5 +1,5 @@
 
-TARFILE = ../PowerCurve-deposit-$(shell date +'%Y-%m-%d').tar.gz
+TARFILE = ../vwline-intro-deposit-$(shell date +'%Y-%m-%d').tar.gz
 
 %.xml: %.cml
 	# Protect HTML special chars in R code chunks
@@ -20,7 +20,7 @@ docker:
 
 web:
 	make docker
-	cp -r ../vwline-intro ~/Web/Reports/VWline/PowerCurve
+	cp -r ../vwline-intro/ ~/Web/Reports/VWline/
 
 zip:
 	make docker
