@@ -109,7 +109,7 @@ mysvg <- function(filename, width, height) {
 library(grid)
 library(vwline)
   </rcode>
-  <rcode id="end-styles" echo="FALSE" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
+  <rcode id="line-end-styles" echo="FALSE" dev="mysvg" fig.width="3" fig.height="3" fig.ext="svg" fig.show="hide">
 grid.rect(gp=gpar(col=NA, fill="grey90"))
 pushViewport(viewport(width=.8, height=.8))
 x <- c(.2, .8)
@@ -130,7 +130,7 @@ grid.points(x, y, pch=21, size=unit(2, "mm"),
 grid.text("square", .5, y[1], gp=gpar(col="white"))
   </rcode>
   <p class="img">
-    <img src="figure/end-styles-1.svg" width="30%"/>
+    <img src="figure/line-end-styles-1.svg" width="30%"/>
   </p>
 
   <p>

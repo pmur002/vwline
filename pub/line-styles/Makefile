@@ -20,8 +20,6 @@ docker:
 
 web:
 	make docker
-	# Some stupid web server set up appears to choke on "ends" in a URL
-	# so some name mangling required
 	cp -r ../line-styles ~/Web/Reports/VWline/
 
 zip:
