@@ -25,7 +25,7 @@ line ending styles and line join styles for variable-width lines
 
 + Created docker image with (NOTE ONLY lowercase in image tag) ...
 
-  sudo docker build -t pmur002/ends-and-joins .
+  sudo docker build -t pmur002/line-styles .
 
   - NOTE that I had to edit /etc/default/docker to enable ...
 
@@ -44,12 +44,12 @@ line ending styles and line join styles for variable-width lines
 
    E.G., test that the report will build !!!
 
-  sudo docker run -v /home/pmur002/Files/Research/Rstuff/VWline/vwline/pub/ends-and-joins:/home/work/ -w /home/work --rm -t -i pmur002/ends-and-joins /bin/bash
+  sudo docker run -v /home/pmur002/Files/Research/Rstuff/VWline/vwline/pub/line-styles:/home/work/ -w /home/work --rm -t -i pmur002/line-styles /bin/bash
 
 + To make image available on DockerHub ...
 
   sudo docker login
-  sudo docker push pmur002/ends-and-joins
+  sudo docker push pmur002/line-styles
 
 + Build report with ...
 

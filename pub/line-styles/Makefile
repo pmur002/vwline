@@ -1,5 +1,5 @@
 
-TARFILE = ../ends-and-joins-deposit-$(shell date +'%Y-%m-%d').tar.gz
+TARFILE = ../line-styles-deposit-$(shell date +'%Y-%m-%d').tar.gz
 
 %.xml: %.cml
 	# Protect HTML special chars in R code chunks
@@ -16,7 +16,7 @@ TARFILE = ../ends-and-joins-deposit-$(shell date +'%Y-%m-%d').tar.gz
 	Rscript -e 'library(knitr); knit("$<")'
 
 docker:
-	sudo docker run -v $(shell pwd):/home/work/ -w /home/work --rm pmur002/ends-and-joins make ends-and-joins.html
+	sudo docker run -v $(shell pwd):/home/work/ -w /home/work --rm pmur002/line-styles make line-styles.html
 
 web:
 	make docker

@@ -1,0 +1,632 @@
+<html>
+  <head>
+<style type="text/css">
+.knitr .inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage .left {
+  text-align: left;
+}
+.rimage .right {
+  text-align: right;
+}
+.rimage .center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">
+    @media print {
+      body { }
+      p.img { text-align: center; page-break-inside: avoid }
+      img.CC { display: inline }
+    }
+    @media screen {
+      body { max-width: 800px; margin: auto }
+      p.img { text-align: center }
+      img.CC { display: inline }
+    }
+    p.date {
+      font-size: smaller;
+      margin: 0;
+    }
+    p.ref {
+      text-indent: -2em;
+      padding-left: 2em;
+    }
+  </style>
+    <!-- Google Analytics tracking code -->
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-88814550-1', 'auto');
+  ga('send', 'pageview');
+
+  </script>
+  </head>
+  <body>
+    <h1>Variable-Width Line Ends and Line Joins</h1>
+    <p>
+      <span style="font-style: italic">by Paul Murrell</span>
+      <a href="http://orcid.org">
+        <img alt="" src="https://www.stat.auckland.ac.nz/~paul/ORCID/ORCiD.png" style="width: 16px; height: 16px; vertical-align: middle">
+      </a>
+      <span style="font-family: mono; font-size: small">
+        <a href="http://orcid.org/0000-0002-3224-8858">http://orcid.org/0000-0002-3224-8858</a>
+      </span>
+    </p>
+    <p class="date">
+Wednesday 07 June 2017
+    </p>
+
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+    <hr>
+    <!--
+  <p style="color: red">
+    FIXME: add "how to cite this document" at end
+  </p>
+  <p style="color: red">
+    Add version tag to vwline on github
+    git tag v0.1
+    git push origin v0.1
+  </p>
+  <p style="color: red">
+    FIXME: need to create Docker image pmur002/ends-and-joins
+  </p>
+  <p style="color: red">
+    FIXME: once Docker image is ready, need to build using 'make docker'
+  </p>
+  <p style="color: red">
+    FIXME: once document is building with 'make docker', need to push
+    pmur002/ends-and-joins to Docker Hub
+  </p>
+  -->
+    <p>
+    This document describes algorithms for generating line-end and
+    line-join styles for lines that have a variable width.
+    The algorithms are implemented in the 'vwline' package for R.
+  </p>
+    <div>
+      <h2>Table of Contents:</h2>
+      <ul>
+        <li>
+          <a href="#intro">Introduction</a>
+        </li>
+        <li>
+          <a href="#Requirements">Technical requirements</a>
+        </li>
+        <li>
+          <a href="#Resources">Resources</a>
+        </li>
+        <li>
+          <a href="#references">References</a>
+        </li>
+      </ul>
+    </div>
+    <h2>
+      <a name="intro">Introduction</a>
+    </h2>
+    <p>
+    When drawing a line that has a noticable width, the style used to
+    draw the ends of the line becomes significant.  
+    Graphics formats such as PDF (<a href="#PDF">Adobe Systems Incorporated, 2006</a>), 
+    SVG (<a href="#SVG">Ferraiolo and ed., 2001</a>), and PostScript (<a href="#PostScript">Adobe Systems Incorporated, 1999</a>)
+    offer three options for the line end style:
+    "round", "butt", and "square".  
+    The following diagram shows 
+    a thick line drawn with each of these line endings in the R
+    graphics system.
+  </p>
+
+
+    <p class="img">
+      <img src="figure/end-styles-1.svg" width="30%">
+    </p>
+    <p>
+    If the width of the line is allowed to vary along its length, the 
+    meaning of these standard line endings becomes more complex; 
+    for example, a "round" line ending is no longer a semi-circle and a 
+    "square" line ending becomes a trapezoid, as shown below.
+  </p>
+
+    <p class="img">
+      <img src="figure/vw-end-styles-1.svg" width="30%">
+    </p>
+    <p>
+    Similarly, the corner style becomes significant when drawing
+    a series of line segments with a noticeable width, with 
+    options usually including "round", "mitre", and "bevel".
+  </p>
+
+    <p class="img">
+      <img src="figure/join-styles-1.svg" width="30%">
+    </p>
+    <p>
+    Again, if the line width is allowed to vary, the meaning
+    of these styles becomes more complex.  For example, 
+    a "round" corner is unlikely to be satisfied by an simple
+    circular arc.
+  </p>
+
+    <p class="img">
+      <img src="figure/vw-join-styles-1.svg" width="30%">
+    </p>
+    <p>
+    This document considers a variety of scenarios for line ends
+    and line joins and describes general algorithms that
+    can cope coherently and consistently with a wide range of
+    possibilities.  The approach described here is implemented
+    in the 'vwline' package
+    (<a href="#vwline-pkg">Murrell, 2017b</a>, <a href="#vwline-intro">Murrell, 2017a</a>)
+  </p>
+    <h2>Variable-width line endings</h2>
+    <p>
+    The simplest scenario to consider is when the width of the line
+    is allowed to vary identically on either side of the central line.
+    In this case, for a "round" end, although the end is no longer a
+    semi-circle, it makes sense to use an appropriate circular arc.
+  </p>
+
+    <p class="img">
+      <img src="figure/vw-arc-end-1.svg" width="30%">
+    </p>
+    <p>
+    However, in the 'vwline' package for R, 
+    some functions allow us 
+    to specify a different width to the left and to the right
+    of the central line.  Some other functions allow us to specify the 
+    width at an angle other than perpendicular to the central line.
+    Both of these scenarios mean that the left edge and the right
+    edge can approach the end of the line at different angles,
+    which means that a circular arc is no longer an appropriate line
+    ending.
+  </p>
+
+    <p class="img">
+      <img src="figure/vw-warp-end-1.svg" width="30%">
+    </p>
+    <p>
+    In order to accomodate these more complex scenarios, we must 
+    allow the line end shape to be more flexible than a circular arc.
+    The solution adopted in 'vwline' is to draw a single 
+    cubic Bezier curve for the line ending.  This curve is tuned
+    so that it closely approximates a semicircle when the 
+    line edges are parallel (i.e., the line width is constant),
+    but generalises to non-circular shapes.  
+  </p>
+    <p>
+    The fundamental idea is to generate a cubic Bezier curve for the
+    line ending and this requires 4 control points.  The first and last
+    control points are easy - they are the two ends of the left and
+    right edges of the variable-width line.  
+  </p>
+    <p>
+    The middle two control points for the Bezier curve are found by
+    extending both the left and right edges, which ensures that the line ending
+    connects smoothly with the edges 
+    (these extensions are represented by green line
+    segments on the diagrams below).  
+    The amount to extend the edges
+    is based on the "angle" of the line ending and the "radius" of the 
+    line ending.  
+  </p>
+    <p>
+    The angle and radius of the line ending are determined by 
+    generating line segments perpendicular to the edges of the 
+    variable-width line and calculating the angle at which those
+    line segments intersect and the distances from the edges to
+    the point of intersection (this calculation is represented by
+    the light green shaded regions on the diagrams below).
+  </p>
+    <p>
+    When the angle is between 0 and 90 degrees, and the edges 
+    approach the line ending symmetrically, we get a good 
+    approximation of a circular arc using the following formula
+    (from <a href="#rivskus">Riškus, 2015</a>):
+  </p>
+    <pre>
+radius*(4/(3*(1/cos(angle/2) + 1))
+  </pre>
+    <p>
+    When the edges approach the line ending asymmetrically, the distances
+    from the edges to the intersection are no longer equal and we take
+    the smaller of the two. 
+  </p>
+    <p>
+    If the edges of the variable-width 
+    line are parallel then the line ending has an angle
+    of 180 degrees and the formula breaks down.
+    In this case, we extend the edges by 2/3 of the line width
+    (following <a href="#slinker">Slinker, 2008</a>).
+  </p>
+    <p>
+    This approach produces reasonable approximations to circular arcs
+    for symmetric line endings and reasonable results for asymmetric
+    line endings, as shown below. 
+    As the angle of the line ending becomes large, 
+    the result starts to diverge significantly from a circular arc, but
+    this downside is an acceptable price for being able to handle
+    asymmetric line endings (and it pays off even more when
+    we get to "round" line joins later on).  
+  </p>
+
+
+
+    <p class="img">
+      <img src="figure/vw-converge-end-debug-1.svg" width="30%">
+      <img src="figure/vw-diverge-end-debug-1.svg" width="30%">
+      <img src="figure/vw-asym-end-debug-1.svg" width="30%">
+    </p>
+    <p>
+    The possibility of edges converging at the end of a line also
+    introduces a new "mitre" line end style.  This line ending is
+    easy to generate by simply extending the edges of the line
+    until they intersect (this is represented by the orange
+    lines in the diagrams above).
+  </p>
+
+    <p class="img">
+      <img src="figure/vw-mitre-end-1.svg" width="30%">
+    </p>
+    <p>
+    A "square" end is easier to deal with, even in complex scenarios.
+    We simply place a new line parallel to the line end at a distance
+    equal to half of the width of the line at the line end 
+    (represented by the pink line on the diagrams above) and then
+    intersect the line edges with this parallel line.
+    One complication that we must deal with is the possibility that
+    the edges intersect with each other before they intersect
+    with the parallel line.  Once detected, this can be handled
+    easily by simply converting to the "mitre" solution.
+    Conversely, a "mitre" end must be converted to a "square" end
+    when the edges are parallel or diverging.
+  </p>
+    <h2>Variable-width line joins</h2>
+    <p>
+    A "round" line join is handled similarly to a "round" line end,
+    with a single cubic Bezier that approximates a circular arc
+    when the edge angles either side of the corner are symmetric, but
+    adapts to asymmetric situations as well.
+  </p>
+
+
+    <p class="img">
+      <img src="figure/vw-arc-join-1.svg" width="30%">
+      <img src="figure/vw-warp-join-1.svg" width="30%">
+    </p>
+    <p>
+    The line join can become more complex than a line end because
+    it is possible for a corner to "invert" if the line width
+    is (dramatically) decreasing as it approaches from both sides
+    (see the left image below).
+    It is also possible for the corner to require an inflected curve
+    if the width is increasing (dramatically) from one side and
+    decreasing from the other (or vice versa; see the right image below).
+  </p>
+
+
+    <p class="img">
+      <img src="figure/vw-invert-join-1.svg" width="30%">
+      <img src="figure/vw-inflect-join-1.svg" width="30%">
+    </p>
+    <p>
+    The algorithm described for "round" line ends comfortably handles the
+    case of an inverted join and the case of an inflected join
+    is handled as a special case where we
+    take the "radius" of the join to be half the distance between
+    the ends of the edges.
+  </p>
+
+
+    <p class="img">
+      <img src="figure/vw-invert-join-debug-1.svg" width="30%">
+      <img src="figure/vw-inflect-join-debug-1.svg" width="30%">
+    </p>
+    <p>
+    Mitre line joins are much easier because they just require 
+    extending the edges until they intersect (see the left image below).
+    A mitre-limit is
+    used to avoid extremely large mitres by converting to a bevel ending.
+    The only complication is the case where the line join involves
+    an inflection.  In this case, one edge will intersect the "end" of 
+    the other line segment before it intersects the other edge, which 
+    produces a "dog-leg" mitre join (see the right image below).
+  </p>
+
+
+    <p class="img">
+      <img src="figure/vw-mitre-join-1.svg" width="30%">
+      <img src="figure/vw-mitre-inflect-join-1.svg" width="30%">
+    </p>
+    <p>
+    Bevel line joins are very simple, because they just require a
+    straight line from one edge to the next and this can be 
+    achieved in all possible line-join scenarios.
+  </p>
+    <h3>Inner joins</h3>
+    <p>
+    Up to this point, we have only had to consider the "outside"
+    of a line join (for a right-turn corner, this is the right side of
+    the join; for a left-turn corner, this is the left side of the join).
+    In most situations, on the "inside" of a corner, the edges 
+    that meet at the corner intersect each other, so we can simply use
+    that intersection point as the inside of the join.
+  </p>
+    <p>
+    However, in the 'vwline' package, the 
+    <code>vwline</code> function also allows the width to be constant
+    along a segment and step up instantly at a join.  This does not create
+    any new problems for the outside of a join, but it does introduce
+    some problems for the inside of a join.
+  </p>
+    <p>
+    One problem is that the inside of a join can have the inflection issue,
+    so we need to intersect an edge with the end of the previous or next
+    segment of the line (see the left image below).
+    The second problem is that it is possible for the inside 
+    of one segment of the line
+    to extend beyond the <em>outside</em> of another segment
+    (see the right image below).
+  </p>
+
+
+    <p class="img">
+      <img src="figure/vw-inflect-inner-join-1.svg" width="30%">
+      <img src="figure/vw-extend-inner-join-1.svg" width="30%">
+    </p>
+    <p>
+    A single algorithm that can accomodate the normal, simple case
+    and these less common ones, is to draw the inside join by a line segment
+    from the end of edge <em>i</em> 
+    to the centre of the corner, then a line segment
+    from the centre of the corner 
+    to the start of edge <em>i</em>+1 (see the left image below).  
+    This will produce a loop in the boundary
+    of the variable-width line in many cases, but that is removed 
+    by simplifying the boundary with <code>polysimplify</code> from
+    the 'polyclip' package (<a href="#polyclip">Johnson and Baddeley, 2017</a>;  see the right
+    image below).
+  </p>
+
+
+    <p class="img">
+      <img src="figure/inner-join-alg-1.svg" width="30%">
+      <img src="figure/inner-join-simplify-1.svg" width="30%">
+    </p>
+    <p>
+    A known problem with this approach is that it will produce "spikes" 
+    on the inside of a join when the width is increasing rapidly towards
+    the join, as shown below.  A more pleasing result would be to clip
+    those spikes off, but to do so would produce inconsistent results for
+    the unusual cases outlined above.  One possibility would be to provide
+    a parameter that allows
+    the user to specify the behaviour of the algorithm for inside joins.
+  </p>
+
+    <p class="img">
+      <img src="figure/inner-join-spikes-1.svg" width="30%">
+    </p>
+    <h2>Summary</h2>
+    <p>
+    Drawing a series of straight line segments with variable widths
+    creates complexities in the shapes of the line endings and line joins.
+    This document describes some general algorithms that can cope
+    with a wide range of scenarios for a variety of line end and line 
+    join styles.
+  </p>
+    <p>
+    These algorithms have been implemented in the 'vwline' package for R,
+    particularly in the <code>vwline</code> function from that package.
+  </p>
+    <h2>
+      <a name="Requirements">Technical requirements</a>
+    </h2>
+    <p>
+    The examples and discussion in this document relate to 
+    <a href="https://github.com/pmur002/vwline/releases/tag/v0.1">'vwline' 
+    version 0.1</a>.
+  </p>
+    <p>
+    This document was generated within a Docker container
+    (see <a href="#Resources">Resources</a> section below).
+  </p>
+    <h2>
+      <a name="Resources">Resources</a>
+    </h2>
+    <ul>
+      <li>
+      The 'vwline' package is available on 
+      <a href="https://github.com/pmur002/vwline">github</a>.
+    </li>
+      <li>
+      The <a href="ends-and-joins.cml">raw source file</a> for this
+      document, a <a href="ends-and-joins.xml">valid XML</a>
+      transformation of the source file, a <a href="ends-and-joins.Rhtml">'knitr' document</a> generated from
+      the XML file, 
+      two <a href="toc.R">R</a> <a href="bib.R">files</a> and
+      the <a href="ends-and-joins.bib">bibtex file</a>
+      that are used to generate the table of contents and reference sections,
+      two <a href="common.xsl">XSL</a> <a href="knitr.xsl">files</a> 
+      that are used to transform the XML to
+      the 'knitr' document, and a <a href="Makefile">Makefile</a> that
+      contains code for the other transformations and coordinates
+      everything.  
+    </li>
+      <li>
+      This document was generated within a 
+      <a href="https://www.docker.com/">Docker</a> container.
+      The Docker command to build the document
+      is included in the Makefile above.
+      The Docker image for the container is available from
+      <a href="https://hub.docker.com/r/pmur002/ends-and-joins/">Docker Hub</a>;
+      alternatively, the image can be rebuilt from its 
+      <a href="Dockerfile">Dockerfile</a>.
+    </li>
+    </ul>
+    <h2>How to cite this document</h2>
+    <p>
+    Murrell, P. (2017). Variable-Width Line Ends and Line Joins. 
+    Technical Report 2017-02, University of Auckland. 
+    [ <a href="how-to-cite.bib">bib</a> ] 
+  </p>
+    <h2>
+      <a name="references">References</a>
+    </h2>
+    <dl>
+<dt>
+[<a name="PostScript">Adobe Systems Incorporated, 1999</a>]
+</dt>
+<dd>
+Adobe Systems Incorporated (1999).
+ Postscript language reference.
+[ <a href="line-styles-bib_bib.html#PostScript">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="PDF">Adobe Systems Incorporated, 2006</a>]
+</dt>
+<dd>
+Adobe Systems Incorporated (2006).
+ Adobe portable document format.
+[ <a href="line-styles-bib_bib.html#PDF">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="SVG">Ferraiolo and ed., 2001</a>]
+</dt>
+<dd>
+Ferraiolo, J. and ed. (2001).
+ Scalable Vector Graphics (SVG) 1.0 specification.
+[ <a href="line-styles-bib_bib.html#SVG">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="polyclip">Johnson and Baddeley, 2017</a>]
+</dt>
+<dd>
+Johnson, A. and Baddeley, A. (2017).
+ <em>polyclip: Polygon Clipping</em>.
+ R package version 1.6-1.
+[ <a href="line-styles-bib_bib.html#polyclip">bib</a> | 
+<a href="https://CRAN.R-project.org/package=polyclip">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="vwline-intro">Murrell, 2017a</a>]
+</dt>
+<dd>
+Murrell, P. (2017a).
+ Variable-width lines in R.
+ Technical Report 2017-01, University of Auckland.
+[ <a href="line-styles-bib_bib.html#vwline-intro">bib</a> | 
+<a href="http://stattech.wordpress.fos.auckland.ac.nz/2017/05/19/2017-01-variable-width-lines-in-r/">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="vwline-pkg">Murrell, 2017b</a>]
+</dt>
+<dd>
+Murrell, P. (2017b).
+ <em>vwline: Draw variable-width lines</em>.
+ R package version 0.1.
+[ <a href="line-styles-bib_bib.html#vwline-pkg">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="rivskus">Riškus, 2015</a>]
+</dt>
+<dd>
+Riškus, A. (2015).
+ Approximation of a cubic bézier curve by circular arcs and vice
+  versa.
+ <em>Information technology and control</em>, 35(4).
+[ <a href="line-styles-bib_bib.html#rivskus">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="slinker">Slinker, 2008</a>]
+</dt>
+<dd>
+Slinker, G. (2008).
+ Approximating a semicircle with a cubic nonrational bezier curve.
+[ <a href="line-styles-bib_bib.html#slinker">bib</a> | 
+<a href="http://digerati-illuminatus.blogspot.co.nz/2008/05/approximating-semicircle-with-cubic.html">.html</a> ]
+
+</dd>
+</dl>
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+  </body>
+</html>
