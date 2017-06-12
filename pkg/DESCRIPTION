@@ -1,7 +1,7 @@
 Package: vwline
 Type: Package
 Title: Draw variable-width lines
-Version: 0.1
+Version: 0.1-1
 Author: Paul Murrell
 Maintainer: Paul Murrell <paul@stat.auckland.ac.nz>
 Description: Provides R functions to draw lines and curves with control 

@@ -35,13 +35,13 @@ xsplineOffsets <- function(px, py, s1, s2, t) {
         for (k in c("A0", "noA0")) {
             for (m in c("A3", "noA3")) {
                 assign(paste("utx", i, j, k, m, sep="."),
-                       do.call(get(paste("xsplineUnitTangent",
+                       do.call(get(paste("xsplineTangent",
                                          i, j, k, m, "x", sep=".")),
                                list(px0=px[1], px1=px[2], px2=px[3], px3=px[4],
                                     py0=py[1], py1=py[2], py2=py[3], py3=py[4],
                                     s1=s1, s2=s2, t=t)))
                 assign(paste("uty", i, j, k, m, sep="."),
-                       do.call(get(paste("xsplineUnitTangent",
+                       do.call(get(paste("xsplineTangent",
                                          i, j, k, m, "y", sep=".")),
                                list(px0=px[1], px1=px[2], px2=px[3], px3=px[4],
                                     py0=py[1], py1=py[2], py2=py[3], py3=py[4],
@@ -80,7 +80,10 @@ xsplineOffsets <- function(px, py, s1, s2, t) {
         }
     }
     ## Unit normals from unit tangents
-    list(x=tangents$y, y=-tangents$x)
+    tangentLengths <- sqrt(tangents$x^2 + tangents$y^2)
+    unitTangents <- list(x=tangents$x/tangentLengths,
+                         y=tangents$y/tangentLengths)
+    list(x=unitTangents$y, y=-unitTangents$x)
 }
 
 xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
