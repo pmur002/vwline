@@ -86,8 +86,54 @@ xsplineOffsets <- function(px, py, s1, s2, t) {
     list(x=unitTangents$y, y=-unitTangents$x)
 }
 
-xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
-                    t=seq(0, 1, len=30),
+xsplineStep <- function(px, py, s1, s2, precision=.5, MAX_SPLINE_STEP=.2) {
+    ## Calculate points at each end and in the middle
+    pts <- xsplinePts(px, py, s1, s2, c(0, .5, 1))
+
+    ## These calculations mirror XFig C code calculations
+    ## which assume 1200ppi
+    pts <- lapply(pts, function(x) x*1200)
+    
+    xv <- diff(pts$x)
+    yv <- diff(pts$y)
+    
+    scal_prod <- xv[1]*(-xv[2]) + yv[1]*(-yv[2]);
+
+    sides_length_prod <- sqrt((xv[1]*xv[1] + yv[1]*yv[1])*
+                              (xv[2]*xv[2] + yv[2]*yv[2]))
+
+    ## compute cosinus of origin-middle-extremity angle, which approximates the
+    ## curve of the spline segment
+    if (sides_length_prod == 0) {
+        angle_cos <- 0
+    } else {
+        angle_cos <- scal_prod/sides_length_prod
+    }
+
+    xlength <- diff(pts$x[-2])
+    ylength <- diff(pts$y[-2])
+
+    start_to_end_dist <- sqrt(xlength*xlength + ylength*ylength)
+
+    ## more steps if segment's origin and extremity are remote
+    number_of_steps <- sqrt(start_to_end_dist)/2;
+
+    ## more steps if the curve is high 
+    number_of_steps <- number_of_steps + (1 + angle_cos)*10
+
+    if (number_of_steps == 0) {
+        step <- 1
+    } else {
+        step <- precision/number_of_steps
+    }
+
+    if ((step > MAX_SPLINE_STEP) || (step == 0)) {
+        step <- MAX_SPLINE_STEP
+    }
+    step
+}
+
+xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE, tstep=NULL,
                     xsplineFun=xsplinePts) {
     N <- length(x)
     shape <- rep(shape, length=N)
@@ -125,8 +171,15 @@ xspline <- function(x, y, shape=1, open=TRUE, repEnds=TRUE,
     curves <- vector("list", N)
     for (i in 1:(N-3)) {
         index <- i:(i+3)
+        if (is.null(tstep)) {
+            step <- xsplineStep(x[index], y[index],
+                                shape[i+1], shape[i+2])
+        } else {
+            step <- tstep
+        }
         curves[[i]] <- xsplineFun(x[index], y[index],
-                                  shape[i+1], shape[i+2], t)
+                                  shape[i+1], shape[i+2],
+                                  seq(0, 1, step))
     }
     cx <- unlist(lapply(curves, "[[", "x"))
     cy <- unlist(lapply(curves, "[[", "y"))

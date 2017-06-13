@@ -152,10 +152,11 @@ vwXsplineOutline <- function(grob) {
         N <- length(grob$x)
         x <- convertX(grob$x[N], "in", valueOnly=TRUE)
         y <- convertY(grob$y[N], "in", valueOnly=TRUE)
-        N <- length(pts$left$x)
+        NL <- length(pts$left$x)
+        NR <- length(pts$right$x)
         seg <- generateSegment(x, y,
-                               pts$right$x[N:(N-1)], pts$right$y[N:(N-1)], 
-                               pts$left$x[N:(N-1)], pts$left$y[N:(N-1)],
+                               pts$right$x[NR:(NR-1)], pts$right$y[NR:(NR-1)], 
+                               pts$left$x[NL:(NL-1)], pts$left$y[NL:(NL-1)],
                                grob$debug)
         sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
         einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
