@@ -1,0 +1,965 @@
+<html>
+  <head>
+<style type="text/css">
+.knitr .inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage .left {
+  text-align: left;
+}
+.rimage .right {
+  text-align: right;
+}
+.rimage .center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">
+    @media print {
+      body { }
+      p.img { text-align: center; page-break-inside: avoid }
+      img.CC { display: inline }
+    }
+    @media screen {
+      body { max-width: 800px; margin: auto }
+      p.img { text-align: center }
+      img.CC { display: inline }
+    }
+    p.date {
+      font-size: smaller;
+      margin: 0;
+    }
+    p.ref {
+      text-indent: -2em;
+      padding-left: 2em;
+    }
+  </style>
+    <!-- Google Analytics tracking code -->
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-88814550-1', 'auto');
+  ga('send', 'pageview');
+
+  </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_SVG"></script>
+  </head>
+  <body>
+    <h1>Offset Curves for Variable-Width X-splines</h1>
+    <p>
+      <span style="font-style: italic">by Paul Murrell</span>
+      <a href="http://orcid.org">
+        <img alt="" src="https://www.stat.auckland.ac.nz/~paul/ORCID/ORCiD.png" style="width: 16px; height: 16px; vertical-align: middle">
+      </a>
+      <span style="font-family: mono; font-size: small">
+        <a href="http://orcid.org/0000-0002-3224-8858">http://orcid.org/0000-0002-3224-8858</a>
+      </span>
+    </p>
+    <p class="date">
+Wednesday 14 June 2017
+    </p>
+
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+    <hr>
+    <!--
+  <p style="color: red">
+    FIXME: add "how to cite this document" at end
+  </p>
+  <p style="color: red">
+    Add version tag to vwline on github
+    git tag v0.1-1
+    git push origin v0.1-1
+  </p>
+  <p style="color: red">
+    FIXME: need to create Docker image pmur002/offset-xspline
+  </p>
+  <p style="color: red">
+    FIXME: once Docker image is ready, need to build using 'make docker'
+  </p>
+  <p style="color: red">
+    FIXME: once document is building with 'make docker', need to push
+    pmur002/offset-xspline to Docker Hub
+  </p>
+  -->
+    <p>
+    This document describes 
+    an algorithm for generating offset curves
+    for X-splines, where the width of the X-spline
+    is allowed to vary along its length.
+    The implementation is provided by the 
+    <code>grid.offsetXspline</code> function in the 
+    'vwline' package for R.
+  </p>
+    <div>
+      <h2>Table of Contents:</h2>
+      <ul style="list-style: none">
+        <li>
+          <a href="#intro">1. Introduction</a>
+        </li>
+        <li>
+          <a href="#offset-curves">2. Offset curves</a>
+        </li>
+        <li>
+          <a href="#x-spline-curves">3. X-spline curves</a>
+        </li>
+        <li>
+          <a href="#x-spline-tangent">4. X-spline tangent functions</a>
+        </li>
+        <li>
+          <a href="#rendering">5. Rendering X-spline offset curves</a>
+        </li>
+        <li>
+          <a href="#summary">6. Summary</a>
+        </li>
+        <li>
+          <a href="#Requirements">7. Technical requirements</a>
+        </li>
+        <li>
+          <a href="#Resources">8. Resources</a>
+        </li>
+        <li>
+          <a href="#references">9. References</a>
+        </li>
+      </ul>
+    </div>
+    <h2>
+      <a name="intro">1. Introduction</a>
+    </h2>
+    <p>
+    X-splines (<a href="#blanc+schlick">Blanc and Schlick, 1995</a>)
+    are a family of curves defined by control points (like a Bezier curve),
+    with a shape parameter at each control point that allows the curve
+    to vary between interpolation and approximation at each control point.
+    In the diagram below, there are three X-splines, each drawn relative to
+    five control points.  The top X-spline has a shape parameter of 1 
+    (except at the end points) so it approximates the control points.
+    The bottom X-spline has a shape parameter of -1
+    (except at the end points) so it interpolates the control points.
+    The middle X-spline has a shape parameter of 0, so it produces
+    straight lines and sharp corners.
+  </p>
+
+
+    <p class="img">
+      <img src="figure/x-spline-1.svg" width="30%">
+    </p>
+    <p>
+    The R graphics system provides functions for drawing 
+    X-splines to produce smooth lines or closed shapes with smooth
+    boundaries.  The following code shows an example (used for the
+    top X-spline in the diagram above).
+  </p>
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(grid)</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="x-spline-code"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.1</span><span class="hl std">,</span> <span class="hl num">.3</span><span class="hl std">,</span> <span class="hl num">.5</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.9</span><span class="hl std">)</span>
+<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.4</span><span class="hl std">,</span> <span class="hl num">.6</span><span class="hl std">,</span> <span class="hl num">.4</span><span class="hl std">)</span>
+<span class="hl kwd">grid.xspline</span><span class="hl std">(x, y,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+    <p>
+    The R package 'vwline' provides several functions
+    that draw curves based on X-splines, but with the width of the
+    X-spline allowed to vary along the length of the curve.
+    The following R code shows an example, where the width of the
+    X-spline increases smoothly along the length of the line.
+  </p>
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(vwline)</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="offset-x-spline"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">.1</span><span class="hl std">)</span>
+<span class="hl kwd">grid.offsetXspline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+    <p class="img">
+      <img src="figure/offset-x-spline-1.svg" width="30%">
+    </p>
+    <p>
+    In order to render a variable-width X-spline, we must be able to
+    calculate locations along the boundary of the variable-width X-spline.
+    This document focuses on the function <code>grid.offsetXspline</code>
+    from the 'vwline' package, which uses a generalised offset curve approach
+    to calculate the boundary 
+    of a variable-width X-spline.
+  </p>
+    <p>
+    In the <a href="#offset-curves">Offset curves</a> Section, 
+    we establish a general definition
+    of offset curves and the <a href="#x-spline-curves">X-spline curves</a> Section
+    describes the equations for X-spline curves.  The
+    <a href="#x-spline-tangent">X-spline tangent functions</a> Section generates expressions for
+    the tangent to an X-spline curve and the
+    <a href="#rendering">Rendering X-spline offset curves</a> Section describes how the tangent is used to
+    draw an offset curve.  
+  </p>
+    <h2>
+      <a name="offset-curves">2. Offset curves</a>
+    </h2>
+    <p>
+    Following 
+    <a href="#chen+lin">Lin and Chen, 2014</a>, if we have a planar
+    (two-dimensional) parametric curve
+    \(\mathbf{r}=\mathbf{r}(t)\), \(t \in [0, 1]\),
+    then an offset curve with variable
+    offset is given by  
+
+    $$\mathbf{r}_0(t)=\mathbf{r}(t) + d(t)\mathbf{n}(t)$$
+
+    where \(\mathbf{n}(t)\) is the unit normal vector at each
+    point on the original curve and \(d(t)\) is a function that
+    defines the offset at any point on the original curve.
+  </p>
+    <p>
+    In order to find the unit normal function,
+    we must first obtain the unit tangent
+    function.  This requires differentiating the original curve
+    and then dividing by the magnitude of the derivative:
+
+    $$\mathbf{e}(t) = \frac{\mathbf{r}'(t)}{\left\Vert\mathbf{r}'(t)\right\Vert}$$
+  </p>
+    <p>
+    Because the unit tangent function has fixed length, its derivative
+    is perpendicular to it, 
+    so the unit normal function is then found by 
+    (<a href="#apostol2007calculus">Apostol, 2007</a>):
+
+    $$\mathbf{n}(t) = \frac{\mathbf{e}'(t)}{\left\Vert\mathbf{e}'(t)\right\Vert}$$
+  </p>
+    <p>
+    We can also observe that 
+    the unit normal is just a 90 degree rotation of the unit tangent,
+    so we can obtain the unit normal function simply as:
+
+    $$\begin{array}{l}
+    n_x(t) = e_y(t) \\
+    n_y(t) = -e_x(t) \\
+    \end{array}$$
+  </p>
+    <h2>
+      <a name="x-spline-curves">3. X-spline curves</a>
+    </h2>
+    <p>
+    Following 
+    <a href="#blanc+schlick">Blanc and Schlick, 1995</a>,
+    a (two-dimensional) 
+    spline is a planar parametric curve 
+    that is based on a discrete set of <em>control points</em>,
+    \(P_k \in \mathbb{R}^2\), and a discrete set of <em>blending functions</em>,
+    \(F_k : [0, 1] \rightarrow \mathbb{R}\), as follows:
+
+    $$C(t) = \sum_{k=0}^n F_k(t)P_k, t \in [0, 1]$$
+  </p>
+    <p>
+    The definition of an X-spline reparameterises the curve and
+    adds a set of <em>shape parameters</em>,
+    \(s_k \in [-1, 1]\), which are used to both select and
+    influence the blending functions.
+    The X-spline curve is calculated piecewise for each 
+    (overlapping) set of four control points.  
+    The section of the curve between control points \(k+1\) and
+    \(k+2\) is calculated as follows:
+
+    $$C(t) = \frac{A_0(t)P_k + A_1(t)P_{k+1} + A_2(t)P_{k+2} + A_3(t)P_{k+3}}{A_0(t) + A_1(t) + A_2(t) + A_3(t)}, t \in [0, 1]$$
+
+    where the value and choice of blending functons used for
+    \(A_0\) to \(A_3\) depend on the
+    shape parameters \(s_{k+1}\) and \(s_{k+2}\):
+
+    $$\begin{array}{l}
+
+    A_0 = &amp;
+    \begin{cases}
+    h(-t, -s_{k+1}), \\
+    f(t - s_{k+1}, -1 - s_{k+1}), \\
+    0,
+    \end{cases}
+    &amp;
+    \begin{array}{l}
+    \text{if \(s_{k+1} \lt 0\)} \\
+    \text{if \(s_{k+1} \ge 0\) and \(t \lt s_{k+1}\)} \\
+    \text{otherwise}
+    \end{array}
+    \\[1em]
+
+    A_1 = &amp;
+    \begin{cases}
+    g(1 - t, -s_{k+2}), \\
+    f(t - 1 - s_{k+2}, -1 - s_{k+2}), 
+    \end{cases}
+    &amp;
+    \begin{array}{l}
+    \text{if \(s_{k+2} \lt 0\)} \\
+    \text{otherwise}
+    \end{array}
+    \\[1em]
+
+    A_2 = &amp;
+    \begin{cases}
+    g(t, -s_{k+1}), \\
+    f(t + s_{k+1}, 1 + s_{k+1}), 
+    \end{cases}
+    &amp;
+    \begin{array}{l}
+    \text{if \(s_{k+1} \lt 0\)} \\
+    \text{otherwise}
+    \end{array}
+    \\[1em]
+
+    A_3 = &amp;
+    \begin{cases}
+    h(t - 1, -s_{k+2}), \\
+    f(t - 1 + s_{k+2}, 1 + s_{k+2}), \\
+    0, 
+    \end{cases}
+    &amp;
+    \begin{array}{l}
+    \text{if \(s_{k+2} \lt 0\)} \\
+    \text{if \(s_{k+2} \ge 0\) and \(t \gt 1 - s_{k+2}\)} \\
+    \text{otherwise}
+    \end{array}
+
+    \end{array}$$
+
+    and the blending functions \(f\), \(g\), and \(h\) are defined as follows:
+
+    $$\begin{array}{l}
+
+    F(u, p) = u^3(10 - p + (2p - 15)u + (6 - p)u^2) \\
+
+    f(n, d) = F(n/d, 2d^2) \\
+
+    g(u, q) = u(q + u(2q + u(8 - 12q + u(14q - 11 + u(4 - 5q))))) \\
+
+    h(u, q) = u(q + u(2q + u^2(-2q - uq))) \\
+
+    \end{array}$$
+  </p>
+    <p>
+    The notation above, particularly the definition of the blending function
+    \(f\), is also based on the
+    C code implementation of X-splines from the 
+    <a href="http://mcj.sourceforge.net/">XFig</a>
+    drawing program
+    (<a href="#smith2001xfig">Smith, 2001</a>).
+  </p>
+    <h2>
+      <a name="x-spline-tangent">4. X-spline tangent functions</a>
+    </h2>
+    <p>
+    In order to generate an offset curve for an X-spline, we need to
+    differentiate the function \(C(t)\) to find its tangent function,
+    \(C'(t)\).
+  </p>
+    <p>
+    In the absence of the requisite discipline and mathematical wit, 
+    one approach to calculating the X-spline tangent function is
+    to brute force the result via computational methods.
+    This approach also has the benefit of directly 
+    producing output in the form
+    of R code that can be evaluated and, because the X-spline equation
+    is piecewise, it efficiently replicates across multiple equations.
+  </p>
+    <p>
+    The first step is to generate an  expression for 
+    \(C(t)\) that is just in terms of \(t\) (and \(P_k\) and \(s_k\),
+    both of which are constants for a particular X-spline).
+    The idea is to expand the X-spline equations so that, for example ...
+    
+    $$A0 = h(-t, -s_{k+1})$$
+
+    ... and ...
+
+    $$h(u, q) = u(q + u(2q + u^2(-2q - uq)))$$
+
+    ... becomes ...
+    
+    $$A0 = (-t)((-s_{k+1}) + (-t)(2(-s_{k+1}) + (-t)^2(-2(-s_{k+1}) - (-t)(-s_{k+1}))))$$
+  </p>
+    <p>
+    The following R code performs the above transformation using
+    text substitution and demonstrates that the result can be 
+    executed (for specific values of <code>t</code> and <code>s1</code>).
+  </p>
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">hblend</span> <span class="hl kwb">&lt;-</span> <span class="hl str">&quot;u*(q + u*(2*q + u*u*(-2*q - u*q)))&quot;</span>
+<span class="hl std">A0</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">gsub</span><span class="hl std">(</span><span class="hl str">&quot;u&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;(-t)&quot;</span><span class="hl std">,</span>
+       <span class="hl kwd">gsub</span><span class="hl std">(</span><span class="hl str">&quot;q&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;(-s1)&quot;</span><span class="hl std">, hblend))</span>
+<span class="hl std">A0</span>
+</pre></div>
+<div class="output"><pre class="knitr r">  [1] &quot;(-t)*((-s1) + (-t)*(2*(-s1) + (-t)*(-t)*(-2*(-s1) - (-t)*(-s1))))&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">eval</span><span class="hl std">(</span><span class="hl kwd">parse</span><span class="hl std">(</span><span class="hl kwc">text</span><span class="hl std">=A0),</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwc">t</span><span class="hl std">=</span><span class="hl num">0.5</span><span class="hl std">,</span> <span class="hl kwc">s1</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">))</span>
+</pre></div>
+<div class="output"><pre class="knitr r">  [1] 0.09375
+</pre></div>
+</div></div>
+    <p>
+    To get a complete expression for \(C(t)\), we must repeat this sort
+    of expansion for \(A1\), \(A2\), and \(A3\) as well, <em>and</em>
+    there are 16 different scenarios to create equations for:
+    \(s_{k+1}\) can be negative or non-negative, 
+    \(s_{k+2}\) can be negative or non-negative, 
+    \(A0\) can be zero or non-zero, and
+    \(A3\) can be zero or non-zero.
+    Furthermore, we need to generate both \(x\) and \(y\) versions
+    to provide the two components of the vector function \(C(t)\).
+    Not all of those scenarios can actually occur, but because we
+    are programmatically generating the equations, it is easier,
+    and costs no more, to generate all 16 scenarios.
+  </p>
+    <p>
+    The <code>xsplineFunGenerator</code> function was written to
+    generate an expression for a specific scenario.  The following
+    code demonstrates its use for the scenario where 
+    \(s_{k+1}\) is negative, 
+    \(s_{k+2}\) is negative, 
+    \(A0\) is zero, and
+    \(A3\) is zero.  The expression that is generated is the
+    equation for \(C_x(t)\) in that scenario (the <code>px</code>
+    terms in the expression are the x-values from the four
+    control points that are controlling the curve, e.g.,
+    <code>px0</code> corresponds to the x-component of \(P_k\);
+    <code>s1</code>  and <code>s2</code> correspond to 
+    \(s_{k+1}\) and \(s_{k+2}\)).
+  </p>
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">xsplineFunGenerator</span><span class="hl std">(</span><span class="hl str">&quot;s1neg&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;s2neg&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;noA0&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;noA3&quot;</span><span class="hl std">)(</span><span class="hl str">&quot;x&quot;</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">  expression(((-t) * ((-s1) + (-t) * (2 * (-s1) + (-t) * (-t) * 
+      (-2 * (-s1) - (-t) * (-s1)))) * px0 + (1 - t) * ((-s2) + 
+      (1 - t) * (2 * (-s2) + (1 - t) * (8 - 12 * (-s2) + (1 - t) * 
+          (14 * (-s2) - 11 + (1 - t) * (4 - 5 * (-s2)))))) * px1 + 
+      t * ((-s1) + t * (2 * (-s1) + t * (8 - 12 * (-s1) + t * (14 * 
+          (-s1) - 11 + t * (4 - 5 * (-s1)))))) * px2 + (t - 1) * 
+      ((-s2) + (t - 1) * (2 * (-s2) + (t - 1) * (t - 1) * (-2 * 
+          (-s2) - (t - 1) * (-s2)))) * px3)/((-t) * ((-s1) + (-t) * 
+      (2 * (-s1) + (-t) * (-t) * (-2 * (-s1) - (-t) * (-s1)))) + 
+      (1 - t) * ((-s2) + (1 - t) * (2 * (-s2) + (1 - t) * (8 - 
+          12 * (-s2) + (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 
+          5 * (-s2)))))) + t * ((-s1) + t * (2 * (-s1) + t * (8 - 
+      12 * (-s1) + t * (14 * (-s1) - 11 + t * (4 - 5 * (-s1)))))) + 
+      (t - 1) * ((-s2) + (t - 1) * (2 * (-s2) + (t - 1) * (t - 
+          1) * (-2 * (-s2) - (t - 1) * (-s2))))))
+</pre></div>
+</div></div>
+    <p>
+    A full set of equations for \(C(t)\) for all scenarios can be generated with
+    a simple loop.    A link to the complete definition of 
+    <code>xsplineFunGenerator</code> is given in the 
+    <a href="#Resources">Resources</a>.
+  </p>
+    <p>
+    Now that we have an equation for \(C(t)\) in terms of \(t\),
+    we need to find its derivative.  Again, we can take a computational
+    approach using the <code>D</code> (<code>deriv</code>) function from the 
+    'Ryacas' package (<a href="#Ryacas">Goedman et al., 2016</a>), which provides an 
+    interface to the <a href="http://yacas.sourceforge.net">Yacas</a>
+    computer algebra system (<a href="#yacas">Pinkus and Winitzki, 2002</a>).
+    The <code>xsplineTangentExpr</code> function was written
+    to take the output of <code>xsplineFunGenerator</code> and differentiate
+    it.  The following code demonstrates (the x-component of) the result from 
+    <code>xsplineTangentExpr</code> for the scenario above.
+  </p>
+<div class="chunk" id="unnamed-chunk-8"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">xsplineTangentExpr</span><span class="hl std">(</span><span class="hl kwd">xsplineFunGenerator</span><span class="hl std">(</span><span class="hl str">&quot;s1neg&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;s2neg&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;noA0&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;noA3&quot;</span><span class="hl std">))</span><span class="hl opt">$</span><span class="hl std">x</span>
+</pre></div>
+<div class="output"><pre class="knitr r">  (((-t) * ((-t) * ((-t) * (-t) * (-s1) - ((-t) + (-t)) * (-2 * 
+      (-s1) - (-t) * (-s1))) - (2 * (-s1) + (-t) * (-t) * (-2 * 
+      (-s1) - (-t) * (-s1)))) - ((-s1) + (-t) * (2 * (-s1) + (-t) * 
+      (-t) * (-2 * (-s1) - (-t) * (-s1))))) * px0 - ((1 - t) * 
+      ((1 - t) * ((1 - t) * ((1 - t) * (4 - 5 * (-s2)) + (14 * 
+          (-s2) - 11 + (1 - t) * (4 - 5 * (-s2)))) + (8 - 12 * 
+          (-s2) + (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 5 * 
+          (-s2))))) + (2 * (-s2) + (1 - t) * (8 - 12 * (-s2) + 
+          (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 5 * (-s2)))))) + 
+      ((-s2) + (1 - t) * (2 * (-s2) + (1 - t) * (8 - 12 * (-s2) + 
+          (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 5 * (-s2))))))) * 
+      px1 + (((-s1) + t * (2 * (-s1) + t * (8 - 12 * (-s1) + t * 
+      (14 * (-s1) - 11 + t * (4 - 5 * (-s1)))))) + t * ((2 * (-s1) + 
+      t * (8 - 12 * (-s1) + t * (14 * (-s1) - 11 + t * (4 - 5 * 
+          (-s1))))) + t * ((8 - 12 * (-s1) + t * (14 * (-s1) - 
+      11 + t * (4 - 5 * (-s1)))) + t * ((14 * (-s1) - 11 + t * 
+      (4 - 5 * (-s1))) + t * (4 - 5 * (-s1)))))) * px2 + (((-s2) + 
+      (t - 1) * (2 * (-s2) + (t - 1) * (t - 1) * (-2 * (-s2) - 
+          (t - 1) * (-s2)))) + (t - 1) * ((2 * (-s2) + (t - 1) * 
+      (t - 1) * (-2 * (-s2) - (t - 1) * (-s2))) + (t - 1) * (((t - 
+      1) + (t - 1)) * (-2 * (-s2) - (t - 1) * (-s2)) - (t - 1) * 
+      (t - 1) * (-s2)))) * px3)/((-t) * ((-s1) + (-t) * (2 * (-s1) + 
+      (-t) * (-t) * (-2 * (-s1) - (-t) * (-s1)))) + (1 - t) * ((-s2) + 
+      (1 - t) * (2 * (-s2) + (1 - t) * (8 - 12 * (-s2) + (1 - t) * 
+          (14 * (-s2) - 11 + (1 - t) * (4 - 5 * (-s2)))))) + t * 
+      ((-s1) + t * (2 * (-s1) + t * (8 - 12 * (-s1) + t * (14 * 
+          (-s1) - 11 + t * (4 - 5 * (-s1)))))) + (t - 1) * ((-s2) + 
+      (t - 1) * (2 * (-s2) + (t - 1) * (t - 1) * (-2 * (-s2) - 
+          (t - 1) * (-s2))))) - ((-t) * ((-s1) + (-t) * (2 * (-s1) + 
+      (-t) * (-t) * (-2 * (-s1) - (-t) * (-s1)))) * px0 + (1 - 
+      t) * ((-s2) + (1 - t) * (2 * (-s2) + (1 - t) * (8 - 12 * 
+      (-s2) + (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 5 * (-s2)))))) * 
+      px1 + t * ((-s1) + t * (2 * (-s1) + t * (8 - 12 * (-s1) + 
+      t * (14 * (-s1) - 11 + t * (4 - 5 * (-s1)))))) * px2 + (t - 
+      1) * ((-s2) + (t - 1) * (2 * (-s2) + (t - 1) * (t - 1) * 
+      (-2 * (-s2) - (t - 1) * (-s2)))) * px3) * ((-t) * ((-t) * 
+      ((-t) * (-t) * (-s1) - ((-t) + (-t)) * (-2 * (-s1) - (-t) * 
+          (-s1))) - (2 * (-s1) + (-t) * (-t) * (-2 * (-s1) - (-t) * 
+      (-s1)))) - ((-s1) + (-t) * (2 * (-s1) + (-t) * (-t) * (-2 * 
+      (-s1) - (-t) * (-s1)))) - ((1 - t) * ((1 - t) * ((1 - t) * 
+      ((1 - t) * (4 - 5 * (-s2)) + (14 * (-s2) - 11 + (1 - t) * 
+          (4 - 5 * (-s2)))) + (8 - 12 * (-s2) + (1 - t) * (14 * 
+      (-s2) - 11 + (1 - t) * (4 - 5 * (-s2))))) + (2 * (-s2) + 
+      (1 - t) * (8 - 12 * (-s2) + (1 - t) * (14 * (-s2) - 11 + 
+          (1 - t) * (4 - 5 * (-s2)))))) + ((-s2) + (1 - t) * (2 * 
+      (-s2) + (1 - t) * (8 - 12 * (-s2) + (1 - t) * (14 * (-s2) - 
+      11 + (1 - t) * (4 - 5 * (-s2))))))) + (((-s1) + t * (2 * 
+      (-s1) + t * (8 - 12 * (-s1) + t * (14 * (-s1) - 11 + t * 
+      (4 - 5 * (-s1)))))) + t * ((2 * (-s1) + t * (8 - 12 * (-s1) + 
+      t * (14 * (-s1) - 11 + t * (4 - 5 * (-s1))))) + t * ((8 - 
+      12 * (-s1) + t * (14 * (-s1) - 11 + t * (4 - 5 * (-s1)))) + 
+      t * ((14 * (-s1) - 11 + t * (4 - 5 * (-s1))) + t * (4 - 5 * 
+          (-s1)))))) + (((-s2) + (t - 1) * (2 * (-s2) + (t - 1) * 
+      (t - 1) * (-2 * (-s2) - (t - 1) * (-s2)))) + (t - 1) * ((2 * 
+      (-s2) + (t - 1) * (t - 1) * (-2 * (-s2) - (t - 1) * (-s2))) + 
+      (t - 1) * (((t - 1) + (t - 1)) * (-2 * (-s2) - (t - 1) * 
+          (-s2)) - (t - 1) * (t - 1) * (-s2)))))/((-t) * ((-s1) + 
+      (-t) * (2 * (-s1) + (-t) * (-t) * (-2 * (-s1) - (-t) * (-s1)))) + 
+      (1 - t) * ((-s2) + (1 - t) * (2 * (-s2) + (1 - t) * (8 - 
+          12 * (-s2) + (1 - t) * (14 * (-s2) - 11 + (1 - t) * (4 - 
+          5 * (-s2)))))) + t * ((-s1) + t * (2 * (-s1) + t * (8 - 
+      12 * (-s1) + t * (14 * (-s1) - 11 + t * (4 - 5 * (-s1)))))) + 
+      (t - 1) * ((-s2) + (t - 1) * (2 * (-s2) + (t - 1) * (t - 
+          1) * (-2 * (-s2) - (t - 1) * (-s2)))))^2
+</pre></div>
+</div></div>
+    <p>
+    Again, a simple loop can be used to generate tangent expressions
+    for all X-spline scenarios.
+  </p>
+    <p>
+    It is easy to generate an expression for the unit tangent from 
+    the X-spline
+    tangent expression by dividing by the square-root of the sum of 
+    squares of the x-component and y-component;
+    the <code>xsplineUnitTangentExpr</code> 
+    function can do this.  We can then repeat the process, 
+    differentiating the unit tangent to get an expression for the normal 
+    function and then 
+    generating an expression for the unit normal.  This is provided by the
+    <code>xsplineUnitNormal</code> function.  However, these expressions
+    become uncomfortably large.  For the scenario demonstrated above, 
+    where the tangent expression consists of 65 lines of R code, 
+    the unit tangent expression is 193 lines of R code and the unit normal
+    expression is 4,458 lines of R code.  
+    Consequently, the implementation
+    in the 'vwline' package only uses the R expressions that were generated for
+    X-spline tangents and then divides by the tangent lengths and performs
+    a 90 degree rotation to obtain unit normals.
+  </p>
+    <h2>
+      <a name="rendering">5. Rendering X-spline offset curves</a>
+    </h2>
+    <p>
+    An X-spline offset curve is a continuous mathematical function.
+    Rendering such a curve is most easily achieved by drawing a series
+    of many short straight line segments that give the appearance
+    of a smooth curve.  More segments are
+    used for longer curves and for curves with sharper bends.
+    For example, 
+    the image below shows an X-spline drawn in R with alternating straight
+    line segments coloured black and white; the segments are shorter
+    on the sharper bends. 
+  </p>
+
+    <p class="img">
+      <img src="figure/render-x-spline-1.svg" width="30%">
+    </p>
+    <p>
+    The offset curve is drawn by evaluating the tangent at the end
+    of each of these straight line segments, dividing by the length of the
+    tangent, rotating 90 degrees to get the unit normal, then 
+    multiplying by the appropriate offset.   The diagram below 
+    shows the calculation of the left offset for a fixed offset
+    (the unit normals are green lines and the left offset curve is red).
+  </p>
+
+    <p class="img">
+      <img src="figure/render-fixed-offset-1.svg" width="30%">
+    </p>
+    <h3>Specifying the amount of offset</h3>
+    <p>
+    The offset curve equation consists of the original curve plus
+    the unit normal function mulitplied by a function, \(d(t)\), that
+    specifies that amount of offset at any point on the original curve:
+
+    $$\mathbf{r}_0(t)=\mathbf{r}(t) + d(t)\mathbf{n}(t)$$
+  </p>
+    <p>
+    The function \(d(t)\) can in theory be any function that takes a 
+    single numeric argument in the range 0 to 1.
+    In the 'vwline' package, the offset can be specified
+    using the <code>widthSpline</code> function.
+    This describes the offset as an X-spline, where the x-values for
+    the control points are distances along the main curve and the 
+    y-values for the control points are amounts of offset.
+    The following code gives an example where the offset rises smoothly 
+    from 0 to 1cm at half-way along the main curve, then back to 0
+    (the main curve is shown as a white line).
+  </p>
+<div class="chunk" id="render-variable-offset"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">&lt;-</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">4</span><span class="hl opt">/</span><span class="hl num">5</span>
+<span class="hl std">y</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">,</span> <span class="hl num">.2</span><span class="hl std">,</span> <span class="hl num">.7</span><span class="hl std">)</span>
+<span class="hl std">w</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">widthSpline</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">0</span><span class="hl std">),</span> <span class="hl str">&quot;cm&quot;</span><span class="hl std">))</span>
+<span class="hl kwd">grid.offsetXspline</span><span class="hl std">(x, y, w,</span> <span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+    <p class="img">
+      <img src="figure/render-variable-offset-1.svg" width="30%">
+    </p>
+    <h3>Line ends</h3>
+    <p>
+    The offset curve only produces left and right offsets for
+    the main curve, as shown below (the red lines).  
+  </p>
+
+    <p class="img">
+      <img src="figure/render-no-ends-1.svg" width="30%">
+    </p>
+    <p>
+    If we want to produce a closed shape, we need to connect the
+    ends of the offset curves.  In the 'vwline' package, there are 
+    options for "butt", "square", "round", and "mitre" endings.
+    The example below shows "round" ends.
+  </p>
+
+    <p class="img">
+      <img src="figure/render-round-ends-1.svg" width="30%">
+    </p>
+    <p>
+    The calculation of these line ends in described in detail in
+    <a href="#ends-and-joins">Murrell, 2017a</a>.
+  </p>
+    <h3>Loops in the offset curve</h3>
+    <p>
+    The offset curve on the inside of a sharp bend in the main curve
+    can form loops, as shown in the example below, where the left offset curve 
+    (the red line) forms a loop when the main curve takes a sharp left turn.
+  </p>
+
+    <p class="img">
+      <img src="figure/render-loop-1.svg" width="30%">
+    </p>
+    <p>
+    The 'vwline' package eliminates those loops by calling 
+    <code>polysimplify</code> from 
+    the 'polyclip' package (<a href="#polyclip">Johnson and Baddeley, 2017</a>) on the
+    final closed shape (after adding line ends).  In the example below,
+    the left image shows offset curves that contain loops and the 
+    right image shows the final result with round ends added and the loops
+    eliminated.
+  </p>
+
+
+    <p class="img">
+      <img src="figure/render-loops-1.svg" width="30%">
+      <img src="figure/render-no-loops-1.svg" width="30%">
+    </p>
+    <h3>Sharp corners and wide offsets</h3>
+    <p>
+    The offset curve is obtained by breaking the main curve into
+    straight line segments, calculating offset points at the ends of those
+    segments, and then joining up those offset points to create
+    segments on the offset curve.  This means that, if there is a
+    sharp bend in the main curve and the offset is large, the
+    segments in the offset curve may become long.  
+    This may result in a visibly non-smooth offset curve, as shown 
+    below.
+  </p>
+
+    <p class="img">
+      <img src="figure/render-lumpy-1.svg" width="30%">
+    </p>
+    <p>
+    This problem could be avoided if the offset curve function was
+    evaluated directly, but this approach has not even been attempted 
+    because of the
+    cost of evaluating the enormous offset curve expressions.
+  </p>
+    <h3>Byte compiling</h3>
+    <p>
+    The expressions for the X-spline tangent functions, even though they
+    are "only" 65 lines of R code long, can be slow to evaluate.
+    For this reason, the 'vwline' package has the 'ByteCompile' option
+    set so that the package code is byte-compiled at installation to 
+    improve performance.
+  </p>
+    <h2>
+      <a name="summary">6. Summary</a>
+    </h2>
+    <p>
+    This document has described 
+    an algorithm for generating offset curves for X-splines,
+    where the amount of offset can vary along the length
+    of the X-spline.  The algorithm relies on having expressions
+    for the X-spline tangent function and this was generated 
+    computationally. The algorithm involves flattening the
+    X-spline to a series of straight line segments, evaluating 
+    the tangent function for an X-spline at the end of each segment, 
+    calculating the unit normal at each point, 
+    and finally multiplying the unit normals by an offset.
+    The algorithm is implemented as the 
+    <code>grid.offsetXspline</code> function in the
+    'vwline' package for R.
+  </p>
+    <h2>
+      <a name="Requirements">7. Technical requirements</a>
+    </h2>
+    <p>
+    The examples and discussion in this document relate to 
+    <a href="https://github.com/pmur002/vwline/releases/tag/v0.1-1">'vwline' 
+    version 0.1-1</a>.
+  </p>
+    <p>
+    This document was generated within a Docker container
+    (see <a href="#Resources">Resources</a> below).
+  </p>
+    <h2>
+      <a name="Resources">8. Resources</a>
+    </h2>
+    <ul>
+      <li>
+      The 'vwline' package is available on 
+      <a href="https://github.com/pmur002/vwline">github</a>.
+    </li>
+      <li>
+      The <a href="xspline.R">xspline.R</a> file contains R
+      code for generating X-spline tangent functions,
+      including the functions <code>xsplineFunGenerator</code> and
+      <code>xsplineTangentExpr</code>.
+    </li>
+      <li>
+      The source files from which this final document has been prepared
+      are also available, including:
+      the <a href="offset-xspline.cml">raw source file</a> for this
+      document, a <a href="offset-xspline.xml">valid XML</a>
+      transformation of the source file, a <a href="offset-xspline.Rhtml">'knitr' document</a> generated from
+      the XML file, 
+      two <a href="toc.R">R</a> <a href="bib.R">files</a> and
+      the <a href="offset-xspline.bib">bibtex file</a>
+      that are used to generate the table of contents and reference sections,
+      two <a href="common.xsl">XSL</a> <a href="knitr.xsl">files</a> 
+      that are used to transform the XML to
+      the 'knitr' document, and a <a href="Makefile">Makefile</a> that
+      contains code for the other transformations and coordinates
+      everything.  
+    </li>
+      <li>
+      This document was generated within a 
+      <a href="https://www.docker.com/">Docker</a> container.
+      The Docker command to build the document
+      is included in the Makefile above.
+      The Docker image for the container is available from
+      <a href="https://hub.docker.com/r/pmur002/offset-xspline/">Docker Hub</a>;
+      alternatively, the image can be rebuilt from its 
+      <a href="Dockerfile">Dockerfile</a>.
+    </li>
+    </ul>
+    <h2>How to cite this document</h2>
+    <p>
+    Murrell, P. (2017). Offset Curves for Variable-Width X-splines. 
+    Technical Report 2017-03, University of Auckland. 
+    [ <a href="how-to-cite.bib">bib</a> ] 
+  </p>
+    <h2>
+      <a name="references">9. References</a>
+    </h2>
+    <dl>
+<dt>
+[<a name="apostol2007calculus">Apostol, 2007</a>]
+</dt>
+<dd>
+Apostol, T. (2007).
+ <em>CALCULUS, VOLUME I, 2ND ED</em>.
+ Number v. 1. Wiley India Pvt. Limited.
+[ <a href="offset-xspline-bib_bib.html#apostol2007calculus">bib</a> | 
+<a href="https://books.google.co.nz/books?id=vTpbq0UPDaQC">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="blanc+schlick">Blanc and Schlick, 1995</a>]
+</dt>
+<dd>
+Blanc, C. and Schlick, C. (1995).
+ X-splines: A spline model designed for the end-user.
+ In <em>Proceedings of the 22nd Annual Conference on Computer
+  Graphics and Interactive Techniques</em>, SIGGRAPH '95, pages 377--386, New York,
+  NY, USA. ACM.
+[ <a href="offset-xspline-bib_bib.html#blanc+schlick">bib</a> | 
+<a href="http://dx.doi.org/10.1145/218380.218488">DOI</a> | 
+<a href="http://doi.acm.org/10.1145/218380.218488">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="Ryacas">Goedman et al., 2016</a>]
+</dt>
+<dd>
+Goedman, R., Grothendieck, G., Højsgaard, S., Pinkus, A., and Mazur, G.
+  (2016).
+ <em>Ryacas: R Interface to the Yacas Computer Algebra System</em>.
+ R package version 0.3-1.
+[ <a href="offset-xspline-bib_bib.html#Ryacas">bib</a> | 
+<a href="https://CRAN.R-project.org/package=Ryacas">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="polyclip">Johnson and Baddeley, 2017</a>]
+</dt>
+<dd>
+Johnson, A. and Baddeley, A. (2017).
+ <em>polyclip: Polygon Clipping</em>.
+ R package version 1.6-1.
+[ <a href="offset-xspline-bib_bib.html#polyclip">bib</a> | 
+<a href="https://CRAN.R-project.org/package=polyclip">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="chen+lin">Lin and Chen, 2014</a>]
+</dt>
+<dd>
+Lin, Q. and Chen, X. (2014).
+ Properties of generalized offset curves and surfaces.
+ <em>Journal of Applied Mathematics</em>, 2014(124240).
+[ <a href="offset-xspline-bib_bib.html#chen+lin">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="ends-and-joins">Murrell, 2017a</a>]
+</dt>
+<dd>
+Murrell, P. (2017a).
+ Variable-width line ends and line joins.
+ Technical Report 2017-02, University of Auckland.
+[ <a href="offset-xspline-bib_bib.html#ends-and-joins">bib</a> | 
+<a href="http://stattech.wordpress.fos.auckland.ac.nz/2017/05/19/2017-02/">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="vwline-intro">Murrell, 2017b</a>]
+</dt>
+<dd>
+Murrell, P. (2017b).
+ Variable-width lines in R.
+ Technical Report 2017-01, University of Auckland.
+[ <a href="offset-xspline-bib_bib.html#vwline-intro">bib</a> | 
+<a href="http://stattech.wordpress.fos.auckland.ac.nz/2017/05/19/2017-01-variable-width-lines-in-r/">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="vwline-pkg">Murrell, 2017c</a>]
+</dt>
+<dd>
+Murrell, P. (2017c).
+ <em>vwline: Draw variable-width lines</em>.
+ R package version 0.1.
+[ <a href="offset-xspline-bib_bib.html#vwline-pkg">bib</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="yacas">Pinkus and Winitzki, 2002</a>]
+</dt>
+<dd>
+Pinkus, A. Z. and Winitzki, S. (2002).
+ Yacas: A do-it-yourself symbolic algebra environment.
+ In <em>Proceedings of the Joint International Conferences on
+  Artificial Intelligence, Automated Reasoning, and Symbolic Computation</em>, AISC
+  '02/Calculemus '02, pages 332--336, London, UK, UK. Springer-Verlag.
+[ <a href="offset-xspline-bib_bib.html#yacas">bib</a> | 
+<a href="http://dl.acm.org/citation.cfm?id=648168.750655">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="smith2001xfig">Smith, 2001</a>]
+</dt>
+<dd>
+Smith, B. (2001).
+ <em>XFIG Drawing Program for X Window System</em>.
+[ <a href="offset-xspline-bib_bib.html#smith2001xfig">bib</a> | 
+<a href="https://books.google.co.nz/books?id=6wyJDAEACAAJ">http</a> ]
+
+</dd>
+</dl>
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+  </body>
+</html>
