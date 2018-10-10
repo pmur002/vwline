@@ -9,7 +9,7 @@ N <- 10
     
 grid.newpage()
 heights <- unit(rep(1, N+1), c("lines", rep("null", N)))
-pushViewport(viewport(layout=grid.layout(N+1, 5, heights=heights)))
+pushViewport(viewport(layout=grid.layout(N+1, 6, heights=heights)))
 pushViewport(viewport(layout.pos.row=1, layout.pos.col=1),
              viewport(width=.8, height=.8))
 grid.text("vwcurve", gp=gpar(fontfamily="mono"))
@@ -30,6 +30,10 @@ pushViewport(viewport(layout.pos.row=1, layout.pos.col=5),
              viewport(width=.8, height=.8))
 grid.text("offsetXspline", gp=gpar(fontfamily="mono"))
 popViewport(2)
+pushViewport(viewport(layout.pos.row=1, layout.pos.col=6),
+             viewport(width=.8, height=.8))
+grid.text("offsetBezier", gp=gpar(fontfamily="mono"))
+popViewport(2)
 
 testLine <- function(x, y, w, row,
                      ...,
@@ -37,7 +41,8 @@ testLine <- function(x, y, w, row,
                      vwXsplineArgs=list(),
                      vwlineArgs=list(),
                      brushXsplineArgs=list(brush=verticalBrush),
-                     offsetXsplineArgs=list()) {
+                     offsetXsplineArgs=list(),
+                     offsetBezierArgs=list()) {
     pushViewport(viewport(layout.pos.row=row, layout.pos.col=1),
                  viewport(width=.8, height=.8))
     do.call(grid.vwcurve,
@@ -66,12 +71,23 @@ testLine <- function(x, y, w, row,
     do.call(grid.offsetXspline,
             c(list(x=x, y=y, w=w), offsetXsplineArgs, list(...)))
     popViewport(2)
+    pushViewport(viewport(layout.pos.row=row, layout.pos.col=6),
+                 viewport(width=.8, height=.8))
+    if ("open" %in% names(list(...)) && !list(...)$open) {
+        n <- length(x)
+        x <- x[-n]
+        y <- y[-n]
+        w <- w[-n]
+    }
+    do.call(grid.offsetBezier,
+            c(list(x=x, y=y, w=w), offsetBezierArgs, list(...)))
+    popViewport(2)
 }
 
-testLine(0:2/2, rep(.5, 3), unit(rep(1, 3), "mm"), row=2)
-testLine(0:2/2, rep(.5, 3), unit(1:3, "mm"), row=3)
+testLine(0:3/3, rep(.5, 4), unit(rep(1, 4), "mm"), row=2)
+testLine(0:3/3, rep(.5, 4), unit(1:4, "mm"), row=3)
 testLine(c(0, 0, 1, 1), c(0, 1, 1, 0), unit(1:4, "mm"), open=FALSE, row=4)
-testLine(0:2/2, c(.8, .2, .8), unit(1:3, "mm"), row=5, lineend="round",
+testLine(0:3/3, c(.8, .2, .8, .2), unit(1:4, "mm"), row=5, lineend="round",
          brushXsplineArgs=list(brush=circleBrush()))
 
 dev.off()

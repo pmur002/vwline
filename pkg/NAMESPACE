@@ -3,6 +3,11 @@ importFrom("grDevices", "chull", "rgb")
 importFrom("stats", "approx")
 import("grid")
 import("polyclip")
+importFrom("gridBezier",
+           "BezierGrob",
+           "BezierNormal",
+           "BezierPoints",
+           "nSteps")
 
 export(## Main API
        "grid.vwcurve", "vwcurveGrob",
@@ -10,6 +15,7 @@ export(## Main API
        "grid.vwline", "vwlineGrob",
        "grid.brushXspline", "brushXsplineGrob",
        "grid.offsetXspline", "offsetXsplineGrob",
+       "grid.offsetBezier", "offsetBezierGrob",
 
        ## Specifying widths
        "widthSpec", "widthSpline",
@@ -30,6 +36,7 @@ S3method("makeContent", "vwXsplineGrob")
 S3method("makeContent", "vwlineGrob")
 S3method("makeContent", "brushXsplineGrob")
 S3method("makeContent", "offsetXsplineGrob")
+S3method("makeContent", "offsetBezierGrob")
 S3method("edgePoints", "vwcurveGrob")
 S3method("edgePoints", "vwXsplineGrob")
 S3method("edgePoints", "vwlineGrob")
