@@ -261,10 +261,10 @@ bezierArcInfo <- function(startx, starty, endx, endy, inside, leftedge,
     subset <- !inside & drawArc
     if (any(subset)) {
         for (i in (1:(N-1))[subset]) {
-            bezg <- bezierGrob(c(endx[i], cp1$x[i], cp2$x[i], startx[i+1]),
+            bezg <- BezierGrob(c(endx[i], cp1$x[i], cp2$x[i], startx[i+1]),
                                c(endy[i], cp1$y[i], cp2$y[i], starty[i+1]),
                                default.units="in")
-            arcs[[i]] <- bezierPoints(bezg)
+            arcs[[i]] <- BezierPoints(bezg)
         }
     }
     
@@ -273,7 +273,7 @@ bezierArcInfo <- function(startx, starty, endx, endy, inside, leftedge,
             for (i in (1:(N-1))[subset]) {
                 segs(c(endx[i], startx[i+1]), c(endy[i], starty[i+1]),
                      c(cp1$x[i], cp2$x[i]), c(cp1$y[i], cp2$y[i]), "green")
-                grid.bezier(c(endx[i], cp1$x[i], cp2$x[i], startx[i+1]),
+                grid.Bezier(c(endx[i], cp1$x[i], cp2$x[i], startx[i+1]),
                             c(endy[i], cp1$y[i], cp2$y[i], starty[i+1]),
                             default.units="in",
                             gp=gpar(col="green"))

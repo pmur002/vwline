@@ -5,8 +5,8 @@
 ## Calculate points to the left and right (and middle)
 offsetBezierPoints <- function(grob) {
     pts <- BezierPoints(grob)
-    xx <- pts[,1]
-    yy <- pts[,2]
+    xx <- pts$x
+    yy <- pts$y
     if (grob$debug) {
         ## Show flattened path vertices
         grid.points(xx, yy, default.units="in", pch=16, size=unit(1, "mm"))
@@ -25,10 +25,10 @@ offsetBezierPoints <- function(grob) {
     opts <- BezierNormal(grob)
 
     list(mid=list(x=xx, y=yy),
-         left=list(x=xx - ww*opts[,1],
-                   y=yy - ww*opts[,2]),
-         right=list(x=xx + ww*opts[,1],
-                    y=yy + ww*opts[,2]))
+         left=list(x=xx - ww*opts$x,
+                   y=yy - ww*opts$y),
+         right=list(x=xx + ww*opts$x,
+                    y=yy + ww*opts$y))
 }
 
 ## Build complete outline by adding ends (and joins if necessary)
