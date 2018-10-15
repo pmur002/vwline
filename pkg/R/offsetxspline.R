@@ -18,7 +18,7 @@ offsetXsplineGrob <- function(x, y, w, default.units="npc", shape=1,
     if (!is.unit(y)) {
         y <- unit(y, default.units)
     }
-    if (!inherits(w, "widthSpline")) {
+    if (!inherits(w, "widthSpline") && !inherits(w, "BezierWidth")) {
         w <- widthSpline(w, default.units)
     }
     gTree(x=x, y=y, w=w, open=open, repEnds=repEnds, render=render, shape=shape,

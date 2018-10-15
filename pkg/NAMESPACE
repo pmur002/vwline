@@ -19,7 +19,7 @@ export(## Main API
        "grid.offsetBezier", "offsetBezierGrob",
 
        ## Specifying widths
-       "widthSpec", "widthSpline",
+       "widthSpec", "widthSpline", "BezierWidth",
 
        ## Specifying brushes
        "verticalBrush", "circleBrush", "squareBrush",

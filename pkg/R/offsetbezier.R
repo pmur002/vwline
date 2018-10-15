@@ -118,7 +118,7 @@ offsetBezierGrob <- function(x, y, w, default.units="npc",
     if (!is.unit(y)) {
         y <- unit(y, default.units)
     }
-    if (!inherits(w, "widthSpline")) {
+    if (!inherits(w, "widthSpline") && !inherits(w, "BezierWidth")) {
         w <- widthSpline(w, default.units)
     }
     gTree(x=x, y=y, w=w, stepFn=stepFn, open=open, render=render,

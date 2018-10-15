@@ -45,6 +45,42 @@ widthSpline <- function(w=unit(1, "cm"), default.units="in",
     sw
 }
 
+## Width is specified as a Bezier spline where ...
+## ... x values are distances along the path
+## ... y values are widths
+BezierWidth <- function(w=unit(1, "cm"), default.units="in",
+                        d=NULL, rep=FALSE) {
+    if (length(w) == 1) {
+        w <- rep(w, 4)
+    }
+    ncurves <- (length(w) - 1) %/% 3
+    if (ncurves*3 + 1 != length(w)) 
+        stop("Invalid number of control points")
+    if (!is.unit(w)) {
+        w <- unit(w, default.units)
+    }
+    if (is.null(d)) {
+        d <- seq(0, 1, length.out=length(w))
+    } 
+    sw <- list(w=w, d=d, rep=rep)
+    class(sw) <- "BezierWidth"
+    sw
+}
+
+widthPoints <- function(x, y, w) {
+    UseMethod("widthPoints")
+}
+
+widthPoints.widthSpline <- function(w, x, y) {
+    widthSpline <- xsplineGrob(x, y, default.units="in", shape=w$shape)
+    xsplinePoints(widthSpline)
+}
+
+widthPoints.BezierWidth <- function(w, x, y) {
+    widthSpline <- BezierGrob(x, y, default.units="in")
+    BezierPoints(widthSpline)
+}
+
 ## Resolve the width transitions for a path 
 resolveWidth <- function(w, length) {
     ## y-locations are widths
@@ -61,8 +97,7 @@ resolveWidth <- function(w, length) {
     o <- order(x)
     y <- y[o]
     x <- x[o]
-    widthSpline <- xsplineGrob(x, y, default.units="in", shape=w$shape)
-    widthPts <- xsplinePoints(widthSpline)
+    widthPts <- widthPoints(w, x, y)
     xx <- as.numeric(widthPts$x)
     yy <- as.numeric(widthPts$y)
     minx <- min(xx)

@@ -10,5 +10,8 @@
     \item Change to using \code{gridBezier::BezierGrob} and
     \code{gridBezier::BezierPoints} internally, which produces
     slightly different results on rounded ends and joins.
+
+    \item New \code{BezierWidth()} function (as alternative to
+    \code{widthSpline()} function.
   }
 }

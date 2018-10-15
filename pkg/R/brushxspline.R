@@ -22,7 +22,7 @@ brushXsplineGrob <- function(brush, x, y, w=unit(1, "cm"), default.units="npc",
     if (!is.unit(y)) {
         y <- unit(y, default.units)
     }
-    if (!inherits(w, "widthSpline")) {
+    if (!inherits(w, "widthSpline") && !inherits(w, "BezierWidth")) {
         w <- widthSpline(w, default.units)
     }
     gTree(brush=brush, x=x, y=y, w=w, shape=shape, angle=angle, open=open,
