@@ -81,7 +81,7 @@ testLine <- function(x, y, w, row,
 testLine(0:3/3, rep(.5, 4), unit(rep(1, 4), "mm"), row=2)
 testLine(0:3/3, rep(.5, 4), unit(1:4, "mm"), row=3)
 testLine(c(0, 0, 1, 1, .6, .4), c(.2, 1, 1, .2, 0, 0),
-         unit(c(1:4, 3:2), "mm"), open=FALSE, row=4)
+         unit(c(1:3, 3:1), "mm"), open=FALSE, row=4)
 testLine(0:3/3, c(.8, .2, .8, .2), unit(1:4, "mm"), row=5, lineend="round",
          brushXsplineArgs=list(brush=circleBrush()))
 
@@ -93,14 +93,14 @@ diff <- tools::Rdiff("methods-tests.pdf", savedPDF)
 
 if (diff != 0L) {
     ## If differences found, generate images of the differences and error out
-    system("pdfseparate methods-tests.pdf test-pages-%d.pdf")
-    system(paste0("pdfseparate ", savedPDF, " model-pages-%d.pdf"))
-    modelFiles <- list.files(pattern="model-pages-.*")
+    system("pdfseparate methods-tests.pdf methods-test-pages-%d.pdf")
+    system(paste0("pdfseparate ", savedPDF, " methods-model-pages-%d.pdf"))
+    modelFiles <- list.files(pattern="methods-model-pages-.*")
     N <- length(modelFiles)
     for (i in 1:N) {
-        system(paste0("compare model-pages-", i, ".pdf ",
-                      "test-pages-", i, ".pdf ",
-                      "diff-pages-", i, ".png"))
+        system(paste0("compare methods-model-pages-", i, ".pdf ",
+                      "methods-test-pages-", i, ".pdf ",
+                      "methods-diff-pages-", i, ".png"))
     } 
     stop("Regression testing detected differences")
 }

@@ -399,6 +399,11 @@ drawPage(params, debug=FALSE)
 drawPage(params, debug=TRUE, rev=TRUE)
 drawPage(params, debug=FALSE, rev=TRUE)
 
+## offsetBezier corners
+grid.newpage()
+grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1),
+                  w=unit(1:7/8, "cm"))
+
 dev.off()
 
 savedPDF <- system.file("regression-tests", "endsjoins-tests.save.pdf",
@@ -407,14 +412,14 @@ diff <- tools::Rdiff("endsjoins-tests.pdf", savedPDF)
 
 if (diff != 0L) {
     ## If differences found, generate images of the differences and error out
-    system("pdfseparate endsjoins-tests.pdf test-pages-%d.pdf")
-    system(paste0("pdfseparate ", savedPDF, " model-pages-%d.pdf"))
-    modelFiles <- list.files(pattern="model-pages-.*")
+    system("pdfseparate endsjoins-tests.pdf endsjoins-test-pages-%d.pdf")
+    system(paste0("pdfseparate ", savedPDF, " endsjoins-model-pages-%d.pdf"))
+    modelFiles <- list.files(pattern="endsjoins-model-pages-.*")
     N <- length(modelFiles)
     for (i in 1:N) {
-        system(paste0("compare model-pages-", i, ".pdf ",
-                      "test-pages-", i, ".pdf ",
-                      "diff-pages-", i, ".png"))
+        system(paste0("compare endsjoins-model-pages-", i, ".pdf ",
+                      "endsjoins-test-pages-", i, ".pdf ",
+                      "endsjoins-diff-pages-", i, ".png"))
     } 
     stop("Regression testing detected differences")
 }

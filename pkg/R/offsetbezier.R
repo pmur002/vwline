@@ -1,12 +1,64 @@
 
 ## grid.offsetBezier() based on gridBezier::BezierGrob() (not grid::bezierGrob)
 
+offsetBezierEdge <- function(pts1, pts2, w1, w2, opts1, grob) {
+    ## Create a "vwlineGrob" consisting of just end segment of
+    ## one curve and start segment of another
+    ## and use vwlinePoints() to generate the corner
+    n1 <- length(pts1$x)
+    n2 <- length(pts2$x)
+    ## last point of curve 1 is first point of curve 2
+    vwline <- vwlineGrob(c(pts1$x[n1 - 1], pts2$x[1:2]),
+                         c(pts1$y[n1 - 1], pts2$y[1:2]),
+                         c(w1[n1 - 1], w2[1:2])*2,
+                         default.units="in",
+                         linejoin=grob$linejoin,
+                         lineend=grob$lineend,
+                         mitrelimit=grob$mitrelimit,
+                         debug=grob$debug)
+    pts <- vwlinePoints(vwline)
+    nl <- length(pts$left$x)
+    nr <- length(pts$right$x)
+    ## Add corner to curve 1
+    ## Attempt to avoid duplicating first and last points from corner
+    ## Result from vwlinePoints() has right end going other direction
+    list(left=list(x=c(pts1$x - w1*opts1$x, pts$left$x[-c(1, nl)]),
+                   y=c(pts1$y - w1*opts1$y, pts$left$y[-c(1, nl)])),
+         right=list(x=c(pts1$x + w1*opts1$x, rev(pts$right$x[-c(1, nr)])),
+                    y=c(pts1$y + w1*opts1$y, rev(pts$right$y[-c(1, nr)]))))
+}
 
 ## Calculate points to the left and right (and middle)
 offsetBezierPoints <- function(grob) {
-    pts <- BezierPoints(grob)
-    xx <- pts$x
-    yy <- pts$y
+    x <- convertX(grob$x, "in", valueOnly=TRUE)
+    y <- convertY(grob$y, "in", valueOnly=TRUE)
+    if (!grob$open) {
+        x <- c(x, x[1])
+        y <- c(y, y[1])
+    }
+    ## Break bezier spline into bezier curves
+    ncurves <- (length(x) - 1) %/% 3
+    if (ncurves*3 + 1 != length(x)) 
+        stop("Invalid number of control points")
+    index <- lapply(1:ncurves, function(i) ((i-1)*3 + 1):(i*3 + 1))
+    ## Calculate points for each curve
+    pts <- lapply(index,
+                  function(i) {
+                      BezierPoints(BezierGrob(x[i], y[i],
+                                              default.units="in",
+                                              stepFn=grob$stepFn))
+                  })
+    opts <- lapply(index,
+                   function(i) {
+                       BezierNormal(BezierGrob(x[i], y[i], default.units="in",
+                                               stepFn=grob$stepFn))
+                   })
+    ptsIndex <- rep(1:ncurves, sapply(pts, function(p) length(p$x)))
+    ## Run all points together to calculate widths at each point
+    xx <- unlist(lapply(pts, "[[", "x"))
+    yy <- unlist(lapply(pts, "[[", "y"))
+    ox <- unlist(lapply(opts, "[[", "x"))
+    oy <- unlist(lapply(opts, "[[", "y"))
     if (grob$debug) {
         ## Show flattened path vertices
         grid.points(xx, yy, default.units="in", pch=16, size=unit(1, "mm"))
@@ -22,20 +74,58 @@ offsetBezierPoints <- function(grob) {
     ## (divide by 2 because width is added to both left and right)
     ww <- approx(widths$x, widths$y, cumLength, rule=2)$y/2
 
-    opts <- BezierNormal(grob)
-
-    list(mid=list(x=xx, y=yy),
-         left=list(x=xx - ww*opts$x,
-                   y=yy - ww*opts$y),
-         right=list(x=xx + ww*opts$x,
-                    y=yy + ww*opts$y))
+    ## If more than one curve in the spline, we need corners where
+    ## curves meet
+    if (ncurves > 1) {
+        ## split widths into separate curves
+        curveWidths <- split(ww, ptsIndex)
+        ## If closed, need an extra corner
+        if (!grob$open) {
+            pts <- c(pts, pts[1])
+            opts <- c(opts, opts[1])
+            curveWidths <- c(curveWidths, curveWidths[1])
+            ncurves <- ncurves + 1
+        }
+        edges <- mapply(offsetBezierEdge,
+                        pts[-ncurves], pts[-1],
+                        curveWidths[-ncurves], curveWidths[-1],
+                        opts[-ncurves],
+                        MoreArgs=list(grob),
+                        SIMPLIFY=FALSE)
+        ## run everything together (including final curve if open)
+        leftx <- unlist(lapply(edges, function(e) e$left$x))
+        lefty <- unlist(lapply(edges, function(e) e$left$y))
+        rightx <- unlist(lapply(edges, function(e) e$right$x))
+        righty <- unlist(lapply(edges, function(e) e$right$y))
+        if (grob$open) {
+            leftx <- c(leftx,
+                       pts[[ncurves]]$x -
+                       curveWidths[[ncurves]]*opts[[ncurves]]$x)
+            lefty <- c(lefty,
+                       pts[[ncurves]]$y -
+                       curveWidths[[ncurves]]*opts[[ncurves]]$y)
+            rightx <- c(rightx,
+                        pts[[ncurves]]$x +
+                        curveWidths[[ncurves]]*opts[[ncurves]]$x)
+            righty <- c(righty,
+                        pts[[ncurves]]$y +
+                        curveWidths[[ncurves]]*opts[[ncurves]]$y)
+        } 
+        list(mid=list(x=xx, y=yy),
+             left=list(x=leftx, y=lefty),
+             right=list(x=rightx, y=righty))
+    } else {
+        list(mid=list(x=xx, y=yy),
+             left=list(x=xx - ww*ox,
+                       y=yy - ww*oy),
+             right=list(x=xx + ww*ox,
+                        y=yy + ww*oy))
+    }
 }
 
 ## Build complete outline by adding ends (and joins if necessary)
 offsetBezierOutline <- function(grob) {
     pts <- offsetBezierPoints(grob)
-
-    ## FIXME: needs joins!
     if (grob$open) {
         seg <- generateSegment(pts$mid$x[1], pts$mid$y[1],
                                pts$left$x[1:2], pts$left$y[1:2], 
@@ -46,10 +136,12 @@ offsetBezierOutline <- function(grob) {
         earcinfo <- endArcInfo(sinfo, einfo, grob$debug)
         start <- buildEnds(seg$w, einfo, earcinfo, FALSE,
                            grob$lineend, grob$mitrelimit)
-        N <- length(pts$left$x)
-        seg <- generateSegment(pts$mid$x[N], pts$mid$y[N],
-                               pts$right$x[N:(N-1)], pts$right$y[N:(N-1)], 
-                               pts$left$x[N:(N-1)], pts$left$y[N:(N-1)],
+        NM <- length(pts$mid$x)
+        NL <- length(pts$left$x)
+        NR <- length(pts$right$x)
+        seg <- generateSegment(pts$mid$x[NM], pts$mid$y[NM],
+                               pts$right$x[NR:(NR-1)], pts$right$y[NR:(NR-1)], 
+                               pts$left$x[NL:(NL-1)], pts$left$y[NL:(NL-1)],
                                grob$debug)
         sinfo <- segInfo(seg$x, seg$y, seg$w, TRUE, FALSE, grob$debug)
         einfo <- endInfo(seg$x, seg$y, seg$w, sinfo, FALSE, grob$debug)
