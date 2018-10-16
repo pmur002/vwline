@@ -97,8 +97,8 @@ makeContent.offsetBezierGrob <- function(x, ...) {
 }
 
 checkoffsetBezier <- function(x, y, w) {
-    if (max(length(x), length(y)) < 2)
-        stop("An offsetBezier must have at least two points")
+    if (max(length(x), length(y)) < 4)
+        stop("An offsetBezier must have at least four points")
     nx <- length(x)
     ny <- length(y)
     if (nx != ny) {
@@ -130,3 +130,24 @@ offsetBezierGrob <- function(x, y, w, default.units="npc",
 grid.offsetBezier <- function(...) {
     grid.draw(offsetBezierGrob(...))
 }
+
+edgePoints.offsetBezierGrob <- function(x, d,
+                                        x0, y0,
+                                        which=1,
+                                        direction="forward",
+                                        debug=FALSE,
+                                        ...) {
+    ## Silently force which to length 1
+    which <- which[1]
+    outline <- offsetBezierOutline(x)
+    ## outline is list of outlines
+    if (which > length(outline)) {
+        stop("Invalid which value")
+    }
+    edge <- outline[[which]]
+    if (!is.unit(x0)) x0 <- unit(x0, "npc")
+    if (!is.unit(y0)) y0 <- unit(y0, "npc")
+    pts <- reorderEdge(edge, x0, y0)
+    vwEdgePoints(pts, d, direction == "forward", x$open, debug)
+}
+

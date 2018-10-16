@@ -43,5 +43,6 @@ S3method("edgePoints", "vwXsplineGrob")
 S3method("edgePoints", "vwlineGrob")
 S3method("edgePoints", "brushXsplineGrob")
 S3method("edgePoints", "offsetXsplineGrob")
+S3method("edgePoints", "offsetBezierGrob")
 
 S3method("length", "widthSpec")
