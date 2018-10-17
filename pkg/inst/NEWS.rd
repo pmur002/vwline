@@ -12,6 +12,6 @@
     slightly different results on rounded ends and joins.
 
     \item New \code{BezierWidth()} function (as alternative to
-    \code{widthSpline()} function.
+    \code{widthSpline()} function).
   }
 }

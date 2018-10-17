@@ -402,7 +402,17 @@ drawPage(params, debug=FALSE, rev=TRUE)
 ## offsetBezier corners
 grid.newpage()
 grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1),
-                  w=unit(1:7/8, "cm"))
+                  w=unit(1:7/8, "cm"),
+                  lineend="round")
+## NOTE that the mitre ends exceed the mitrelimit (so are just square)
+grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1) + .2,
+                  w=unit(1:7/8, "cm"),
+                  linejoin="mitre",
+                  lineend="mitre")
+grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1) + .4,
+                  w=unit(1:7/8, "cm"),
+                  linejoin="bevel",
+                  lineend="square")
 
 dev.off()
 
