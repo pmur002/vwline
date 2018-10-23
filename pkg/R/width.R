@@ -67,22 +67,23 @@ BezierWidth <- function(w=unit(1, "cm"), default.units="in",
     sw
 }
 
-widthPoints <- function(x, y, w) {
+widthPoints <- function(w, x, y, ...) {
     UseMethod("widthPoints")
 }
 
-widthPoints.widthSpline <- function(w, x, y) {
+widthPoints.widthSpline <- function(w, x, y, ...) {
     widthSpline <- xsplineGrob(x, y, default.units="in", shape=w$shape)
     xsplinePoints(widthSpline)
 }
 
-widthPoints.BezierWidth <- function(w, x, y) {
+widthPoints.BezierWidth <- function(w, x, y, range, ...) {
     widthSpline <- BezierGrob(x, y, default.units="in")
-    BezierPoints(widthSpline)
+    BezierPoints(widthSpline, range)
 }
 
-## Resolve the width transitions for a path 
-resolveWidth <- function(w, length) {
+## Resolve the width transitions for a path
+## Use fill=FALSE to only get widths for subsection of spline
+resolveWidth <- function(w, length, range=NULL, fill=TRUE) {
     ## y-locations are widths
     ## x-locations are along path
     ## order() by x-locations
@@ -97,13 +98,13 @@ resolveWidth <- function(w, length) {
     o <- order(x)
     y <- y[o]
     x <- x[o]
-    widthPts <- widthPoints(w, x, y)
+    widthPts <- widthPoints(w, x, y, range)
     xx <- as.numeric(widthPts$x)
     yy <- as.numeric(widthPts$y)
     minx <- min(xx)
     maxx <- max(xx)
     ## repeat or extend if necessary 
-    if (minx > 0 || maxx < length) {
+    if (fill && (minx > 0 || maxx < length)) {
         lefty <- NULL
         leftx <- NULL
         righty <- NULL

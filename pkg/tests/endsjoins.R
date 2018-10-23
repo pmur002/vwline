@@ -399,8 +399,8 @@ drawPage(params, debug=FALSE)
 drawPage(params, debug=TRUE, rev=TRUE)
 drawPage(params, debug=FALSE, rev=TRUE)
 
-## offsetBezier corners
 grid.newpage()
+## offsetBezier corners
 grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1),
                   w=unit(1:7/8, "cm"),
                   lineend="round")
@@ -413,6 +413,66 @@ grid.offsetBezier(c(1:7/8), c(.1, .2, .2, .1, .2, .2, .1) + .4,
                   w=unit(1:7/8, "cm"),
                   linejoin="bevel",
                   lineend="square")
+
+library(vwline)
+grid.newpage()
+## MitreLimit will "blunt" extensions
+grid.offsetBezier(c(.1, .15, .3, .4, .5, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .2,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="extend",
+                  lineend="extend",
+                  gp=gpar(col="black"))
+grid.offsetBezier(c(.1, .15, .3, .4, .5, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .2,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="mitre",
+                  lineend="mitre",
+                  gp=gpar(col=NA, fill=rgb(0,0,0,.2)))
+## Curl at join is such that outside edges do not meet
+grid.offsetBezier(c(.1, .15, .35, .4, .45, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .6,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="extend",
+                  lineend="extend",
+                  gp=gpar(col="black"))
+grid.offsetBezier(c(.1, .15, .35, .4, .45, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .6,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="mitre",
+                  lineend="mitre",
+                  gp=gpar(col=NA, fill=rgb(0,0,0,.2)))
+grid.newpage()
+## Relax mitrelimit
+grid.offsetBezier(c(.1, .15, .3, .4, .5, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .2,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="extend",
+                  lineend="extend",
+                  mitrelimit=30,
+                  gp=gpar(col="black"))
+grid.offsetBezier(c(.1, .15, .3, .4, .5, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .2,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="mitre",
+                  lineend="mitre",
+                  mitrelimit=30,
+                  gp=gpar(col=NA, fill=rgb(0,0,0,.2)))
+## Curl at join is such that outside edges do not meet
+grid.offsetBezier(c(.1, .15, .35, .4, .45, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .6,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="extend",
+                  lineend="extend",
+                  mitrelimit=30,
+                  gp=gpar(col="black"))
+grid.offsetBezier(c(.1, .15, .35, .4, .45, .65, .7),
+                  c(.1, .2, .2, .1, .2, .2, .1) + .6,
+                  w=BezierWidth(unit(1:7/8, "cm")),
+                  linejoin="mitre",
+                  lineend="mitre",
+                  mitrelimit=30,
+                  gp=gpar(col=NA, fill=rgb(0,0,0,.2)))
 
 dev.off()
 
