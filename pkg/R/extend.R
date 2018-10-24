@@ -151,15 +151,17 @@ extendEnds <- function(grob, pts) {
     startpts <- BezierPoints(bezFirst, c(0, -startExtend[1]))
     startopts <- BezierNormal(bezFirst, c(0, -startExtend[1]))
     ## Calculate widths based on main curve length 
+    startWidthExtend <- calcExtensionT(c(startMitreLimit, startWidth/2),
+                                       pts$info$totalLength)
     startWidths <- resolveWidth(grob$w, pts$info$totalLength,
-                                c(0, -startExtend[1]), fill=FALSE)
+                                c(0, -startWidthExtend[1]), fill=FALSE)
     ## If the width is not negative by this point, fall back to "square" end
     if (startWidths$y[length(startWidths$y)] > 0) {
         startpts <- BezierPoints(bezFirst, c(0, -startExtend[2]))
         startopts <- BezierNormal(bezFirst, c(0, -startExtend[2]))
         ## Calculate widths based on main curve length 
         startWidths <- resolveWidth(grob$w, pts$info$totalLength,
-                                    c(0, -startExtend[2]), fill=FALSE)
+                                    c(0, -startWidthExtend[2]), fill=FALSE)
         startLengths <- c(0, sqrt(diff(startpts$x)^2 + diff(startpts$y)^2))
         cumStartLength <- cumsum(startLengths)
         startw <- approx(startWidths$x, startWidths$y,
@@ -207,15 +209,20 @@ extendEnds <- function(grob, pts) {
     endpts <- BezierPoints(bezLast, c(1, 1 + endExtend[1]))
     endopts <- BezierNormal(bezLast, c(1, 1 + endExtend[1]))
     ## Calculate widths based on main curve length 
+    endWidthExtend <- calcExtensionT(c(endMitreLimit, endWidth/2),
+                                     pts$info$totalLength)
     endWidths <- resolveWidth(grob$w, pts$info$totalLength,
-                              ncurves + c(0, endExtend[1]), fill=FALSE)
+                              nWidthCurves(grob$w) + c(0, endWidthExtend[1]),
+                              fill=FALSE)
     ## If the width is not negative by this point, fall back to "square" end
     if (endWidths$y[length(endWidths$y)] > 0) {
         endpts <- BezierPoints(bezLast, c(1, 1 + endExtend[2]))
         endopts <- BezierNormal(bezLast, c(1, 1 + endExtend[2]))
         ## Calculate widths based on main curve length 
         endWidths <- resolveWidth(grob$w, pts$info$totalLength,
-                                  ncurves + c(0, endExtend[2]), fill=FALSE)
+                                  nWidthCurves(grob$w) +
+                                  c(0, endWidthExtend[2]),
+                                  fill=FALSE)
         endLengths <- c(0, sqrt(diff(endpts$x)^2 + diff(endpts$y)^2))
         cumEndLength <- cumsum(endLengths)
         endw <- approx(endWidths$x, endWidths$y,

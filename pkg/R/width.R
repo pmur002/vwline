@@ -39,7 +39,10 @@ widthSpline <- function(w=unit(1, "cm"), default.units="in",
     }
     if (is.null(d)) {
         d <- seq(0, 1, length.out=length(w))
-    } 
+    }
+    if (length(w) != length(d)) {
+        stop("'w' and 'd' must have same length")
+    }
     sw <- list(w=w, d=d, shape=shape, rep=rep)
     class(sw) <- "widthSpline"
     sw
@@ -79,6 +82,12 @@ widthPoints.widthSpline <- function(w, x, y, ...) {
 widthPoints.BezierWidth <- function(w, x, y, range, ...) {
     widthSpline <- BezierGrob(x, y, default.units="in")
     BezierPoints(widthSpline, range)
+}
+
+nWidthCurves <- function(w) {
+    if (!inherits(w, "BezierWidth"))
+        stop("'w' must be a BezierWidth object")
+    (length(w$w) - 1) %/% 3    
 }
 
 ## Resolve the width transitions for a path
