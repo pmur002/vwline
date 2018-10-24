@@ -157,6 +157,8 @@ offsetBezierPoints <- function(grob) {
             pts <- c(pts, pts[1])
             opts <- c(opts, opts[1])
             curveWidths <- c(curveWidths, curveWidths[1])
+            curveLengths <- c(curveLengths, curveLengths[1])
+            index <- c(index, index[1])
             ncurves <- ncurves + 1
         }
         edges <- mapply(offsetBezierEdge,
