@@ -1,20 +1,23 @@
 \name{widthSpec}
 \alias{widthSpec}
 \alias{widthSpline}
+\alias{BezierWidth}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   Specify the width of a variable-width line
 }
 \description{
   Specify the width of a variable-width line.  The
-  \code{widthSpline} function is for use with
-  \code{\link{grid.brushXspline}} or \code{\link{grid.offsetXspline}}.
+  \code{widthSpline} and \code{BezierWidth} functions are for use with
+  \code{\link{grid.brushXspline}} or \code{\link{grid.offsetXspline}} or
+  \code{\link{grid.offsetBezier}}.
   The \code{widthSpec} function is for use with
   \code{\link{grid.vwline}}.
 }
 \usage{
 widthSpec(x, default.units = "npc")
 widthSpline(w=unit(1, "cm"), default.units="in", d=NULL, shape=-1, rep=FALSE)
+BezierWidth(w=unit(1, "cm"), default.units="in", d=NULL, rep=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,12 +54,19 @@ widthSpline(w=unit(1, "cm"), default.units="in", d=NULL, shape=-1, rep=FALSE)
   with a distance along the length of the main curve.  By default,
   the specified widths are spaced evenly along the main curve, but
   the \code{widthSpec} function allows fine control over the
-  spacing of the widths.  
+  spacing of the widths.
+
+  For \code{BezierWidth}, \code{w} must contain 4 (or 7 or 10)
+  values to provide an appropriate number of control points, although
+  a single value is automatically replicated four times.
+  If \code{d} is specified, the same rules apply.
 }
 \value{
   \code{widthSpec} creates a \code{"widthSpec"} object.
 
   \code{widthSpline} creates a \code{"widthSpline"} object.
+
+  \code{BezierWidth} creates a \code{"BezierWidth"} object.
 }
 \author{
   Paul Murrell
@@ -67,7 +77,9 @@ widthSpline(w=unit(1, "cm"), default.units="in", d=NULL, shape=-1, rep=FALSE)
   \code{\link{grid.vwline}},
   \code{\link{grid.vwcurve}},
   \code{\link{grid.brushXspline}},
-  \code{\link{grid.vwXspline}}
+  \code{\link{grid.vwXspline}},
+  \code{\link{grid.offsetXspline}},
+  \code{\link{grid.offsetBezier}}
 }
 \examples{
 x <- c(.2, .4, .6, .8)
