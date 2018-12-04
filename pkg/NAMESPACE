@@ -28,7 +28,7 @@ export(## Main API
        "vwPolygon", "vwPath",
 
        ## Querying grobs
-       "edgePoints"
+       "edgePoints", "outline"
     
        )
 
@@ -44,5 +44,6 @@ S3method("edgePoints", "vwlineGrob")
 S3method("edgePoints", "brushXsplineGrob")
 S3method("edgePoints", "offsetXsplineGrob")
 S3method("edgePoints", "offsetBezierGrob")
+S3method("outline", "offsetXsplineGrob")
 
 S3method("length", "widthSpec")

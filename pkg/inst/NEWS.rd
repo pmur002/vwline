@@ -2,6 +2,12 @@
 \title{NEWS file for the vwline package}
 \encoding{UTF-8}
 
+\section{Changes in version 0.2-1}{
+  \itemize{
+    \item Add \code{outline} function to return complete outline
+    of variable-width line, possibly unsimplified.
+  }
+}
 \section{Changes in version 0.2-0}{
   \itemize{
     \item Add \code{offsetBezier()} function (which requires dependency on

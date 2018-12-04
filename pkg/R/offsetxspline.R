@@ -83,7 +83,7 @@ offsetXsplinePoints <- function(grob) {
                    y=pts$y + ww*opts$y))
 }
 
-offsetXsplineOutline <- function(grob) {
+offsetXsplineOutline <- function(grob, simplify=TRUE) {
     pts <- offsetXsplinePoints(grob)
     pts <- lapply(pts, function(x) lapply(x, function(y) y[is.finite(y)]))
     if (grob$open) {
@@ -110,10 +110,16 @@ offsetXsplineOutline <- function(grob) {
                             end$startx, rev(pts$right$x)),
                         y=c(start$starty, pts$left$y,
                             end$starty, rev(pts$right$y)))
-        polysimplify(outline, filltype="nonzero")
+        if (simplify) 
+            polysimplify(outline, filltype="nonzero")
+        else
+            outline
     } else {
         outline <- list(pts$left, lapply(pts$right, rev))
-        polysimplify(outline, filltype="nonzero")
+        if (simplify)
+            polysimplify(outline, filltype="nonzero")
+        else
+            outline
     }
 }
 
@@ -147,3 +153,6 @@ edgePoints.offsetXsplineGrob <- function(x, d,
     vwEdgePoints(pts, d, direction == "forward", x$open, debug)
 }
 
+outline.offsetXsplineGrob <- function(x, simplify=TRUE, ...) {
+    offsetXsplineOutline(x, simplify=simplify)
+}
