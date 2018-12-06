@@ -205,7 +205,7 @@ offsetBezierPoints <- function(grob) {
 }
 
 ## Build complete outline by adding ends (and joins if necessary)
-offsetBezierOutline <- function(grob) {
+offsetBezierOutline <- function(grob, simplify=TRUE) {
     pts <- offsetBezierPoints(grob)
     if (grob$open) {
         if (grob$lineend == "extend" &&
@@ -244,11 +244,13 @@ offsetBezierOutline <- function(grob) {
                             y=c(start$starty, pts$left$y,
                                 end$starty, rev(pts$right$y)))
         }
-        polysimplify(outline, filltype="nonzero")
     } else {
         outline <- list(pts$left, lapply(pts$right, rev))
-        polysimplify(outline, filltype="nonzero")
     }
+    if (simplify)
+        polysimplify(outline, filltype="nonzero")
+    else
+        outline
 }
 
 edgePoints.offsetBezierGrob <- function(x, d,
@@ -335,3 +337,6 @@ edgePoints.offsetBezierGrob <- function(x, d,
     vwEdgePoints(pts, d, direction == "forward", x$open, debug)
 }
 
+outline.offsetBezierGrob <- function(x, simplify=TRUE, ...) {
+    offsetBezierOutline(x, simplify=simplify)
+}

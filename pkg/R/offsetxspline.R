@@ -110,17 +110,13 @@ offsetXsplineOutline <- function(grob, simplify=TRUE) {
                             end$startx, rev(pts$right$x)),
                         y=c(start$starty, pts$left$y,
                             end$starty, rev(pts$right$y)))
-        if (simplify) 
-            polysimplify(outline, filltype="nonzero")
-        else
-            outline
     } else {
         outline <- list(pts$left, lapply(pts$right, rev))
-        if (simplify)
-            polysimplify(outline, filltype="nonzero")
-        else
-            outline
     }
+    if (simplify) 
+        polysimplify(outline, filltype="nonzero")
+    else
+        outline
 }
 
 makeContent.offsetXsplineGrob <- function(x, ...) {

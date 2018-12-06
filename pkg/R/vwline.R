@@ -198,7 +198,7 @@ buildEnds <- function(w, einfo, earcinfo, stepWidth, lineend, mitrelimit) {
     list(startx=startx, starty=starty, endx=endx, endy=endy)
 }
 
-vwlineOutline <- function(grob) {
+vwlineOutline <- function(grob, simplify=TRUE) {
     x <- convertX(grob$x, "in", valueOnly=TRUE)
     y <- convertY(grob$y, "in", valueOnly=TRUE)
     w <- grob$w
@@ -216,9 +216,19 @@ vwlineOutline <- function(grob) {
         outline <- list(x=c(ends$startx, pts$left$x, ends$endx, pts$right$x),
                         y=c(ends$starty, pts$left$y, ends$endy, pts$right$y))
     } else {
-        outline <- list(pts$left, pts$right)
+        outline <- list(x=pts$left, y=pts$right)
     }
-    polysimplify(outline, filltype="nonzero")
+    xna <- is.na(outline$x)
+    yna <- is.na(outline$y)
+    if (any(xna | yna)) {
+        outline$x <- outline$x[!(xna | yna)]
+        outline$y <- outline$y[!(xna | yna)]
+        warning("Removed NA values from outline")
+    }
+    if (simplify)
+        polysimplify(outline, filltype="nonzero")
+    else
+        outline
 }
 
 makeContent.vwlineGrob <- function(x, ...) {
@@ -251,3 +261,6 @@ edgePoints.vwlineGrob <- function(x, d,
     vwEdgePoints(pts, d, direction == "forward", x$open, debug)
 }
 
+outline.vwlineGrob <- function(x, simplify=TRUE, ...) {
+    vwlineOutline(x, simplify=simplify)
+}

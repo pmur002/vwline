@@ -5,7 +5,14 @@
 \section{Changes in version 0.2-1}{
   \itemize{
     \item Add \code{outline} function to return complete outline
-    of variable-width line, possibly unsimplified.
+    of variable-width line, possibly unsimplified (with methods
+    for \code{"vwlineGrob"}, \code{"offsetXsplineGrob"},
+    and \code{"offsetBezierGrob"}, which are the only variable-width
+    lines that generate an outline and then simplify it with
+    \code{polysimplify}).
+    
+    \item Added (brute force) handling of \code{NA} values in
+    \code{vwline} outlines
   }
 }
 \section{Changes in version 0.2-0}{
