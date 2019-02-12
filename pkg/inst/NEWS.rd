@@ -4,7 +4,6 @@
 
 \section{Changes in version 0.2-2}{
   \itemize{
-    \item Make S3 classes available to S4 methods
   }
 }
 \section{Changes in version 0.2-1}{
