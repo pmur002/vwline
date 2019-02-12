@@ -2,6 +2,11 @@
 \title{NEWS file for the vwline package}
 \encoding{UTF-8}
 
+\section{Changes in version 0.2-2}{
+  \itemize{
+    \item Make S3 classes available to S4 methods
+  }
+}
 \section{Changes in version 0.2-1}{
   \itemize{
     \item Add \code{outline} function to return complete outline
