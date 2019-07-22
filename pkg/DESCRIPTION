@@ -1,12 +1,13 @@
 Package: vwline
 Type: Package
-Title: Draw variable-width lines
+Title: Draw Variable-Width Lines
 Version: 0.2-2
 Author: Paul Murrell
 Maintainer: Paul Murrell <paul@stat.auckland.ac.nz>
-Description: Provides R functions to draw lines and curves with control 
-             over the width of the line or curve.  
+Description: Provides R functions to draw lines and curves with the width
+             of the curve allowed to vary along the length of the curve.
 Depends: grid
 Imports: grDevices, stats, polyclip, gridBezier
+URL: https://github.com/pmur002/vwline, https://stattech.wordpress.fos.auckland.ac.nz/2017/05/19/2017-01-variable-width-lines-in-r/, https://stattech.wordpress.fos.auckland.ac.nz/2017/06/07/2017-02-variable-width-line-ends-and-line-joins/, https://stattech.wordpress.fos.auckland.ac.nz/2017/06/15/2017-03-offset-curves-for-variable-width-x-splines/, https://stattech.wordpress.fos.auckland.ac.nz/2018/11/02/2018-11-variable-width-bezier-splines-in-r/
 ByteCompile: TRUE
-License: file LICENSE
+License: GPL (>= 2)

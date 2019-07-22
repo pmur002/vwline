@@ -82,6 +82,7 @@ BezierWidth(w=unit(1, "cm"), default.units="in", d=NULL, rep=FALSE)
   \code{\link{grid.offsetBezier}}
 }
 \examples{
+grid.newpage()
 x <- c(.2, .4, .6, .8)
 y <- c(-.05, .05, -.05, .05)
 grid.vwcurve(x, y + .8, w=c(0, .1, 0, .1))

@@ -44,6 +44,7 @@ vwPolygon(x, y, id.lengths, gp, name)
   \code{\link{grid.vwXspline}}  
 }
 \examples{
+grid.newpage()
 x <- c(.2, .4, .2, .4)
 y <- c(.2, .4, .4, .2)
 grid.vwXspline(x, y, c(0, .1, .1, 0))

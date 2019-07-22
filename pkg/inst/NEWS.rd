@@ -4,6 +4,7 @@
 
 \section{Changes in version 0.2-2}{
   \itemize{
+    \item Tidying for submission to CRAN.
   }
 }
 \section{Changes in version 0.2-1}{
