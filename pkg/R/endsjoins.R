@@ -114,7 +114,9 @@ calcCornerInfo <- function(N,
                   leftInt2$x, leftInt2$y,
                   leftIntEdge$x, leftIntEdge$y)
     ## Inside corners do not use intersections at all
-    useEdgeInt <- leftInside | (!leftInside & !endIntBetween)
+    useEdgeInt <- leftInside |
+        (!leftInside &
+         (is.na(endIntBetween) | !endIntBetween))
     
     leftIntx1 <-
         ifelse(useEdgeInt,
@@ -162,7 +164,9 @@ calcCornerInfo <- function(N,
                   perpStartRightY[-1],
                   rightInt2$x, rightInt2$y,
                   rightIntEdge$x, rightIntEdge$y)
-    useEdgeInt <- rightInside | (!rightInside & !endIntBetween)
+    useEdgeInt <- rightInside |
+        (!rightInside & 
+         (is.na(endIntBetween) | !endIntBetween))
     rightIntx1 <-
         ifelse(useEdgeInt,
                rightIntEdge$x,
