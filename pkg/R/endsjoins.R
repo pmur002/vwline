@@ -116,6 +116,8 @@ calcCornerInfo <- function(N,
     ## Inside corners do not use intersections at all
     useEdgeInt <- leftInside |
         (!leftInside &
+         ## An NA value means edge parallel to end, so no intersection,
+         ## which is effectively a FALSE
          (is.na(endIntBetween) | !endIntBetween))
     
     leftIntx1 <-

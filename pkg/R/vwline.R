@@ -44,8 +44,14 @@ buildEdge <- function(join,
                       intpt1, intpt2, arc, linejoin, open, leftedge) {
     N <- length(perpStart)
     if (open) {
+        ## Edges on open lines start with first vertex, generate
+        ## edges between vertex i and vertex i+1 (possibly including corners),
+        ## and end with last vertex.
         x <- vector("list", N+1)
     } else {
+        ## Edges on closed lines start with first vertex and generate
+        ## edges between vertex i and vertex i+1 (possibly including corners)
+        ## and the the last edge ends back at the first vertex.
         x <- vector("list", N)
     }
     x[[1]] <- perpStart[1]
@@ -57,6 +63,12 @@ buildEdge <- function(join,
                 switch(linejoin,
                        round=
                            {
+                               ## For open lines, we travel forwards
+                               ## along left edge and backwards along
+                               ## right edge.
+                               ## For closed lines, we travel forwards
+                               ## for both edges; vwlinePoints() reverses
+                               ## the right edge after this build.
                                if (leftedge || !open) {
                                    x[[i+1]] <- c(perpEnd[i], arc[[i]],
                                                  perpStart[i+1])
@@ -83,13 +95,21 @@ buildEdge <- function(join,
             }
         }
     }
+    ## Only need to add the final vertex for open lines.
     if (open) {
         x[[N+1]] <- perpEnd[N]
     }
     unlist(x)
 }
 
-## Calculate points to the left and to the right
+## Calculate points to the left and to the right.
+## This works quite differently for open versus closed lines.
+## For open lines, we start with the left edge and travel forwards
+## (possibly adding corners), then we build the right edge travelling
+## backwards.  The two edges are open and line ends are added later.
+## For closed lines, we build the left edge travelling forwards,
+## then build the right edge also travelling forwards, but we reverse
+## the resulting edge (so that filling works).  The two edges are closed.
 vwlinePoints <- function(grob) {
     x <- convertX(grob$x, "in", valueOnly=TRUE)
     y <- convertY(grob$y, "in", valueOnly=TRUE)
@@ -139,6 +159,8 @@ vwlinePoints <- function(grob) {
                             rev(carcinfo$rightarcy),
                             grob$linejoin, grob$open, FALSE)
     } else {
+        ## Recycle the first vertex so that we can calculate any final
+        ## corners (from the last vertex to the first vertex).
         x <- c(x, x[1])
         y <- c(y, y[1])
         sinfo <- rbind(sinfo, sinfo[1, ])
