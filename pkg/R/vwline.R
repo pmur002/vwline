@@ -41,9 +41,13 @@ checkvwline <- function(x, y, w) {
 
 buildEdge <- function(join, 
                       perpStart, perpEnd, inside, mitrelen, mitrelimit,
-                      intpt1, intpt2, arc, linejoin, leftedge) {
+                      intpt1, intpt2, arc, linejoin, open, leftedge) {
     N <- length(perpStart)
-    x <- vector("list", N+1)
+    if (open) {
+        x <- vector("list", N+1)
+    } else {
+        x <- vector("list", N)
+    }
     x[[1]] <- perpStart[1]
     if (N > 1) {
         for (i in 1:(N-1)) {
@@ -53,7 +57,7 @@ buildEdge <- function(join,
                 switch(linejoin,
                        round=
                            {
-                               if (leftedge) {
+                               if (leftedge || !open) {
                                    x[[i+1]] <- c(perpEnd[i], arc[[i]],
                                                  perpStart[i+1])
                                } else {
@@ -79,7 +83,9 @@ buildEdge <- function(join,
             }
         }
     }
-    x[[N+1]] <- perpEnd[N]
+    if (open) {
+        x[[N+1]] <- perpEnd[N]
+    }
     unlist(x)
 }
 
@@ -95,46 +101,84 @@ vwlinePoints <- function(grob) {
     sinfo <- segInfo(x, y, w, grob$open, grob$stepWidth, grob$debug)
     cinfo <- cornerInfo(sinfo, grob$open, grob$stepWidth, grob$debug)
     carcinfo <- cornerArcInfo(sinfo, cinfo, grob$open, grob$debug)
-    if (!grob$open) {
+    if (grob$open) {
+        leftx <- buildEdge(x, 
+                           sinfo$perpStartLeftX,
+                           sinfo$perpEndLeftX,
+                           cinfo$leftInside,
+                           cinfo$leftMitreLength, grob$mitrelimit,
+                           cinfo$leftIntx1,
+                           cinfo$leftIntx2,
+                           carcinfo$leftarcx,
+                           grob$linejoin, grob$open, TRUE)
+        lefty <- buildEdge(y,
+                           sinfo$perpStartLeftY,
+                           sinfo$perpEndLeftY,
+                           cinfo$leftInside,
+                           cinfo$leftMitreLength, grob$mitrelimit,
+                           cinfo$leftInty1,
+                           cinfo$leftInty2,
+                           carcinfo$leftarcy,
+                           grob$linejoin, grob$open, TRUE)
+        rightx <- buildEdge(rev(x),
+                            rev(sinfo$perpEndRightX),
+                            rev(sinfo$perpStartRightX),
+                            rev(cinfo$rightInside),
+                            rev(cinfo$rightMitreLength), grob$mitrelimit,
+                            rev(cinfo$rightIntx2),
+                            rev(cinfo$rightIntx1),
+                            rev(carcinfo$rightarcx),
+                            grob$linejoin, grob$open, FALSE)
+        righty <- buildEdge(rev(y),
+                            rev(sinfo$perpEndRightY),
+                            rev(sinfo$perpStartRightY),
+                            rev(cinfo$rightInside),
+                            rev(cinfo$rightMitreLength), grob$mitrelimit,
+                            rev(cinfo$rightInty2),
+                            rev(cinfo$rightInty1),
+                            rev(carcinfo$rightarcy),
+                            grob$linejoin, grob$open, FALSE)
+    } else {
         x <- c(x, x[1])
         y <- c(y, y[1])
+        sinfo <- rbind(sinfo, sinfo[1, ])
+        leftx <- buildEdge(x, 
+                           sinfo$perpStartLeftX,
+                           sinfo$perpEndLeftX,
+                           cinfo$leftInside,
+                           cinfo$leftMitreLength, grob$mitrelimit,
+                           cinfo$leftIntx1,
+                           cinfo$leftIntx2,
+                           carcinfo$leftarcx,
+                           grob$linejoin, grob$open, TRUE)
+        lefty <- buildEdge(y,
+                           sinfo$perpStartLeftY,
+                           sinfo$perpEndLeftY,
+                           cinfo$leftInside,
+                           cinfo$leftMitreLength, grob$mitrelimit,
+                           cinfo$leftInty1,
+                           cinfo$leftInty2,
+                           carcinfo$leftarcy,
+                           grob$linejoin, grob$open, TRUE)
+        rightx <- rev(buildEdge(x,
+                                sinfo$perpStartRightX,
+                                sinfo$perpEndRightX,
+                                cinfo$rightInside,
+                                cinfo$rightMitreLength, grob$mitrelimit,
+                                cinfo$rightIntx2,
+                                cinfo$rightIntx1,
+                                carcinfo$rightarcx,
+                                grob$linejoin, grob$open, FALSE))
+        righty <- rev(buildEdge(y,
+                                sinfo$perpStartRightY,
+                                sinfo$perpEndRightY,
+                                cinfo$rightInside,
+                                cinfo$rightMitreLength, grob$mitrelimit,
+                                cinfo$rightInty2,
+                                cinfo$rightInty1,
+                                carcinfo$rightarcy,
+                                grob$linejoin, grob$open, FALSE))
     }
-    leftx <- buildEdge(x, 
-                       sinfo$perpStartLeftX,
-                       sinfo$perpEndLeftX,
-                       cinfo$leftInside,
-                       cinfo$leftMitreLength, grob$mitrelimit,
-                       cinfo$leftIntx1,
-                       cinfo$leftIntx2,
-                       carcinfo$leftarcx,
-                       grob$linejoin, TRUE)
-    lefty <- buildEdge(y,
-                       sinfo$perpStartLeftY,
-                       sinfo$perpEndLeftY,
-                       cinfo$leftInside,
-                       cinfo$leftMitreLength, grob$mitrelimit,
-                       cinfo$leftInty1,
-                       cinfo$leftInty2,
-                       carcinfo$leftarcy,
-                       grob$linejoin, TRUE)
-    rightx <- buildEdge(rev(x),
-                        rev(sinfo$perpEndRightX),
-                        rev(sinfo$perpStartRightX),
-                        rev(cinfo$rightInside),
-                        rev(cinfo$rightMitreLength), grob$mitrelimit,
-                        rev(cinfo$rightIntx2),
-                        rev(cinfo$rightIntx1),
-                        rev(carcinfo$rightarcx),
-                        grob$linejoin, FALSE)
-    righty <- buildEdge(rev(y),
-                        rev(sinfo$perpEndRightY),
-                        rev(sinfo$perpStartRightY),
-                        rev(cinfo$rightInside),
-                        rev(cinfo$rightMitreLength), grob$mitrelimit,
-                        rev(cinfo$rightInty2),
-                        rev(cinfo$rightInty1),
-                        rev(carcinfo$rightarcy),
-                        grob$linejoin, FALSE)
     list(left=list(x=leftx, y=lefty),
          right=list(x=rightx, y=righty),
          sinfo=sinfo)

@@ -59,6 +59,164 @@ segInfo <- function(x, y, w, open=FALSE, stepWidth=FALSE, debug=FALSE) {
                perpEndLeftX, perpEndLeftY, perpEndRightX, perpEndRightY)
 }
 
+calcCornerInfo <- function(N,
+                           dx, dy, lengths, angle, perpangle, cosperp, sinperp,
+                           perpStartLeftX, perpStartLeftY,
+                           perpStartRightX, perpStartRightY,
+                           perpEndLeftX, perpEndLeftY,
+                           perpEndRightX, perpEndRightY,
+                           debug) {
+    leftAngle <- angleDiff(angle[-N], angle[-1], clockwise=FALSE)
+    rightAngle <- angleDiff(angle[-N], angle[-1], clockwise=TRUE)
+    ## Include parallel as inside join
+    epsdegree <- .1/180*pi
+    leftInside <- leftAngle <= pi | abs(leftAngle - 2*pi) < epsdegree
+    ## Following PDF definition
+    leftMitreLength <-
+        ifelse(leftInside,
+               0, 
+               1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                               angle[-1], clockwise=FALSE)/2))
+    rightMitreLength <-
+        ifelse(leftInside, 
+               1/sin(angleDiff(angleInRange(angle[-N] + pi),
+                               angle[-1], clockwise=TRUE)/2),
+               0)
+    
+    ## Intersection left edge segments with each other
+    leftIntEdge <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
+                                perpEndLeftX[-N], perpEndLeftY[-N],
+                                perpStartLeftX[-1], perpStartLeftY[-1],
+                                perpEndLeftX[-1], perpEndLeftY[-1])
+    ## Intersection left edge segments with next segment end
+    leftInt1 <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
+                             perpEndLeftX[-N], perpEndLeftY[-N],
+                             perpStartLeftX[-1], perpStartLeftY[-1],
+                             perpStartRightX[-1], perpStartRightY[-1])
+    ## Intersection left edge segments with prev segment end
+    leftInt2 <- intersection(perpStartLeftX[-1], perpStartLeftY[-1],
+                             perpEndLeftX[-1], perpEndLeftY[-1],
+                             perpEndLeftX[-N], perpEndLeftY[-N],
+                             perpEndRightX[-N], perpEndRightY[-N])
+    ## Edge segment intersects with next segment end on segment end
+    edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
+                             leftInt1$x, leftInt1$y,
+                             perpStartRightX[-1], perpStartRightY[-1])
+    edgeIntPrev <- onSegment(perpStartLeftX[-N], perpStartLeftY[-N],
+                             leftInt2$x, leftInt2$y,
+                             perpStartRightX[-N], perpStartRightY[-N])
+    ## Is the intersection with next segment end between edge end
+    ## and edge intersection ?
+    endIntBetween <- onSegment(perpEndLeftX[-N], perpEndLeftY[-N],
+                               leftInt1$x, leftInt1$y,
+                               leftIntEdge$x, leftIntEdge$y) |
+        onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
+                  leftInt2$x, leftInt2$y,
+                  leftIntEdge$x, leftIntEdge$y)
+    ## Inside corners do not use intersections at all
+    useEdgeInt <- leftInside | (!leftInside & !endIntBetween)
+    
+    leftIntx1 <-
+        ifelse(useEdgeInt,
+               leftIntEdge$x,
+        ifelse(edgeIntNext, leftInt1$x, perpEndLeftX[-N]))
+    leftIntx2 <-
+        ifelse(useEdgeInt,
+               leftIntEdge$x,
+        ifelse(edgeIntNext, perpStartLeftX[-1], leftInt2$x))
+    leftInty1 <-
+        ifelse(useEdgeInt,
+               leftIntEdge$y,
+        ifelse(edgeIntNext, leftInt1$y, perpEndLeftY[-N]))
+    leftInty2 <-
+        ifelse(useEdgeInt,
+               leftIntEdge$y,
+        ifelse(edgeIntNext, perpStartLeftY[-1], leftInt2$y))
+    
+    rightInside <- rightAngle >= -pi |
+        abs(rightAngle - -2*pi) < epsdegree
+    rightIntEdge <- intersection(perpStartRightX[-N],
+                                 perpStartRightY[-N],
+                                 perpEndRightX[-N], perpEndRightY[-N],
+                                 perpStartRightX[-1],
+                                 perpStartRightY[-1],
+                                 perpEndRightX[-1], perpEndRightY[-1])
+    rightInt1 <- intersection(perpStartRightX[-N], perpStartRightY[-N],
+                              perpEndRightX[-N], perpEndRightY[-N],
+                              perpStartLeftX[-1], perpStartLeftY[-1],
+                              perpStartRightX[-1], perpStartRightY[-1])
+    rightInt2 <- intersection(perpStartRightX[-1], perpStartRightY[-1],
+                              perpEndRightX[-1], perpEndRightY[-1],
+                              perpEndLeftX[-N], perpEndLeftY[-N],
+                              perpEndRightX[-N], perpEndRightY[-N])
+    edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
+                             rightInt1$x, rightInt1$y,
+                             perpStartRightX[-1], perpStartRightY[-1])
+    edgeIntPrev <- onSegment(perpStartLeftX[-N], perpStartLeftY[-N],
+                             rightInt2$x, rightInt2$y,
+                             perpStartRightX[-N], perpStartRightY[-N])
+    endIntBetween <- onSegment(perpEndRightX[-N], perpEndRightY[-N],
+                               leftInt1$x, rightInt1$y,
+                               rightIntEdge$x, rightIntEdge$y) |
+        onSegment(perpStartRightX[-1],
+                  perpStartRightY[-1],
+                  rightInt2$x, rightInt2$y,
+                  rightIntEdge$x, rightIntEdge$y)
+    useEdgeInt <- rightInside | (!rightInside & !endIntBetween)
+    rightIntx1 <-
+        ifelse(useEdgeInt,
+               rightIntEdge$x,
+        ifelse(edgeIntNext, rightInt1$x, perpEndRightX[-N]))
+    rightIntx2 <-
+        ifelse(useEdgeInt,
+               rightIntEdge$x,
+        ifelse(edgeIntNext, perpStartRightX[-1], rightInt2$x))
+    rightInty1 <-
+        ifelse(useEdgeInt,
+               rightIntEdge$y,
+        ifelse(edgeIntNext, rightInt1$y, perpEndRightY[-N]))
+    rightInty2 <-
+        ifelse(useEdgeInt,
+               rightIntEdge$y,
+        ifelse(edgeIntNext, perpStartRightY[-1], rightInt2$y))
+    
+    if (debug) {
+        pts(leftIntx1[leftInside], leftInty1[leftInside], "orange")
+        pts(leftIntx2[leftInside], leftInty2[leftInside], "orange")
+        pts(rightIntx1[rightInside], rightInty1[rightInside],
+            "orange")
+        pts(rightIntx2[rightInside], rightInty2[rightInside],
+            "orange")
+        pts(leftIntx1[!leftInside], leftInty1[!leftInside],
+            "orange")
+        pts(rightIntx1[!rightInside], rightInty1[!rightInside],
+            "orange")
+        pts(leftIntx2[!leftInside], leftInty2[!leftInside],
+            "orange")
+        pts(rightIntx2[!rightInside], rightInty2[!rightInside],
+            "orange")
+        polyl(c(perpEndLeftX[-N][!leftInside],
+                leftIntx1[!leftInside], leftIntx2[!leftInside],
+                perpStartLeftX[-1][!leftInside]),
+              c(perpEndLeftY[-N][!leftInside],
+                leftInty1[!leftInside], leftInty2[!leftInside],
+                perpStartLeftY[-1][!leftInside]),
+              id=rep((1:(N-1))[!leftInside], 4), "orange")
+        polyl(c(perpEndRightX[-N][!rightInside],
+                rightIntx1[!rightInside], rightIntx2[!rightInside],
+                perpStartRightX[-1][!rightInside]),
+              c(perpEndRightY[-N][!rightInside],
+                rightInty1[!rightInside], rightInty2[!rightInside],
+                perpStartRightY[-1][!rightInside]),
+              id=rep((1:(N-1))[!rightInside], 4), "orange")
+    }
+
+    data.frame(leftInside, rightInside,
+               leftMitreLength, rightMitreLength,
+               leftIntx1, leftIntx2, leftInty1, leftInty2,
+               rightIntx1, rightIntx2, rightInty1, rightInty2)
+}    
+                           
 cornerInfo <- function(sinfo, open=FALSE, stepWidth=FALSE, debug=FALSE) {
     if (!open) {
         ## There is an additional corner where the line end meets the line start
@@ -68,157 +226,13 @@ cornerInfo <- function(sinfo, open=FALSE, stepWidth=FALSE, debug=FALSE) {
     if (N < 2) return(data.frame())
     ## All of these are per *corner* (N - 1)
     with(sinfo,
-         {
-             leftAngle <- angleDiff(angle[-N], angle[-1], clockwise=FALSE)
-             rightAngle <- angleDiff(angle[-N], angle[-1], clockwise=TRUE)
-             ## Include parallel as inside join
-             epsdegree <- .1/180*pi
-             leftInside <- leftAngle <= pi | abs(leftAngle - 2*pi) < epsdegree
-             ## Following PDF definition
-             leftMitreLength <-
-                 ifelse(leftInside,
-                        0, 
-                        1/sin(angleDiff(angleInRange(angle[-N] + pi),
-                                        angle[-1], clockwise=FALSE)/2))
-             rightMitreLength <-
-                 ifelse(leftInside, 
-                        1/sin(angleDiff(angleInRange(angle[-N] + pi),
-                                        angle[-1], clockwise=TRUE)/2),
-                        0)
-             
-             ## Intersection left edge segments with each other
-             leftIntEdge <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
-                                         perpEndLeftX[-N], perpEndLeftY[-N],
-                                         perpStartLeftX[-1], perpStartLeftY[-1],
-                                         perpEndLeftX[-1], perpEndLeftY[-1])
-             ## Intersection left edge segments with next segment end
-             leftInt1 <- intersection(perpStartLeftX[-N], perpStartLeftY[-N],
-                                      perpEndLeftX[-N], perpEndLeftY[-N],
-                                      perpStartLeftX[-1], perpStartLeftY[-1],
-                                      perpStartRightX[-1], perpStartRightY[-1])
-             ## Intersection left edge segments with prev segment end
-             leftInt2 <- intersection(perpStartLeftX[-1], perpStartLeftY[-1],
-                                      perpEndLeftX[-1], perpEndLeftY[-1],
-                                      perpEndLeftX[-N], perpEndLeftY[-N],
-                                      perpEndRightX[-N], perpEndRightY[-N])
-             ## Edge segment intersects with next segment end on segment end
-             edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
-                                      leftInt1$x, leftInt1$y,
-                                      perpStartRightX[-1], perpStartRightY[-1])
-             edgeIntPrev <- onSegment(perpStartLeftX[-N], perpStartLeftY[-N],
-                                      leftInt2$x, leftInt2$y,
-                                      perpStartRightX[-N], perpStartRightY[-N])
-             ## Is the intersection with next segment end between edge end
-             ## and edge intersection ?
-             endIntBetween <- onSegment(perpEndLeftX[-N], perpEndLeftY[-N],
-                                        leftInt1$x, leftInt1$y,
-                                        leftIntEdge$x, leftIntEdge$y) |
-                              onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
-                                        leftInt2$x, leftInt2$y,
-                                        leftIntEdge$x, leftIntEdge$y)
-             ## Inside corners do not use intersections at all
-             useEdgeInt <- leftInside | (!leftInside & !endIntBetween)
-                        
-             leftIntx1 <-
-                 ifelse(useEdgeInt,
-                        leftIntEdge$x,
-                        ifelse(edgeIntNext, leftInt1$x, perpEndLeftX[-N]))
-             leftIntx2 <-
-                 ifelse(useEdgeInt,
-                        leftIntEdge$x,
-                        ifelse(edgeIntNext, perpStartLeftX[-1], leftInt2$x))
-             leftInty1 <-
-                 ifelse(useEdgeInt,
-                        leftIntEdge$y,
-                        ifelse(edgeIntNext, leftInt1$y, perpEndLeftY[-N]))
-             leftInty2 <-
-                 ifelse(useEdgeInt,
-                        leftIntEdge$y,
-                        ifelse(edgeIntNext, perpStartLeftY[-1], leftInt2$y))
-             
-             rightInside <- rightAngle >= -pi |
-                 abs(rightAngle - -2*pi) < epsdegree
-             rightIntEdge <- intersection(perpStartRightX[-N],
-                                        perpStartRightY[-N],
-                                        perpEndRightX[-N], perpEndRightY[-N],
-                                        perpStartRightX[-1],
-                                        perpStartRightY[-1],
-                                        perpEndRightX[-1], perpEndRightY[-1])
-             rightInt1 <- intersection(perpStartRightX[-N], perpStartRightY[-N],
-                                      perpEndRightX[-N], perpEndRightY[-N],
-                                      perpStartLeftX[-1], perpStartLeftY[-1],
-                                      perpStartRightX[-1], perpStartRightY[-1])
-             rightInt2 <- intersection(perpStartRightX[-1], perpStartRightY[-1],
-                                      perpEndRightX[-1], perpEndRightY[-1],
-                                      perpEndLeftX[-N], perpEndLeftY[-N],
-                                      perpEndRightX[-N], perpEndRightY[-N])
-             edgeIntNext <- onSegment(perpStartLeftX[-1], perpStartLeftY[-1],
-                                      rightInt1$x, rightInt1$y,
-                                      perpStartRightX[-1], perpStartRightY[-1])
-             edgeIntPrev <- onSegment(perpStartLeftX[-N], perpStartLeftY[-N],
-                                      rightInt2$x, rightInt2$y,
-                                      perpStartRightX[-N], perpStartRightY[-N])
-             endIntBetween <- onSegment(perpEndRightX[-N], perpEndRightY[-N],
-                                        leftInt1$x, rightInt1$y,
-                                        rightIntEdge$x, rightIntEdge$y) |
-                              onSegment(perpStartRightX[-1],
-                                        perpStartRightY[-1],
-                                        rightInt2$x, rightInt2$y,
-                                        rightIntEdge$x, rightIntEdge$y)
-             useEdgeInt <- rightInside | (!rightInside & !endIntBetween)
-             rightIntx1 <-
-                 ifelse(useEdgeInt,
-                        rightIntEdge$x,
-                        ifelse(edgeIntNext, rightInt1$x, perpEndRightX[-N]))
-             rightIntx2 <-
-                 ifelse(useEdgeInt,
-                        rightIntEdge$x,
-                        ifelse(edgeIntNext, perpStartRightX[-1], rightInt2$x))
-             rightInty1 <-
-                 ifelse(useEdgeInt,
-                        rightIntEdge$y,
-                        ifelse(edgeIntNext, rightInt1$y, perpEndRightY[-N]))
-             rightInty2 <-
-                 ifelse(useEdgeInt,
-                        rightIntEdge$y,
-                        ifelse(edgeIntNext, perpStartRightY[-1], rightInt2$y))
-             
-             if (debug) {
-                 pts(leftIntx1[leftInside], leftInty1[leftInside], "orange")
-                 pts(leftIntx2[leftInside], leftInty2[leftInside], "orange")
-                 pts(rightIntx1[rightInside], rightInty1[rightInside],
-                     "orange")
-                 pts(rightIntx2[rightInside], rightInty2[rightInside],
-                     "orange")
-                 pts(leftIntx1[!leftInside], leftInty1[!leftInside],
-                     "orange")
-                 pts(rightIntx1[!rightInside], rightInty1[!rightInside],
-                     "orange")
-                 pts(leftIntx2[!leftInside], leftInty2[!leftInside],
-                     "orange")
-                 pts(rightIntx2[!rightInside], rightInty2[!rightInside],
-                     "orange")
-                 polyl(c(perpEndLeftX[-N][!leftInside],
-                         leftIntx1[!leftInside], leftIntx2[!leftInside],
-                         perpStartLeftX[-1][!leftInside]),
-                       c(perpEndLeftY[-N][!leftInside],
-                         leftInty1[!leftInside], leftInty2[!leftInside],
-                         perpStartLeftY[-1][!leftInside]),
-                       id=rep((1:(N-1))[!leftInside], 4), "orange")
-                 polyl(c(perpEndRightX[-N][!rightInside],
-                         rightIntx1[!rightInside], rightIntx2[!rightInside],
-                         perpStartRightX[-1][!rightInside]),
-                       c(perpEndRightY[-N][!rightInside],
-                         rightInty1[!rightInside], rightInty2[!rightInside],
-                         perpStartRightY[-1][!rightInside]),
-                       id=rep((1:(N-1))[!rightInside], 4), "orange")
-             }
-
-             data.frame(leftInside, rightInside,
-                        leftMitreLength, rightMitreLength,
-                        leftIntx1, leftIntx2, leftInty1, leftInty2,
-                        rightIntx1, rightIntx2, rightInty1, rightInty2)
-         })
+         calcCornerInfo(N,
+                        dx, dy, lengths, angle, perpangle, cosperp, sinperp,
+                        perpStartLeftX, perpStartLeftY,
+                        perpStartRightX, perpStartRightY,
+                        perpEndLeftX, perpEndLeftY,
+                        perpEndRightX, perpEndRightY,
+                        debug))
 }
 
 bezierArcInfo <- function(startx, starty, endx, endy, inside, leftedge,
