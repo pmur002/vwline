@@ -2,6 +2,16 @@
 \title{NEWS file for the vwline package}
 \encoding{UTF-8}
 
+\section{Changes in version 0.2-3}{
+  \itemize{
+    \item Fix for calculation of joins (outer corners) on closed lines.
+
+    The last corner was missing (reduced to bevel), which also produced some
+    crazy results for some orderings of vertices.
+    
+    Thanks to James Ward for bug report.
+  }
+}
 \section{Changes in version 0.2-2}{
   \itemize{
     \item Tidying for submission to CRAN.
